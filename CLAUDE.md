@@ -32,7 +32,6 @@ Full SSR (`output: "server"` in astro.config.mjs). Every page is server-rendered
 
 ### Key conventions
 
-- **No `process.env`**: use `astro:env/server` for server secrets and `astro:env/client` for public vars. The Cloudflare workerd runtime does not support `process.env`.
 - **Path alias**: `@/*` → `./src/*` (tsconfig paths). Always use `@/` imports, never relative `../../`.
 - **Tailwind class merging**: use the `cn()` helper from `@/lib/utils` (clsx + tailwind-merge). Do not concatenate class strings manually.
 - **shadcn/ui**: see @components.json for paths and style config.
