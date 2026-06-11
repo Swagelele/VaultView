@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "10x-astro-starter",
+  "name": "vault-view",
   "main": "@astrojs/cloudflare/entrypoints/server",
   "compatibility_date": "2026-05-08",
   "compatibility_flags": ["nodejs_compat"],
@@ -12,4 +12,5 @@
   "observability": {
     "enabled": true,
   },
+  // Workers Builds auto-deploy connected via Cloudflare dashboard
 }
