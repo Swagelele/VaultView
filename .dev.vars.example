@@ -1,0 +1,5 @@
+# Cloudflare Workers local dev secrets
+# Copy to .dev.vars and fill in real values from your Supabase project
+# .dev.vars is gitignored — wrangler reads it instead of .env
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_KEY=your-anon-key

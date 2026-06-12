@@ -1,5 +1,5 @@
 {
-  "name": "10x-astro-starter",
+  "name": "vault-view",
   "type": "module",
   "version": "0.0.1",
   "scripts": {
@@ -9,13 +9,15 @@
     "astro": "astro",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "deploy": "astro build && wrangler deploy",
+    "deploy:dry-run": "astro build && wrangler deploy --dry-run",
+    "deploy:preview": "astro build && wrangler versions upload"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.8",
     "@astrojs/cloudflare": "^13.5.0",
     "@astrojs/react": "^5.0.4",
-    "@astrojs/sitemap": "^3.7.2",
     "@eslint/config-helpers": "^0.6.0",
     "@radix-ui/react-slot": "^1.1.2",
     "@supabase/ssr": "^0.10.3",
