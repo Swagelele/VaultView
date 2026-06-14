@@ -16,23 +16,25 @@ A `transactions` table exists in Supabase with RLS policies that guarantee no us
 
 ## Key Decisions Made
 
-| Decision | Choice | Why (1 sentence) |
-|----------|--------|-------------------|
-| Table structure | Single table, nullable target columns | Simplest model; DEPOSIT/WITHDRAW leave target_* NULL, BUY/SELL/SWAP fill them |
-| Location storage | varchar column in transactions | PRD says free-text with autocomplete, no separate management screen (FR-012) |
-| Asset identifiers | CoinPaprika ID format (`btc-bitcoin`) | Maps directly to pricing API with zero conversion |
-| Numeric type | PostgreSQL `numeric` (not float) | Exact arithmetic required by PRD Guardrails for P&L correctness |
-| Seed data | None | Clean schema-only migration; test data added manually or via UI |
+| Decision          | Choice                                | Why (1 sentence)                                                                |
+| ----------------- | ------------------------------------- | ------------------------------------------------------------------------------- |
+| Table structure   | Single table, nullable target columns | Simplest model; DEPOSIT/WITHDRAW leave target\_\* NULL, BUY/SELL/SWAP fill them |
+| Location storage  | varchar column in transactions        | PRD says free-text with autocomplete, no separate management screen (FR-012)    |
+| Asset identifiers | CoinPaprika ID format (`btc-bitcoin`) | Maps directly to pricing API with zero conversion                               |
+| Numeric type      | PostgreSQL `numeric` (not float)      | Exact arithmetic required by PRD Guardrails for P&L correctness                 |
+| Seed data         | None                                  | Clean schema-only migration; test data added manually or via UI                 |
 
 ## Scope
 
 **In scope:**
+
 - SQL migration: CREATE TABLE + RLS policies + indexes
 - TypeScript types: Transaction, TransactionInsert, TransactionType
 - README database setup note update
 - Local verification via Supabase Studio
 
 **Out of scope:**
+
 - P&L calculation logic (S-01)
 - API routes for CRUD (S-01)
 - UI components (S-01)
@@ -46,10 +48,10 @@ Single migration file via `npx supabase migration new`. One table with a `transa
 
 ## Phases at a Glance
 
-| Phase | What it delivers | Key risk |
-|-------|-----------------|----------|
-| 1. SQL Migration | `transactions` table + RLS + indexes in Supabase | Schema design error costs a migration in every later slice |
-| 2. TypeScript Types | `Transaction`, `TransactionInsert`, `TransactionType` in `src/types.ts` | Types must match DB schema exactly |
+| Phase               | What it delivers                                                        | Key risk                                                   |
+| ------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------------- |
+| 1. SQL Migration    | `transactions` table + RLS + indexes in Supabase                        | Schema design error costs a migration in every later slice |
+| 2. TypeScript Types | `Transaction`, `TransactionInsert`, `TransactionType` in `src/types.ts` | Types must match DB schema exactly                         |
 
 **Prerequisites:** Local Supabase running (`npx supabase start`, requires Docker)
 **Estimated effort:** ~1 session, 2 phases

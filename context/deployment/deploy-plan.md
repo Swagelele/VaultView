@@ -17,14 +17,14 @@
 
 ## Phase 1: Code Preparation -- Completed 2026-06-11
 
-| Step | Change | Status |
-|------|--------|--------|
-| 1.1 | Renamed worker `10x-astro-starter` -> `vault-view` in `wrangler.jsonc` | Done |
-| 1.2 | Renamed package + added `deploy`, `deploy:dry-run`, `deploy:preview` scripts | Done |
-| 1.3 | Removed `@astrojs/sitemap` integration and uninstalled package | Done |
-| 1.4 | Added `export const prerender = false` to 4 Astro pages + 3 API routes | Done |
-| 1.5 | Created `.dev.vars.example` | Done |
-| 1.6 | Verified: `astro sync` OK, `npm run build` OK, `wrangler deploy --dry-run` OK (391 KB gzipped) | Done |
+| Step | Change                                                                                         | Status |
+| ---- | ---------------------------------------------------------------------------------------------- | ------ |
+| 1.1  | Renamed worker `10x-astro-starter` -> `vault-view` in `wrangler.jsonc`                         | Done   |
+| 1.2  | Renamed package + added `deploy`, `deploy:dry-run`, `deploy:preview` scripts                   | Done   |
+| 1.3  | Removed `@astrojs/sitemap` integration and uninstalled package                                 | Done   |
+| 1.4  | Added `export const prerender = false` to 4 Astro pages + 3 API routes                         | Done   |
+| 1.5  | Created `.dev.vars.example`                                                                    | Done   |
+| 1.6  | Verified: `astro sync` OK, `npm run build` OK, `wrangler deploy --dry-run` OK (391 KB gzipped) | Done   |
 
 ## Phase 2: First Manual Deploy -- Completed 2026-06-11
 
@@ -47,8 +47,8 @@
 
 ## Secrets Configuration
 
-| Secret | Location | Set via |
-|--------|----------|---------|
+| Secret         | Location                  | Set via                                |
+| -------------- | ------------------------- | -------------------------------------- |
 | `SUPABASE_URL` | Cloudflare Worker secrets | `npx wrangler secret put SUPABASE_URL` |
 | `SUPABASE_KEY` | Cloudflare Worker secrets | `npx wrangler secret put SUPABASE_KEY` |
 

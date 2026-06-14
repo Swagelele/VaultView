@@ -27,28 +27,28 @@ Portfele kryptowalutowe są rozproszone po wielu giełdach i portfelach — brak
 
 ## At a glance
 
-| ID   | Change ID                | Outcome (user can …)                                                         | Prerequisites | PRD refs                                              | Status   |
-| ---- | ------------------------ | ---------------------------------------------------------------------------- | ------------- | ----------------------------------------------------- | -------- |
-| F-02 | transaction-schema-rls   | (foundation) tabela transakcji z RLS zapewniającym izolację danych           | —             | NFR (data isolation, data retention)                  | done     |
-| S-01 | core-trade-and-portfolio | dodaje BUY/SELL/SWAP z lokalizacją i widzi portfolio z P&L                   | F-02          | US-01, US-02, FR-003, FR-007, FR-008, FR-012, FR-013  | proposed |
-| S-02 | per-buy-pnl-breakdown    | przegląda P&L w trybie per-buy (każdy zakup jako osobna pozycja)             | S-01          | FR-009                                                | proposed |
-| S-03 | summary-dashboard        | widzi dashboard: łączny realized P&L, unrealized P&L, opłaty                | S-01          | FR-010                                                | proposed |
-| S-04 | transaction-list-filters | przegląda listę transakcji z filtrami po typie, lokalizacji i assecie        | S-01          | FR-011                                                | proposed |
-| S-05 | deposit-historical-cost  | rejestruje istniejący asset (DEPOSIT) z historycznym kosztem nabycia         | S-01          | US-04, FR-005                                         | proposed |
-| S-06 | withdraw-cash-out        | wycofuje asset z trackingu (WITHDRAW) z realizacją P&L                       | S-01          | US-05, FR-006                                         | proposed |
-| S-07 | sell-all-single-location | sprzedaje całą pozycję w jednej lokalizacji jednym kliknięciem               | S-01          | US-03, FR-004                                         | proposed |
-| S-08 | sell-all-global          | sprzedaje asset we wszystkich lokalizacjach z per-lokalizacyjną konfiguracją | S-07          | FR-004                                                | proposed |
+| ID   | Change ID                | Outcome (user can …)                                                         | Prerequisites | PRD refs                                             | Status   |
+| ---- | ------------------------ | ---------------------------------------------------------------------------- | ------------- | ---------------------------------------------------- | -------- |
+| F-02 | transaction-schema-rls   | (foundation) tabela transakcji z RLS zapewniającym izolację danych           | —             | NFR (data isolation, data retention)                 | done     |
+| S-01 | core-trade-and-portfolio | dodaje BUY/SELL/SWAP z lokalizacją i widzi portfolio z P&L                   | F-02          | US-01, US-02, FR-003, FR-007, FR-008, FR-012, FR-013 | proposed |
+| S-02 | per-buy-pnl-breakdown    | przegląda P&L w trybie per-buy (każdy zakup jako osobna pozycja)             | S-01          | FR-009                                               | proposed |
+| S-03 | summary-dashboard        | widzi dashboard: łączny realized P&L, unrealized P&L, opłaty                 | S-01          | FR-010                                               | proposed |
+| S-04 | transaction-list-filters | przegląda listę transakcji z filtrami po typie, lokalizacji i assecie        | S-01          | FR-011                                               | proposed |
+| S-05 | deposit-historical-cost  | rejestruje istniejący asset (DEPOSIT) z historycznym kosztem nabycia         | S-01          | US-04, FR-005                                        | proposed |
+| S-06 | withdraw-cash-out        | wycofuje asset z trackingu (WITHDRAW) z realizacją P&L                       | S-01          | US-05, FR-006                                        | proposed |
+| S-07 | sell-all-single-location | sprzedaje całą pozycję w jednej lokalizacji jednym kliknięciem               | S-01          | US-03, FR-004                                        | proposed |
+| S-08 | sell-all-global          | sprzedaje asset we wszystkich lokalizacjach z per-lokalizacyjną konfiguracją | S-07          | FR-004                                               | proposed |
 
 ## Streams
 
 Pomoc nawigacyjna — grupuje pozycje o wspólnym łańcuchu zależności. Kanoniczne uporządkowanie to graf zależności w sekcjach Foundations + Slices; ta tabela pokazuje proponowaną kolejność czytania.
 
-| Stream | Theme              | Chain                     | Note                                                                  |
-| ------ | ------------------ | ------------------------- | --------------------------------------------------------------------- |
-| A      | Rdzeń handlu       | `F-02` → `S-01`          | Gwiazda przewodnia; cała reszta zależy od S-01.                       |
-| B      | Widoki portfolio   | `S-02` / `S-03` / `S-04` | Równoległe po S-01; kompletują experience przeglądania danych.        |
-| C      | Dodatkowe operacje | `S-05` / `S-06`          | Po S-01; rozszerzają model o DEPOSIT i WITHDRAW.                      |
-| D      | Sell-all           | `S-07` → `S-08`          | Po S-01; sell-all w lokalizacji → sell-all globalny.                  |
+| Stream | Theme              | Chain                    | Note                                                           |
+| ------ | ------------------ | ------------------------ | -------------------------------------------------------------- |
+| A      | Rdzeń handlu       | `F-02` → `S-01`          | Gwiazda przewodnia; cała reszta zależy od S-01.                |
+| B      | Widoki portfolio   | `S-02` / `S-03` / `S-04` | Równoległe po S-01; kompletują experience przeglądania danych. |
+| C      | Dodatkowe operacje | `S-05` / `S-06`          | Po S-01; rozszerzają model o DEPOSIT i WITHDRAW.               |
+| D      | Sell-all           | `S-07` → `S-08`          | Po S-01; sell-all w lokalizacji → sell-all globalny.           |
 
 ## Baseline
 
@@ -179,17 +179,17 @@ Foundations poniżej zakładają że te warstwy są obecne i NIE budują ich od 
 
 ## Backlog Handoff
 
-| Roadmap ID | Change ID                | Suggested issue title                          | Ready for `/10x-plan` | Notes                                    |
-| ---------- | ------------------------ | ---------------------------------------------- | --------------------- | ---------------------------------------- |
-| F-02       | transaction-schema-rls   | Utwórz schemat transakcji z RLS                | done                  | Implemented — `de6aed5`, `5577087`       |
-| S-01       | core-trade-and-portfolio | Handel BUY/SELL/SWAP + portfolio z P&L         | yes                   | F-02 done. Run `/10x-plan core-trade-and-portfolio` |
-| S-02       | per-buy-pnl-breakdown    | Widok P&L per-buy breakdown                    | no                    | Czeka na S-01                            |
-| S-03       | summary-dashboard        | Dashboard z łącznymi P&L i opłatami            | no                    | Czeka na S-01                            |
-| S-04       | transaction-list-filters | Lista transakcji z filtrami                    | no                    | Czeka na S-01                            |
-| S-05       | deposit-historical-cost  | DEPOSIT z historycznym kosztem nabycia          | no                    | Czeka na S-01                            |
-| S-06       | withdraw-cash-out        | WITHDRAW z realizacją P&L                      | no                    | Czeka na S-01                            |
-| S-07       | sell-all-single-location | Sell-all w pojedynczej lokalizacji             | no                    | Czeka na S-01                            |
-| S-08       | sell-all-global          | Sell-all globalny (wszystkie lokalizacje)      | no                    | Czeka na S-07                            |
+| Roadmap ID | Change ID                | Suggested issue title                     | Ready for `/10x-plan` | Notes                                               |
+| ---------- | ------------------------ | ----------------------------------------- | --------------------- | --------------------------------------------------- |
+| F-02       | transaction-schema-rls   | Utwórz schemat transakcji z RLS           | done                  | Implemented — `de6aed5`, `5577087`                  |
+| S-01       | core-trade-and-portfolio | Handel BUY/SELL/SWAP + portfolio z P&L    | yes                   | F-02 done. Run `/10x-plan core-trade-and-portfolio` |
+| S-02       | per-buy-pnl-breakdown    | Widok P&L per-buy breakdown               | no                    | Czeka na S-01                                       |
+| S-03       | summary-dashboard        | Dashboard z łącznymi P&L i opłatami       | no                    | Czeka na S-01                                       |
+| S-04       | transaction-list-filters | Lista transakcji z filtrami               | no                    | Czeka na S-01                                       |
+| S-05       | deposit-historical-cost  | DEPOSIT z historycznym kosztem nabycia    | no                    | Czeka na S-01                                       |
+| S-06       | withdraw-cash-out        | WITHDRAW z realizacją P&L                 | no                    | Czeka na S-01                                       |
+| S-07       | sell-all-single-location | Sell-all w pojedynczej lokalizacji        | no                    | Czeka na S-01                                       |
+| S-08       | sell-all-global          | Sell-all globalny (wszystkie lokalizacje) | no                    | Czeka na S-07                                       |
 
 ## Open Roadmap Questions
 

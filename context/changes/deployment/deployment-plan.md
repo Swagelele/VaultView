@@ -42,13 +42,13 @@ The project already includes `wrangler@^4.90.0` as a devDependency -- no global 
 
 **Wrangler CLI troubleshooting:**
 
-| Problem | Solution |
-|---------|----------|
-| `wrangler login` browser doesn't open | Run `npx wrangler login --browser=false` -- it prints a URL you can copy-paste into any browser |
+| Problem                                       | Solution                                                                                                                                                                                                                                                |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `wrangler login` browser doesn't open         | Run `npx wrangler login --browser=false` -- it prints a URL you can copy-paste into any browser                                                                                                                                                         |
 | `wrangler login` on a headless/remote machine | Create an API token manually: go to https://dash.cloudflare.com/profile/api-tokens > Create Token > use the "Edit Cloudflare Workers" template > copy the token. Then set it: `export CLOUDFLARE_API_TOKEN=<token>`. Wrangler picks it up automatically |
-| `wrangler whoami` shows wrong account | Run `npx wrangler logout` then `npx wrangler login` to re-authenticate |
-| `npx wrangler` not found | Run `npm ci` to install dependencies. Wrangler is a devDependency in `package.json` |
-| Permission denied / EACCES | Don't use `sudo`. If npm global prefix is wrong, fix with `npm config set prefix ~/.npm-global` and add to PATH |
+| `wrangler whoami` shows wrong account         | Run `npx wrangler logout` then `npx wrangler login` to re-authenticate                                                                                                                                                                                  |
+| `npx wrangler` not found                      | Run `npm ci` to install dependencies. Wrangler is a devDependency in `package.json`                                                                                                                                                                     |
+| Permission denied / EACCES                    | Don't use `sudo`. If npm global prefix is wrong, fix with `npm config set prefix ~/.npm-global` and add to PATH                                                                                                                                         |
 
 ### 0.3 Supabase Cloud Project
 
@@ -96,14 +96,14 @@ VaultView uses Supabase for authentication (email/password login via `@supabase/
 
 **Supabase troubleshooting:**
 
-| Problem | Solution |
-|---------|----------|
-| Can't find API keys | Dashboard > Settings (gear icon) > API. The URL and keys are at the top of the page |
-| "Invalid API key" error in the app | Make sure you copied the `anon` key (not `service_role`). Check for trailing whitespace or line breaks in your `.dev.vars` |
-| Sign-up works but can't sign in | Email confirmation is likely ON. Either: (a) check your email and click the confirmation link, or (b) turn off email confirmation in Authentication > Sign In / Up > Email |
-| "Email rate limit exceeded" on sign-up | Free plan allows 2 emails/hour. Wait, or disable email confirmation for testing |
-| Project stuck on "Setting up" | Wait up to 5 minutes. If still stuck, delete and recreate the project. If persistent, check https://status.supabase.com |
-| Want to use local Supabase instead | Run `npx supabase start` (requires Docker + ~7GB RAM). Copy credentials from CLI output to `.dev.vars`. See README.md for full local setup instructions |
+| Problem                                | Solution                                                                                                                                                                   |
+| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Can't find API keys                    | Dashboard > Settings (gear icon) > API. The URL and keys are at the top of the page                                                                                        |
+| "Invalid API key" error in the app     | Make sure you copied the `anon` key (not `service_role`). Check for trailing whitespace or line breaks in your `.dev.vars`                                                 |
+| Sign-up works but can't sign in        | Email confirmation is likely ON. Either: (a) check your email and click the confirmation link, or (b) turn off email confirmation in Authentication > Sign In / Up > Email |
+| "Email rate limit exceeded" on sign-up | Free plan allows 2 emails/hour. Wait, or disable email confirmation for testing                                                                                            |
+| Project stuck on "Setting up"          | Wait up to 5 minutes. If still stuck, delete and recreate the project. If persistent, check https://status.supabase.com                                                    |
+| Want to use local Supabase instead     | Run `npx supabase start` (requires Docker + ~7GB RAM). Copy credentials from CLI output to `.dev.vars`. See README.md for full local setup instructions                    |
 
 ### 0.4 Verify everything works locally
 
@@ -126,12 +126,14 @@ If all checks pass, you're ready for Phase 1 (agent code changes) and Phase 2 (d
 ### 1.1 Rename Worker project
 
 **File:** `wrangler.jsonc`
+
 - Change `"name": "10x-astro-starter"` to `"name": "vault-view"`
 - Why: Worker name becomes the subdomain (`vault-view.<account>.workers.dev`). Must be renamed before first deploy.
 
 ### 1.2 Update package.json
 
 **File:** `package.json`
+
 - Change `"name": "10x-astro-starter"` to `"name": "vault-view"`
 - Add scripts:
   - `"deploy": "astro build && wrangler deploy"` -- manual production deploy
@@ -141,6 +143,7 @@ If all checks pass, you're ready for Phase 1 (agent code changes) and Phase 2 (d
 ### 1.3 Remove sitemap integration
 
 **File:** `astro.config.mjs`
+
 - Remove `import sitemap from "@astrojs/sitemap";`
 - Remove `sitemap()` from the `integrations` array
 - Why: No `site` URL is set (causes build warning), and VaultView is login-gated -- only the landing page is public. SEO/sitemap is unnecessary. Can be re-added later if public marketing pages are built.
@@ -152,12 +155,14 @@ If all checks pass, you're ready for Phase 1 (agent code changes) and Phase 2 (d
 Add `export const prerender = false;` to all dynamic pages and API routes. While `output: "server"` in astro.config.mjs already defaults all pages to SSR, explicit declarations prevent regressions and document intent (flagged in infrastructure.md risk register).
 
 **Astro pages** (add as first line of frontmatter `---` block):
+
 - `src/pages/dashboard.astro`
 - `src/pages/auth/signin.astro`
 - `src/pages/auth/signup.astro`
 - `src/pages/auth/confirm-email.astro`
 
 **API routes** (add as first line of file, before imports):
+
 - `src/pages/api/auth/signin.ts`
 - `src/pages/api/auth/signup.ts`
 - `src/pages/api/auth/signout.ts`
@@ -165,6 +170,7 @@ Add `export const prerender = false;` to all dynamic pages and API routes. While
 ### 1.5 Create `.dev.vars.example`
 
 **File:** `.dev.vars.example` (NEW)
+
 ```
 # Cloudflare Workers local dev secrets
 # Copy to .dev.vars and fill in real values from your Supabase project
@@ -172,6 +178,7 @@ Add `export const prerender = false;` to all dynamic pages and API routes. While
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_KEY=your-anon-key
 ```
+
 - Why: `.dev.vars` is how wrangler injects secrets locally. `.env.example` exists but `.dev.vars` is the Cloudflare-specific file. `.dev.vars` is already in `.gitignore`.
 
 ### 1.6 Verify build
@@ -182,10 +189,10 @@ SUPABASE_KEY=your-anon-key
 
 ### Troubleshooting (Phase 1)
 
-| Problem | Solution |
-|---------|----------|
-| Build fails after prerender export | Ensure `export const prerender = false;` is inside the `---` frontmatter block for `.astro` files, and at the top level (before imports) for `.ts` API routes |
-| `astro sync` fails | Delete `.astro/` directory and re-run |
+| Problem                                              | Solution                                                                                                                                                       |
+| ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Build fails after prerender export                   | Ensure `export const prerender = false;` is inside the `---` frontmatter block for `.astro` files, and at the top level (before imports) for `.ts` API routes  |
+| `astro sync` fails                                   | Delete `.astro/` directory and re-run                                                                                                                          |
 | Bundle size warning from `wrangler deploy --dry-run` | Check for heavy server-side imports. Astro 6 + React 19 + Supabase should be well within limits. If flagged, review `npm ls` for unexpected large dependencies |
 
 ---
@@ -217,26 +224,26 @@ Secrets are encrypted at rest, scoped to the Worker, and injected at runtime. No
 
 **[USER]** Open the deployed URL in a browser. **[AGENT]** can run `npx wrangler tail` to stream live logs.
 
-| Check | Expected result | What it proves |
-|-------|-----------------|----------------|
-| Open `/` | Landing page loads with styled content | Static assets + SSR work on Workers |
-| Open `/auth/signin` | Sign-in form renders, React hydrates | Island architecture works on workerd |
-| Submit signin with bad credentials | Redirect to `/auth/signin?error=...` | SSR form handling + Supabase connection from Worker + cookies |
-| Navigate to `/dashboard` directly | Redirect to `/auth/signin` | Middleware runs and protects routes |
-| Check `wrangler tail` output | Request logs appear for each action | Observability enabled |
-| Sign in with real Supabase credentials | `/dashboard` shows "Welcome, [email]" | Full auth flow works end-to-end |
+| Check                                  | Expected result                        | What it proves                                                |
+| -------------------------------------- | -------------------------------------- | ------------------------------------------------------------- |
+| Open `/`                               | Landing page loads with styled content | Static assets + SSR work on Workers                           |
+| Open `/auth/signin`                    | Sign-in form renders, React hydrates   | Island architecture works on workerd                          |
+| Submit signin with bad credentials     | Redirect to `/auth/signin?error=...`   | SSR form handling + Supabase connection from Worker + cookies |
+| Navigate to `/dashboard` directly      | Redirect to `/auth/signin`             | Middleware runs and protects routes                           |
+| Check `wrangler tail` output           | Request logs appear for each action    | Observability enabled                                         |
+| Sign in with real Supabase credentials | `/dashboard` shows "Welcome, [email]"  | Full auth flow works end-to-end                               |
 
 ### Troubleshooting (Phase 2)
 
-| Problem | Solution |
-|---------|----------|
-| "Authentication error" on deploy | Re-run `npx wrangler login` |
-| "Script too large" | Run `npm run deploy:dry-run` for size report. Check for heavy server imports |
-| App loads but auth silently fails (no error, redirect to home) | Secrets not set or wrong values. Run `npx wrangler secret list` to verify names are present. Re-set with correct values |
-| 500 error on any page | Run `npx wrangler tail`, check error. If it references Node built-in, verify `nodejs_compat` is in `compatibility_flags` in `wrangler.jsonc` |
-| Static assets (CSS/JS) 404 | Verify `"directory": "./dist"` in `wrangler.jsonc` matches build output. Run `ls dist/` after build |
-| React islands don't hydrate | Check browser console for JS errors. Likely a client directive or import issue |
-| `wrangler secret put` fails with "Worker not found" | Normal if this is the first deploy. Deploy first (step 2.1), then set secrets |
+| Problem                                                        | Solution                                                                                                                                     |
+| -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| "Authentication error" on deploy                               | Re-run `npx wrangler login`                                                                                                                  |
+| "Script too large"                                             | Run `npm run deploy:dry-run` for size report. Check for heavy server imports                                                                 |
+| App loads but auth silently fails (no error, redirect to home) | Secrets not set or wrong values. Run `npx wrangler secret list` to verify names are present. Re-set with correct values                      |
+| 500 error on any page                                          | Run `npx wrangler tail`, check error. If it references Node built-in, verify `nodejs_compat` is in `compatibility_flags` in `wrangler.jsonc` |
+| Static assets (CSS/JS) 404                                     | Verify `"directory": "./dist"` in `wrangler.jsonc` matches build output. Run `ls dist/` after build                                          |
+| React islands don't hydrate                                    | Check browser console for JS errors. Likely a client directive or import issue                                                               |
+| `wrangler secret put` fails with "Worker not found"            | Normal if this is the first deploy. Deploy first (step 2.1), then set secrets                                                                |
 
 ---
 
@@ -258,12 +265,12 @@ Secrets are encrypted at rest, scoped to the Worker, and injected at runtime. No
 
 **[USER]** In the Workers Builds configuration:
 
-| Setting | Value |
-|---------|-------|
-| **Build command** | `npm run build` |
-| **Deploy command** | `npx wrangler deploy` (default) |
-| **Root directory** | `/` (repository root) |
-| **Production branch** | `master` |
+| Setting               | Value                           |
+| --------------------- | ------------------------------- |
+| **Build command**     | `npm run build`                 |
+| **Deploy command**    | `npx wrangler deploy` (default) |
+| **Root directory**    | `/` (repository root)           |
+| **Production branch** | `master`                        |
 
 - **Important**: The Worker name in the dashboard (`vault-view`) must match `"name"` in `wrangler.jsonc`. We already renamed it in Phase 1.1.
 - Build environment variables: `SUPABASE_URL` and `SUPABASE_KEY` should be set as **runtime secrets** (already done in Phase 2.2), NOT as build variables. Astro's env schema marks them as `optional: true`, so the build succeeds without them.
@@ -271,6 +278,7 @@ Secrets are encrypted at rest, scoped to the Worker, and injected at runtime. No
 ### 3.3 Verify auto-deploy
 
 **[USER]**
+
 1. Push a trivial commit to `master` (e.g., whitespace change in a comment)
 2. In Cloudflare dashboard > Workers & Pages > vault-view > Builds, verify the build triggers and completes
 3. Open the deployed URL and confirm the app still works
@@ -283,12 +291,12 @@ Workers Builds can auto-deploy non-production branches using `npx wrangler versi
 
 ### Troubleshooting (Phase 3)
 
-| Problem | Solution |
-|---------|----------|
-| Build fails in Workers Builds | Check build logs in Cloudflare dashboard. Most common: Node.js version mismatch (project needs 22.x -- Workers Builds should detect from `.nvmrc`) |
-| "Worker name mismatch" | Ensure `"name"` in `wrangler.jsonc` matches the Worker name in the Cloudflare dashboard exactly |
-| Build succeeds but deploy fails | Check that `npx wrangler deploy` works locally first. The deploy command in Workers Builds uses the wrangler version from your `package.json` |
-| Git integration not appearing | Ensure the Cloudflare Workers & Pages GitHub App has access to your repository. Check GitHub Settings > Integrations |
+| Problem                         | Solution                                                                                                                                           |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Build fails in Workers Builds   | Check build logs in Cloudflare dashboard. Most common: Node.js version mismatch (project needs 22.x -- Workers Builds should detect from `.nvmrc`) |
+| "Worker name mismatch"          | Ensure `"name"` in `wrangler.jsonc` matches the Worker name in the Cloudflare dashboard exactly                                                    |
+| Build succeeds but deploy fails | Check that `npx wrangler deploy` works locally first. The deploy command in Workers Builds uses the wrangler version from your `package.json`      |
+| Git integration not appearing   | Ensure the Cloudflare Workers & Pages GitHub App has access to your repository. Check GitHub Settings > Integrations                               |
 
 ---
 
@@ -300,12 +308,14 @@ Workers Builds can auto-deploy non-production branches using `npx wrangler versi
 
 **Directory:** `context/deployment/` (NEW)
 **File:** `context/deployment/deploy-plan.md`
+
 - Cleaned-up version of this plan with actual URLs and completion timestamps
 - Serves as the audit trail referenced by CLAUDE.md
 
 ### 4.2 Update CLAUDE.md
 
 **File:** `CLAUDE.md`
+
 - Add deploy commands to the Commands section:
   - `npm run deploy` -- build and deploy to Cloudflare Workers
   - `npm run deploy:dry-run` -- validate without deploying
@@ -319,12 +329,14 @@ Workers Builds can auto-deploy non-production branches using `npx wrangler versi
 ## Rollback Strategy
 
 **Immediate rollback (< 30 seconds globally):**
+
 ```bash
 npx wrangler versions list          # see recent deployments
 npx wrangler versions deploy <id>   # promote a previous version
 ```
 
 **Limitations:**
+
 - Secrets are NOT versioned -- rolling back code doesn't roll back secrets
 - Supabase migrations don't auto-rollback -- plan rollback scripts separately
 - Static assets are versioned with the deployment (rollback includes assets)
@@ -333,27 +345,27 @@ npx wrangler versions deploy <id>   # promote a previous version
 
 ## Files Modified by This Plan
 
-| File | Action | Phase |
-|------|--------|-------|
-| `wrangler.jsonc` | Rename worker to `vault-view` | 1.1 |
-| `package.json` | Rename + add deploy scripts | 1.2 |
-| `astro.config.mjs` | Remove sitemap integration | 1.3 |
-| `src/pages/dashboard.astro` | Add `prerender = false` | 1.4 |
-| `src/pages/auth/signin.astro` | Add `prerender = false` | 1.4 |
-| `src/pages/auth/signup.astro` | Add `prerender = false` | 1.4 |
-| `src/pages/auth/confirm-email.astro` | Add `prerender = false` | 1.4 |
-| `src/pages/api/auth/signin.ts` | Add `prerender = false` | 1.4 |
-| `src/pages/api/auth/signup.ts` | Add `prerender = false` | 1.4 |
-| `src/pages/api/auth/signout.ts` | Add `prerender = false` | 1.4 |
-| `.dev.vars.example` | NEW -- local dev secrets template | 1.5 |
-| `context/deployment/deploy-plan.md` | NEW -- deployment audit trail | 4.1 |
-| `CLAUDE.md` | Add deploy commands | 4.2 |
+| File                                 | Action                            | Phase |
+| ------------------------------------ | --------------------------------- | ----- |
+| `wrangler.jsonc`                     | Rename worker to `vault-view`     | 1.1   |
+| `package.json`                       | Rename + add deploy scripts       | 1.2   |
+| `astro.config.mjs`                   | Remove sitemap integration        | 1.3   |
+| `src/pages/dashboard.astro`          | Add `prerender = false`           | 1.4   |
+| `src/pages/auth/signin.astro`        | Add `prerender = false`           | 1.4   |
+| `src/pages/auth/signup.astro`        | Add `prerender = false`           | 1.4   |
+| `src/pages/auth/confirm-email.astro` | Add `prerender = false`           | 1.4   |
+| `src/pages/api/auth/signin.ts`       | Add `prerender = false`           | 1.4   |
+| `src/pages/api/auth/signup.ts`       | Add `prerender = false`           | 1.4   |
+| `src/pages/api/auth/signout.ts`      | Add `prerender = false`           | 1.4   |
+| `.dev.vars.example`                  | NEW -- local dev secrets template | 1.5   |
+| `context/deployment/deploy-plan.md`  | NEW -- deployment audit trail     | 4.1   |
+| `CLAUDE.md`                          | Add deploy commands               | 4.2   |
 
 ## Verification Summary
 
-| Phase | Verification command / action |
-|-------|-------------------------------|
-| 1 (Code prep) | `npm run deploy:dry-run` passes cleanly |
-| 2 (First deploy) | All 6 checks in the verification table pass |
-| 3 (Workers Builds) | Push to master triggers auto-build + deploy in Cloudflare dashboard |
-| 4 (Docs) | `context/deployment/deploy-plan.md` exists with completion timestamps |
+| Phase              | Verification command / action                                         |
+| ------------------ | --------------------------------------------------------------------- |
+| 1 (Code prep)      | `npm run deploy:dry-run` passes cleanly                               |
+| 2 (First deploy)   | All 6 checks in the verification table pass                           |
+| 3 (Workers Builds) | Push to master triggers auto-build + deploy in Cloudflare dashboard   |
+| 4 (Docs)           | `context/deployment/deploy-plan.md` exists with completion timestamps |

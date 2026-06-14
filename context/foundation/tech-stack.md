@@ -35,6 +35,7 @@ Solo-built crypto portfolio tracker (VaultView) with Google OAuth auth on a 5-we
 - Docs: https://docs.coinpaprika.com/
 
 **Odrzucone alternatywy:**
+
 - CoinGecko — `api.coingecko.com` zablokowane w sieci deweloperskiej; najlepsze docs i community, ale niedostępne
 - Yahoo Finance — nieoficjalne endpointy (`query1.finance.yahoo.com`), brak gwarancji stabilności; zachowane jako potencjalny fallback
 - CryptoCompare, CoinMarketCap — wymagają klucza API; brak przewagi nad CoinPaprika przy tym zakresie użycia

@@ -18,14 +18,14 @@ Cloudflare is the native deployment target for this stack — the project alread
 
 ## Platform Comparison
 
-| Platform | CLI-first | Managed/Serverless | Agent-readable docs | Stable deploy API | MCP/Integration | Total | Status |
-|---|---|---|---|---|---|---|---|
-| **Cloudflare** | Pass | Pass | Pass | Pass | Partial | 4.5/5 | Evaluated |
-| **Railway** | Pass | Pass | Pass | Pass | Pass | 5.0/5 | Evaluated |
-| **Fly.io** | Pass | Partial | Partial | Partial | Pass | 3.5/5 | Evaluated |
-| **Render** | Partial | Pass | Fail | Partial | Pass | 3.0/5 | Evaluated |
-| **Vercel** | — | — | — | — | — | — | Dropped (no WebSocket) |
-| **Netlify** | — | — | — | — | — | — | Dropped (no WebSocket) |
+| Platform       | CLI-first | Managed/Serverless | Agent-readable docs | Stable deploy API | MCP/Integration | Total | Status                 |
+| -------------- | --------- | ------------------ | ------------------- | ----------------- | --------------- | ----- | ---------------------- |
+| **Cloudflare** | Pass      | Pass               | Pass                | Pass              | Partial         | 4.5/5 | Evaluated              |
+| **Railway**    | Pass      | Pass               | Pass                | Pass              | Pass            | 5.0/5 | Evaluated              |
+| **Fly.io**     | Pass      | Partial            | Partial             | Partial           | Pass            | 3.5/5 | Evaluated              |
+| **Render**     | Partial   | Pass               | Fail                | Partial           | Pass            | 3.0/5 | Evaluated              |
+| **Vercel**     | —         | —                  | —                   | —                 | —               | —     | Dropped (no WebSocket) |
+| **Netlify**    | —         | —                  | —                   | —                 | —               | —     | Dropped (no WebSocket) |
 
 ### Scoring Notes
 
@@ -85,42 +85,49 @@ Six months after launching VaultView on Cloudflare Workers, the project is in tr
 
 ## Risk Register
 
-| Risk | Source | Likelihood | Impact | Mitigation |
-|---|---|---|---|---|
-| Durable Objects complexity delays WebSocket feature beyond sprint timeline | Devil's advocate | Medium | High | Defer Durable Objects to post-MVP. Use client-side polling (setInterval + fetch every 15-30s) for price refresh — the PRD's refresh pattern works without WebSockets. Add Durable Objects in a later sprint when timeline pressure is off. |
-| workerd runtime breaks a transitive Supabase dependency | Devil's advocate | Medium | High | Pin `@supabase/ssr` and `@supabase/supabase-js` to exact versions in `package.json`. Test every dependency update in a preview deploy before merging. The `nodejs_compat` flag is already enabled in `wrangler.jsonc`. |
-| Forgotten `prerender = false` serves stale portfolio data | Devil's advocate | Medium | Medium | Add a lint rule or code review checklist item: every page under `/dashboard` and `/api` must have `export const prerender = false`. Consider making SSR the default and opting static pages in explicitly. |
-| Bundle size hits Worker CPU startup limit | Devil's advocate | Low | High | Monitor bundle size during CI (`wrangler deploy --dry-run` reports size). Tree-shake aggressively. If hit, split heavy React islands into lazy-loaded chunks. |
-| Durable Object cold starts cause latency spikes for low-traffic users | Unknown unknowns | Medium | Medium | WebSocket Hibernation API (GA) reduces eviction. For MVP, client-side polling avoids this entirely. |
-| Preview deploys expose portfolio data publicly | Unknown unknowns | Medium | High | Configure Cloudflare Access on the `*.pages.dev` subdomain before first preview deploy. Free tier supports up to 50 users. |
-| wrangler dev behavior diverges from production | Unknown unknowns | Medium | Medium | Deploy to a staging Worker (`wrangler deploy --env staging`) for integration testing. Don't rely solely on local dev for Durable Objects or KV behavior. |
-| Vendor lock-in makes future platform migration expensive | Unknown unknowns | Low | Medium | Accepted for MVP. Keep business logic in `src/lib/` decoupled from Cloudflare APIs. If migration becomes necessary, the adapter swap to `@astrojs/node` is the main effort — Supabase is already external. |
-| Cloudflare pricing changes after Astro acquisition period | Pre-mortem | Low | Medium | The free tier is well-established (100k req/day). Monitor Cloudflare's developer platform announcements. At MVP scale, even the $5/month paid tier is manageable. |
+| Risk                                                                       | Source           | Likelihood | Impact | Mitigation                                                                                                                                                                                                                                 |
+| -------------------------------------------------------------------------- | ---------------- | ---------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Durable Objects complexity delays WebSocket feature beyond sprint timeline | Devil's advocate | Medium     | High   | Defer Durable Objects to post-MVP. Use client-side polling (setInterval + fetch every 15-30s) for price refresh — the PRD's refresh pattern works without WebSockets. Add Durable Objects in a later sprint when timeline pressure is off. |
+| workerd runtime breaks a transitive Supabase dependency                    | Devil's advocate | Medium     | High   | Pin `@supabase/ssr` and `@supabase/supabase-js` to exact versions in `package.json`. Test every dependency update in a preview deploy before merging. The `nodejs_compat` flag is already enabled in `wrangler.jsonc`.                     |
+| Forgotten `prerender = false` serves stale portfolio data                  | Devil's advocate | Medium     | Medium | Add a lint rule or code review checklist item: every page under `/dashboard` and `/api` must have `export const prerender = false`. Consider making SSR the default and opting static pages in explicitly.                                 |
+| Bundle size hits Worker CPU startup limit                                  | Devil's advocate | Low        | High   | Monitor bundle size during CI (`wrangler deploy --dry-run` reports size). Tree-shake aggressively. If hit, split heavy React islands into lazy-loaded chunks.                                                                              |
+| Durable Object cold starts cause latency spikes for low-traffic users      | Unknown unknowns | Medium     | Medium | WebSocket Hibernation API (GA) reduces eviction. For MVP, client-side polling avoids this entirely.                                                                                                                                        |
+| Preview deploys expose portfolio data publicly                             | Unknown unknowns | Medium     | High   | Configure Cloudflare Access on the `*.pages.dev` subdomain before first preview deploy. Free tier supports up to 50 users.                                                                                                                 |
+| wrangler dev behavior diverges from production                             | Unknown unknowns | Medium     | Medium | Deploy to a staging Worker (`wrangler deploy --env staging`) for integration testing. Don't rely solely on local dev for Durable Objects or KV behavior.                                                                                   |
+| Vendor lock-in makes future platform migration expensive                   | Unknown unknowns | Low        | Medium | Accepted for MVP. Keep business logic in `src/lib/` decoupled from Cloudflare APIs. If migration becomes necessary, the adapter swap to `@astrojs/node` is the main effort — Supabase is already external.                                 |
+| Cloudflare pricing changes after Astro acquisition period                  | Pre-mortem       | Low        | Medium | The free tier is well-established (100k req/day). Monitor Cloudflare's developer platform announcements. At MVP scale, even the $5/month paid tier is manageable.                                                                          |
 
 ## Getting Started
 
 1. **Install wrangler globally** (optional — the project already has it as a devDependency at v4.90.0):
+
    ```bash
    npm install -g wrangler
    ```
 
 2. **Authenticate with Cloudflare**:
+
    ```bash
    npx wrangler login
    ```
+
    This opens a browser for OAuth. The resulting API token is stored locally at `~/.wrangler/config/default.toml`.
 
 3. **Set production secrets** (Supabase credentials):
+
    ```bash
    npx wrangler secret put SUPABASE_URL
    npx wrangler secret put SUPABASE_KEY
    ```
+
    Enter the values when prompted. These are encrypted and scoped to the Worker.
 
 4. **Deploy**:
+
    ```bash
    npm run build && npx wrangler deploy
    ```
+
    The first deploy creates the Worker project on Cloudflare using the name from `wrangler.jsonc` (`10x-astro-starter` — rename to `vault-view` in `wrangler.jsonc` before first deploy). Subsequent deploys update the existing Worker.
 
 5. **Verify**:
@@ -132,6 +139,7 @@ Six months after launching VaultView on Cloudflare Workers, the project is in tr
 ## Out of Scope
 
 The following were not evaluated in this research:
+
 - Docker image configuration
 - CI/CD pipeline setup (GitHub Actions workflow already exists at `.github/workflows/ci.yml`)
 - Production-scale architecture (multi-region, HA, DR)

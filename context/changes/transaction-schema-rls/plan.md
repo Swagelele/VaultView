@@ -22,6 +22,7 @@ Create the first Supabase migration for VaultView: a `transactions` table that s
 ## Desired End State
 
 A `transactions` table exists in Supabase with:
+
 - Fields covering all 5 transaction types (nullable target columns for one-sided operations)
 - RLS enabled with CRUD policies scoped to `auth.uid() = user_id`
 - Indexes on `user_id`, `transaction_date`, and both asset sides for query performance
@@ -66,27 +67,27 @@ CREATE TABLE transactions (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   type transaction_type NOT NULL,
-  
+
   -- Source side (always present for all types)
   source_asset varchar NOT NULL,
   source_quantity numeric NOT NULL CHECK (source_quantity > 0),
-  
+
   -- Target side (NULL for DEPOSIT/WITHDRAW)
   target_asset varchar,
   target_quantity numeric CHECK (target_quantity IS NULL OR target_quantity > 0),
-  
+
   -- Price per unit of source asset (exchange rate for trades, cost basis for DEPOSIT, market price for WITHDRAW)
   price numeric NOT NULL CHECK (price > 0),
-  
+
   -- Fee
   fee numeric NOT NULL DEFAULT 0 CHECK (fee >= 0),
-  
+
   -- Location label (free-text, e.g., 'Binance', 'MetaMask', 'Cold Wallet')
   location varchar NOT NULL,
-  
+
   -- User-specified transaction date/time
   transaction_date timestamptz NOT NULL,
-  
+
   -- Metadata
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
@@ -171,6 +172,7 @@ Create domain types that mirror the database schema, providing type safety for a
 **Intent**: Define TypeScript types for the transaction domain model. These types will be used by API routes (S-01), P&L engine (S-01), and UI components (S-01+). Using CoinPaprika asset IDs as branded strings for type clarity.
 
 **Contract**: Export these types:
+
 - `TransactionType` — union type matching the DB enum: `'BUY' | 'SELL' | 'SWAP' | 'DEPOSIT' | 'WITHDRAW'`
 - `Transaction` — full row type matching all DB columns (id, user_id, type, source_asset, source_quantity, target_asset (nullable), target_quantity (nullable), price, fee, location, transaction_date, created_at, updated_at)
 - `TransactionInsert` — type for creating new transactions: `Omit<Transaction, 'id' | 'user_id' | 'fee' | 'created_at' | 'updated_at'> & { fee?: Transaction['fee'] }` (user_id set server-side from auth, fee defaults to 0, timestamps auto-generated)
@@ -211,6 +213,7 @@ Create domain types that mirror the database schema, providing type safety for a
 ## Performance Considerations
 
 Four indexes cover the primary query patterns:
+
 - `idx_transactions_user_id` — base filter for all user queries (RLS + application)
 - `idx_transactions_user_date` — portfolio view sorts by date descending
 - `idx_transactions_user_source_asset` — per-asset P&L queries filter by disposed/source asset

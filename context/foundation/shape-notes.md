@@ -43,6 +43,7 @@ No existing tracker (CoinGecko Portfolio, CoinMarketCap, Koinly, Delta) nails bo
 ## User & Persona
 
 ### Primary persona
+
 Personal crypto investor who actively manages positions across multiple exchanges and wallets. Buys, sells, and swaps crypto regularly. Needs a single consolidated view of all holdings with P&L broken down by asset and by location. Currently stitches together numbers manually across platforms. First user: the builder (you). Designed for multi-user from day one so friends and community members can use it too.
 
 ## Access Control
@@ -52,28 +53,34 @@ Authentication via Supabase Auth with Google OAuth (one-click sign-in). Email/pa
 ## Success Criteria
 
 ### Primary
+
 - User can log in, add all five transaction types (BUY, SELL, SWAP as two-sided trades; DEPOSIT with historical cost basis; WITHDRAW as cash-out with realized P&L) with live CoinGecko API price suggestions (current and historical prices), and see consolidated positions with accurate realized and unrealized P&L across locations.
 - Per-asset P&L is viewable in two modes: aggregate average-cost P&L and per-buy breakdown (each purchase treated as a separate position).
 
 ### Secondary
+
 - Global "sell all" across all locations in one operation, with per-location target asset and fee customization.
 
 ### Guardrails
+
 - P&L calculations must be arithmetically correct — wrong numbers are worse than no numbers. Average Cost method must produce verifiably accurate results.
 - User data isolation — no user ever sees another user's transactions or positions. Enforced at the database level via Supabase RLS.
 
 ## Timeline acknowledgment
+
 Acknowledged on 2026-05-29: 5-week MVP requires sustained dedication; user accepted.
 
 ## Functional Requirements
 
 ### Authentication
+
 - FR-001: User can sign up and log in via Google OAuth. Priority: must-have
   > Socrates: Counter-argument considered: "supporting two auth methods (Google + email/password) doubles auth surface area for a personal tracker." Resolution: dropped email/password for MVP. Google OAuth only — simpler and safer. Email/password can be added in v2 if needed.
 - FR-002: User can log out. Priority: must-have
   > Socrates: Counter-argument considered: "session timeout might be better than manual logout for a crypto tracker." Resolution: kept manual logout — users expect a logout button. Session timeout can come later.
 
 ### Transaction Management
+
 - FR-003: User can add a BUY/SELL/SWAP transaction as a two-sided trade (source asset → target asset), with quantities on both sides, exchange rate (CoinGecko-suggested or manual), fee, date/time, and location label. The type label (BUY/SELL/SWAP) is a user-facing categorization; the P&L engine treats all trades identically: realized P&L on the source asset, new cost basis on the target asset. No fiat support — all trades are crypto-to-crypto (stablecoins like USDT serve as the "cash" side). Priority: must-have
   > Socrates: Counter-argument considered: "forcing every BUY to name a source asset adds friction — users just want to say 'bought 1 BTC at $60k'." Resolution: kept two-sided model. When someone buys BTC at $60k, they paid with USDT or another stablecoin. Both sides must be tracked for accurate P&L across the portfolio. No fiat.
 - FR-004: User can use "sell all" when creating a trade to auto-fill the source asset quantity from current holdings at the selected location. Additionally, user can "sell all" of an asset across all locations in one operation, with per-location customization of target asset and fee (e.g., BTC on Binance → USDT, BTC on MetaMask → ETH, each with its own fee). Priority: must-have
@@ -86,6 +93,7 @@ Acknowledged on 2026-05-29: 5-week MVP requires sustained dedication; user accep
   > Socrates: Counter-argument considered: "CoinGecko free API rate limits (10-30 calls/min) could break UX during rapid transaction entry." Resolution: accepted the rate limit risk — personal tracker with low volume. Address if it becomes a problem.
 
 ### Portfolio Views
+
 - FR-008: User can view per-asset detail: average cost, total quantity across all locations, current CoinGecko price, unrealized P&L. Priority: must-have
   > Socrates: Counter-argument considered: "unrealized P&L for deposited assets without cost basis is confusing." Resolution: resolved by FR-005 change — deposits now derive cost basis from purchase date. All assets have calculable P&L.
 - FR-009: User can view per-asset P&L in two modes: (1) aggregate average-cost P&L per asset (is the whole position in profit?), and (2) per-buy P&L breakdown where each individual purchase is treated as a separate position (like futures positions on exchanges). Priority: must-have
@@ -96,6 +104,7 @@ Acknowledged on 2026-05-29: 5-week MVP requires sustained dedication; user accep
   > Socrates: Counter-argument considered: "three filters is over-engineered for MVP." Resolution: kept all three filters — transaction lists grow fast in crypto, filtering from day one prevents the list from becoming unusable.
 
 ### Location Management
+
 - FR-012: User can create location labels inline during transaction entry via free-text with autocomplete (type "Binance" and it auto-completes from existing labels or creates a new one). No separate location management screen. Priority: must-have
   > Socrates: Counter-argument considered: "separate location CRUD is overhead." Resolution: simplified to inline free-text with autocomplete. Locations are created on-the-fly during transaction entry.
 - FR-013: User can see consolidated holdings per asset across all locations, with per-location breakdown collapsed by default and expandable on demand. Priority: must-have
@@ -110,6 +119,7 @@ Acknowledged on 2026-05-29: 5-week MVP requires sustained dedication; user accep
 - **Then** the transaction is saved, realized P&L is calculated on the source asset (against its average cost), a new cost basis is created on the target asset, and the portfolio views (per-asset and summary) reflect the updated positions
 
 #### Acceptance Criteria
+
 - CoinGecko price suggestion loads within 2 seconds of selecting asset + date/time
 - Manual price override is always available
 - Transaction is persisted and immediately visible in both portfolio views
@@ -121,6 +131,7 @@ Acknowledged on 2026-05-29: 5-week MVP requires sustained dedication; user accep
 - **Then** they see each asset's average cost, total quantity across all locations, current CoinGecko price, and unrealized P&L — with a per-location breakdown showing where each holding sits
 
 #### Acceptance Criteria
+
 - Assets with holdings across multiple locations show a single consolidated row with expandable per-location detail
 - Current prices refresh from CoinGecko on page load
 
@@ -131,6 +142,7 @@ Acknowledged on 2026-05-29: 5-week MVP requires sustained dedication; user accep
 - **Then** the source quantity auto-fills with the full holding at that location, and on submit the realized P&L reflects the full position close
 
 #### Acceptance Criteria
+
 - Sell-all quantity matches the exact current holding at that specific location (not the total across all locations)
 - If holding is zero, sell-all is disabled or shows a clear message
 
@@ -141,6 +153,7 @@ Acknowledged on 2026-05-29: 5-week MVP requires sustained dedication; user accep
 - **Then** the asset quantity is added to that location with cost basis derived from CoinGecko's historical price at the purchase date, and the portfolio views show the updated holdings with calculable P&L
 
 #### Acceptance Criteria
+
 - App suggests CoinGecko price for the specified purchase date as cost basis
 - Deposited assets appear in portfolio views with full P&L (unrealized P&L calculated against derived cost basis)
 - Deposit does not affect realized P&L
@@ -152,6 +165,7 @@ Acknowledged on 2026-05-29: 5-week MVP requires sustained dedication; user accep
 - **Then** the withdrawn quantity is removed from that location, realized P&L is calculated for the withdrawn amount, and portfolio views reflect the reduced position
 
 #### Acceptance Criteria
+
 - Withdraw quantity cannot exceed current holdings at that location
 - Realized P&L is recorded for the withdrawn amount
 
@@ -190,6 +204,7 @@ The user encounters the output every time they view the portfolio — the P&L en
 ## Forward: tech-stack
 
 User preferences (informational — not part of PRD, captured for downstream tech-stack selector):
+
 - Framework: Astro 6 + React 19
 - Language: TypeScript
 - Styling: Tailwind CSS
