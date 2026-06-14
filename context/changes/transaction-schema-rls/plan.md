@@ -243,10 +243,10 @@ At MVP scale (small data volume per PRD), these are sufficient. No partitioning 
 
 #### Automated
 
-- [x] 1.1 Migration file exists in `supabase/migrations/`
-- [x] 1.2 Empty/comment-only `supabase/seed.sql` exists for the configured seed path
-- [x] 1.3 `npx supabase db reset` completes without errors
-- [x] 1.4 Table `transactions` visible in Supabase Studio
+- [x] 1.1 Migration file exists in `supabase/migrations/` — de6aed5
+- [x] 1.2 Empty/comment-only `supabase/seed.sql` exists for the configured seed path — de6aed5
+- [x] 1.3 `npx supabase db reset` completes without errors — de6aed5
+- [x] 1.4 Table `transactions` visible in Supabase Studio — de6aed5
 
 #### Manual
 
@@ -258,8 +258,8 @@ At MVP scale (small data volume per PRD), these are sufficient. No partitioning 
 
 #### Automated
 
-- [ ] 2.1 `npm run lint` passes on `src/types.ts`
-- [ ] 2.2 Types importable via `@/types`
+- [x] 2.1 `npm run lint` passes on `src/types.ts`
+- [x] 2.2 Types importable via `@/types`
 
 #### Manual
 
