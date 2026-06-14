@@ -1,0 +1,1 @@
+-- Seed file placeholder. No seed data for MVP.

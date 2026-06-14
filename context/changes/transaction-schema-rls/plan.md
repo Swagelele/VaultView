@@ -243,10 +243,10 @@ At MVP scale (small data volume per PRD), these are sufficient. No partitioning 
 
 #### Automated
 
-- [ ] 1.1 Migration file exists in `supabase/migrations/`
-- [ ] 1.2 Empty/comment-only `supabase/seed.sql` exists for the configured seed path
-- [ ] 1.3 `npx supabase db reset` completes without errors
-- [ ] 1.4 Table `transactions` visible in Supabase Studio
+- [x] 1.1 Migration file exists in `supabase/migrations/`
+- [x] 1.2 Empty/comment-only `supabase/seed.sql` exists for the configured seed path
+- [x] 1.3 `npx supabase db reset` completes without errors
+- [x] 1.4 Table `transactions` visible in Supabase Studio
 
 #### Manual
 
