@@ -250,17 +250,17 @@ At MVP scale (small data volume per PRD), these are sufficient. No partitioning 
 
 #### Manual
 
-- [ ] 1.5 RLS blocks access from different user context (authenticated-context test)
-- [ ] 1.6 All columns have correct types and constraints
-- [ ] 1.7 README database setup note reflects the transactions migration and local `db reset` step
+- [x] 1.5 RLS blocks access from different user context (authenticated-context test)
+- [x] 1.6 All columns have correct types and constraints
+- [x] 1.7 README database setup note reflects the transactions migration and local `db reset` step
 
 ### Phase 2: TypeScript Types
 
 #### Automated
 
-- [x] 2.1 `npm run lint` passes on `src/types.ts`
-- [x] 2.2 Types importable via `@/types`
+- [x] 2.1 `npm run lint` passes on `src/types.ts` — 5577087
+- [x] 2.2 Types importable via `@/types` — 5577087
 
 #### Manual
 
-- [ ] 2.3 Types accurately reflect DB schema
+- [x] 2.3 Types accurately reflect DB schema
