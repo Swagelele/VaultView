@@ -29,7 +29,7 @@ Portfele kryptowalutowe są rozproszone po wielu giełdach i portfelach — brak
 
 | ID   | Change ID                | Outcome (user can …)                                                         | Prerequisites | PRD refs                                              | Status   |
 | ---- | ------------------------ | ---------------------------------------------------------------------------- | ------------- | ----------------------------------------------------- | -------- |
-| F-02 | transaction-schema-rls   | (foundation) tabela transakcji z RLS zapewniającym izolację danych           | —             | NFR (data isolation, data retention)                  | ready    |
+| F-02 | transaction-schema-rls   | (foundation) tabela transakcji z RLS zapewniającym izolację danych           | —             | NFR (data isolation, data retention)                  | done     |
 | S-01 | core-trade-and-portfolio | dodaje BUY/SELL/SWAP z lokalizacją i widzi portfolio z P&L                   | F-02          | US-01, US-02, FR-003, FR-007, FR-008, FR-012, FR-013  | proposed |
 | S-02 | per-buy-pnl-breakdown    | przegląda P&L w trybie per-buy (każdy zakup jako osobna pozycja)             | S-01          | FR-009                                                | proposed |
 | S-03 | summary-dashboard        | widzi dashboard: łączny realized P&L, unrealized P&L, opłaty                | S-01          | FR-010                                                | proposed |
@@ -76,7 +76,7 @@ Foundations poniżej zakładają że te warstwy są obecne i NIE budują ich od 
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Schemat musi pomieścić 5 typów transakcji (BUY/SELL/SWAP dwustronne, DEPOSIT/WITHDRAW jednostronne) w jednej strukturze. Błąd w modelu danych na tym etapie kosztuje migrację w każdym późniejszym slice.
-- **Status:** ready
+- **Status:** done
 
 ## Slices
 
@@ -181,8 +181,8 @@ Foundations poniżej zakładają że te warstwy są obecne i NIE budują ich od 
 
 | Roadmap ID | Change ID                | Suggested issue title                          | Ready for `/10x-plan` | Notes                                    |
 | ---------- | ------------------------ | ---------------------------------------------- | --------------------- | ---------------------------------------- |
-| F-02       | transaction-schema-rls   | Utwórz schemat transakcji z RLS                | yes                   | Run `/10x-plan transaction-schema-rls`   |
-| S-01       | core-trade-and-portfolio | Handel BUY/SELL/SWAP + portfolio z P&L         | no                    | Czeka na F-02                            |
+| F-02       | transaction-schema-rls   | Utwórz schemat transakcji z RLS                | done                  | Implemented — `de6aed5`, `5577087`       |
+| S-01       | core-trade-and-portfolio | Handel BUY/SELL/SWAP + portfolio z P&L         | yes                   | F-02 done. Run `/10x-plan core-trade-and-portfolio` |
 | S-02       | per-buy-pnl-breakdown    | Widok P&L per-buy breakdown                    | no                    | Czeka na S-01                            |
 | S-03       | summary-dashboard        | Dashboard z łącznymi P&L i opłatami            | no                    | Czeka na S-01                            |
 | S-04       | transaction-list-filters | Lista transakcji z filtrami                    | no                    | Czeka na S-01                            |
