@@ -3,7 +3,7 @@ project: "VaultView"
 version: 1
 status: draft
 created: 2026-06-12
-updated: 2026-06-12
+updated: 2026-06-14
 prd_version: 1
 main_goal: speed
 top_blocker: time
@@ -29,9 +29,8 @@ Portfele kryptowalutowe są rozproszone po wielu giełdach i portfelach — brak
 
 | ID   | Change ID                | Outcome (user can …)                                                         | Prerequisites | PRD refs                                              | Status   |
 | ---- | ------------------------ | ---------------------------------------------------------------------------- | ------------- | ----------------------------------------------------- | -------- |
-| F-01 | google-oauth-auth        | (foundation) Google OAuth auth działa; logowanie i wylogowanie przez OAuth   | —             | FR-001, FR-002, Access Control                        | ready    |
 | F-02 | transaction-schema-rls   | (foundation) tabela transakcji z RLS zapewniającym izolację danych           | —             | NFR (data isolation, data retention)                  | ready    |
-| S-01 | core-trade-and-portfolio | dodaje BUY/SELL/SWAP z lokalizacją i widzi portfolio z P&L                   | F-01, F-02    | US-01, US-02, FR-003, FR-007, FR-008, FR-012, FR-013  | proposed |
+| S-01 | core-trade-and-portfolio | dodaje BUY/SELL/SWAP z lokalizacją i widzi portfolio z P&L                   | F-02          | US-01, US-02, FR-003, FR-007, FR-008, FR-012, FR-013  | proposed |
 | S-02 | per-buy-pnl-breakdown    | przegląda P&L w trybie per-buy (każdy zakup jako osobna pozycja)             | S-01          | FR-009                                                | proposed |
 | S-03 | summary-dashboard        | widzi dashboard: łączny realized P&L, unrealized P&L, opłaty                | S-01          | FR-010                                                | proposed |
 | S-04 | transaction-list-filters | przegląda listę transakcji z filtrami po typie, lokalizacji i assecie        | S-01          | FR-011                                                | proposed |
@@ -46,7 +45,7 @@ Pomoc nawigacyjna — grupuje pozycje o wspólnym łańcuchu zależności. Kanon
 
 | Stream | Theme              | Chain                     | Note                                                                  |
 | ------ | ------------------ | ------------------------- | --------------------------------------------------------------------- |
-| A      | Rdzeń handlu       | `F-01` / `F-02` → `S-01` | Gwiazda przewodnia; cała reszta zależy od S-01. Foundations równoległe. |
+| A      | Rdzeń handlu       | `F-02` → `S-01`          | Gwiazda przewodnia; cała reszta zależy od S-01.                       |
 | B      | Widoki portfolio   | `S-02` / `S-03` / `S-04` | Równoległe po S-01; kompletują experience przeglądania danych.        |
 | C      | Dodatkowe operacje | `S-05` / `S-06`          | Po S-01; rozszerzają model o DEPOSIT i WITHDRAW.                      |
 | D      | Sell-all           | `S-07` → `S-08`          | Po S-01; sell-all w lokalizacji → sell-all globalny.                  |
@@ -59,25 +58,12 @@ Foundations poniżej zakładają że te warstwy są obecne i NIE budują ich od 
 - **Frontend:** present — Astro 6 + React 19, Tailwind CSS 4, shadcn/ui infrastruktura, strony auth + dashboard
 - **Backend / API:** partial — Astro SSR z Cloudflare adapterem, 3 endpointy auth (signin/signup/signout), brak logiki biznesowej
 - **Data:** partial — Supabase JS client zainstalowany, brak schematów, migracji i tabel poza auth.users
-- **Auth:** partial — email/password auth działa (cookie-based sessions, middleware, protected routes), Google OAuth NIE skonfigurowane
+- **Auth:** present — email/password auth w pełni zaimplementowane (signin/signup/signout API routes, cookie-based sessions via @supabase/ssr, middleware z protected routes, strony UI). FR-001 i FR-002 spełnione.
 - **Deploy / infra:** partial — Cloudflare adapter + wrangler deploy + GitHub Actions CI; wystarczające dla MVP
 - **Observability:** absent — brak logowania, error tracking, metryk; PRD nie wymaga tego w MVP
 - **API cenowe:** decided — **CoinPaprika** (oficjalne REST API, bez klucza, 20K calls/miesiąc free tier, ceny bieżące + historyczne + wyszukiwanie assetów). Wybrane zamiast CoinGecko (zablokowane w sieci) i Yahoo Finance (nieoficjalne endpointy).
 
 ## Foundations
-
-### F-01: Google OAuth auth
-
-- **Outcome:** (foundation) Supabase Auth skonfigurowane na Google OAuth; logowanie, wylogowanie i middleware sesji działają z OAuth redirect flow zamiast email/password.
-- **Change ID:** google-oauth-auth
-- **PRD refs:** FR-001, FR-002, Access Control
-- **Unlocks:** S-01, S-02, S-03, S-04, S-05, S-06, S-07, S-08 (każdy slice wymaga zalogowanego użytkownika)
-- **Prerequisites:** —
-- **Parallel with:** F-02
-- **Blockers:** —
-- **Unknowns:** —
-- **Risk:** Google OAuth wymaga konfiguracji w konsoli Google Cloud i w Supabase dashboard. Obecny scaffold (middleware, cookie handling) powinien przenieść się z minimalnym refaktorem, ale form-based signin/signup wymaga wymiany na OAuth redirect flow.
-- **Status:** ready
 
 ### F-02: Transaction schema + RLS
 
@@ -86,7 +72,7 @@ Foundations poniżej zakładają że te warstwy są obecne i NIE budują ich od 
 - **PRD refs:** NFR (data isolation, data retention), Access Control
 - **Unlocks:** S-01, S-02, S-03, S-04, S-05, S-06, S-07, S-08 (każdy slice operuje na danych transakcji)
 - **Prerequisites:** —
-- **Parallel with:** F-01
+- **Parallel with:** —
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Schemat musi pomieścić 5 typów transakcji (BUY/SELL/SWAP dwustronne, DEPOSIT/WITHDRAW jednostronne) w jednej strukturze. Błąd w modelu danych na tym etapie kosztuje migrację w każdym późniejszym slice.
@@ -99,7 +85,7 @@ Foundations poniżej zakładają że te warstwy są obecne i NIE budują ich od 
 - **Outcome:** użytkownik dodaje transakcję BUY, SELL lub SWAP jako dwustronny handel (source → target asset) z ceną sugerowaną przez API cenowe, opłatą, datą, lokalizacją — i widzi skonsolidowane portfolio z kosztem średnim, ceną bieżącą, unrealized P&L per asset, z rozbiciem per-lokalizacja; ceny odświeżają się automatycznie co 15–30 s.
 - **Change ID:** core-trade-and-portfolio
 - **PRD refs:** US-01, US-02, FR-003, FR-007, FR-008, FR-012, FR-013
-- **Prerequisites:** F-01, F-02
+- **Prerequisites:** F-02
 - **Parallel with:** —
 - **Blockers:** —
 - **Unknowns:** —
@@ -195,9 +181,8 @@ Foundations poniżej zakładają że te warstwy są obecne i NIE budują ich od 
 
 | Roadmap ID | Change ID                | Suggested issue title                          | Ready for `/10x-plan` | Notes                                    |
 | ---------- | ------------------------ | ---------------------------------------------- | --------------------- | ---------------------------------------- |
-| F-01       | google-oauth-auth        | Skonfiguruj Google OAuth w Supabase Auth       | yes                   | Run `/10x-plan google-oauth-auth`        |
 | F-02       | transaction-schema-rls   | Utwórz schemat transakcji z RLS                | yes                   | Run `/10x-plan transaction-schema-rls`   |
-| S-01       | core-trade-and-portfolio | Handel BUY/SELL/SWAP + portfolio z P&L         | no                    | Czeka na F-01, F-02                      |
+| S-01       | core-trade-and-portfolio | Handel BUY/SELL/SWAP + portfolio z P&L         | no                    | Czeka na F-02                            |
 | S-02       | per-buy-pnl-breakdown    | Widok P&L per-buy breakdown                    | no                    | Czeka na S-01                            |
 | S-03       | summary-dashboard        | Dashboard z łącznymi P&L i opłatami            | no                    | Czeka na S-01                            |
 | S-04       | transaction-list-filters | Lista transakcji z filtrami                    | no                    | Czeka na S-01                            |

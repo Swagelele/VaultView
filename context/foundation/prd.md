@@ -96,8 +96,8 @@ Personal crypto investor who actively manages positions across multiple exchange
 ## Functional Requirements
 
 ### Authentication
-- FR-001: User can sign up and log in via Google OAuth. Priority: must-have
-  > Socrates: Counter-argument considered: "supporting two auth methods (Google + email/password) doubles auth surface area for a personal tracker." Resolution: dropped email/password for MVP. Google OAuth only — simpler and safer. Email/password can be added in v2 if needed.
+- FR-001: User can sign up and log in via email/password. Priority: must-have (already implemented)
+  > Socrates: Counter-argument considered: "supporting two auth methods (Google + email/password) doubles auth surface area for a personal tracker." Resolution: kept email/password — already fully implemented (signin/signup/signout API routes, cookie sessions, middleware, UI pages). Google OAuth deferred to v2 if needed.
 - FR-002: User can log out. Priority: must-have
   > Socrates: Counter-argument considered: "session timeout might be better than manual logout for a crypto tracker." Resolution: kept manual logout — users expect a logout button. Session timeout can come later.
 
@@ -150,7 +150,7 @@ The user encounters the output every time they view the portfolio — the P&L en
 
 ## Access Control
 
-Authentication via Google OAuth (one-click sign-in). Email/password deferred to v2. Flat user model — every user has the same capabilities. Each user sees only their own transactions and positions — strict data isolation ensures no cross-user data access. Admin panel (user management, platform stats, asset configuration) is explicitly deferred to v2; for MVP, the available asset list comes directly from the external pricing API.
+Authentication via email/password (already implemented). Google OAuth deferred to v2. Flat user model — every user has the same capabilities. Each user sees only their own transactions and positions — strict data isolation ensures no cross-user data access. Admin panel (user management, platform stats, asset configuration) is explicitly deferred to v2; for MVP, the available asset list comes directly from the external pricing API.
 
 ## Non-Goals
 
@@ -160,7 +160,7 @@ Authentication via Google OAuth (one-click sign-in). Email/password deferred to 
 - No FIFO/LIFO costing methods — Average Cost is the only P&L calculation method for MVP. Alternative methods are a v2 feature.
 - No mobile-responsive layout — desktop browsers only for MVP. Mobile experience is a v2 feature.
 - No admin panel — user management, platform stats, and asset configuration are deferred to v2.
-- No email/password auth — Google OAuth only for MVP.
+- No Google OAuth — email/password only for MVP. Google OAuth can be added in v2.
 
 ## Open Questions
 

@@ -5,8 +5,8 @@ linear_workspace: vault-view
 linear_project: https://linear.app/vault-view/project/vaultview-cbc1449facb1
 linear_team: Pax (PAX)
 github_repo: Swagelele/VaultView
-synced_at: 2026-06-12
-issues_total: 15
+synced_at: 2026-06-14
+issues_total: 12 (3 canceled)
 ---
 
 # Linear Issues — VaultView
@@ -25,7 +25,7 @@ issues_total: 15
 
 | Status | Type | Used for |
 |--------|------|----------|
-| **Todo** | unstarted | Foundations ready to start (F-01, F-02) |
+| **Todo** | unstarted | Foundation ready to start (F-02) |
 | **Backlog** | backlog | Slices waiting on prerequisites; Q/R items |
 | **In Progress** | started | Active work |
 | **In Review** | started | PR open, awaiting review |
@@ -45,9 +45,9 @@ issues_total: 15
 
 | Linear ID | Roadmap | Title | Labels | Priority | Status | Blocked by | GitHub |
 |-----------|---------|-------|--------|----------|--------|------------|--------|
-| [PAX-5](https://linear.app/vault-view/issue/PAX-5) | F-01 | Google OAuth auth | Foundation | High | Todo | — | [#1](https://github.com/Swagelele/VaultView/issues/1) |
+| ~~PAX-5~~ | ~~F-01~~ | ~~Google OAuth auth~~ | | | ~~Canceled~~ | — | ~~#1~~ |
 | [PAX-6](https://linear.app/vault-view/issue/PAX-6) | F-02 | Transaction schema + RLS | Foundation | High | Todo | — | [#2](https://github.com/Swagelele/VaultView/issues/2) |
-| [PAX-7](https://linear.app/vault-view/issue/PAX-7) | S-01 | Trade (BUY/SELL/SWAP) + portfolio with P&L | Slice, North Star | Urgent | Backlog | PAX-5, PAX-6 | [#3](https://github.com/Swagelele/VaultView/issues/3) |
+| [PAX-7](https://linear.app/vault-view/issue/PAX-7) | S-01 | Trade (BUY/SELL/SWAP) + portfolio with P&L | Slice, North Star | Urgent | Backlog | PAX-6 | [#3](https://github.com/Swagelele/VaultView/issues/3) |
 | [PAX-8](https://linear.app/vault-view/issue/PAX-8) | S-02 | Per-buy P&L breakdown | Slice | Medium | Backlog | PAX-7 | [#4](https://github.com/Swagelele/VaultView/issues/4) |
 | [PAX-9](https://linear.app/vault-view/issue/PAX-9) | S-03 | Summary dashboard | Slice | Medium | Backlog | PAX-7 | [#5](https://github.com/Swagelele/VaultView/issues/5) |
 | [PAX-10](https://linear.app/vault-view/issue/PAX-10) | S-04 | Transaction list with filters | Slice | Medium | Backlog | PAX-7 | [#6](https://github.com/Swagelele/VaultView/issues/6) |
@@ -56,24 +56,20 @@ issues_total: 15
 | [PAX-13](https://linear.app/vault-view/issue/PAX-13) | S-07 | Sell-all at single location | Slice | Medium | Backlog | PAX-7 | [#9](https://github.com/Swagelele/VaultView/issues/9) |
 | [PAX-14](https://linear.app/vault-view/issue/PAX-14) | S-08 | Global sell-all (all locations) | Slice | Low | Backlog | PAX-13 | [#10](https://github.com/Swagelele/VaultView/issues/10) |
 | [PAX-15](https://linear.app/vault-view/issue/PAX-15) | Q-01 | Decide WITHDRAW pricing mechanism | Question | Medium | Backlog | blocks PAX-12 | [#11](https://github.com/Swagelele/VaultView/issues/11) |
-| [PAX-16](https://linear.app/vault-view/issue/PAX-16) | Q-02 | Decide Google OAuth provider config | Question | High | Backlog | blocks PAX-5 | [#12](https://github.com/Swagelele/VaultView/issues/12) |
+| ~~PAX-16~~ | ~~Q-02~~ | ~~Decide Google OAuth provider config~~ | | | ~~Canceled~~ | — | ~~#12~~ |
 | [PAX-17](https://linear.app/vault-view/issue/PAX-17) | R-01 | Spike: CoinPaprika API endpoints verification | Research | High | Backlog | blocks PAX-7 | [#13](https://github.com/Swagelele/VaultView/issues/13) |
 | [PAX-18](https://linear.app/vault-view/issue/PAX-18) | R-02 | Spike: Average Cost P&L engine rules + test cases | Research | High | Backlog | blocks PAX-7 | [#14](https://github.com/Swagelele/VaultView/issues/14) |
-| [PAX-19](https://linear.app/vault-view/issue/PAX-19) | R-03 | Spike: Supabase Google OAuth on Cloudflare Workers | Research | High | Backlog | blocks PAX-5 | [#15](https://github.com/Swagelele/VaultView/issues/15) |
+| ~~PAX-19~~ | ~~R-03~~ | ~~Spike: Supabase Google OAuth on Cloudflare Workers~~ | | | ~~Canceled~~ | — | ~~#15~~ |
 
 ## Dependency graph
 
 ```
-R-03 (PAX-19) ──┐
-Q-02 (PAX-16) ──┤
-                ▼
-F-01 (PAX-5) ───┐
-                ├──► S-01 (PAX-7) ⭐ ──┬──► S-02 (PAX-8)
-F-02 (PAX-6) ───┘                      ├──► S-03 (PAX-9)
-                                        ├──► S-04 (PAX-10)
-R-01 (PAX-17) ──► S-01 (PAX-7)         ├──► S-05 (PAX-11)
-R-02 (PAX-18) ──► S-01 (PAX-7)         ├──► S-06 (PAX-12) ◄── Q-01 (PAX-15)
-                                        └──► S-07 (PAX-13) ──► S-08 (PAX-14)
+F-02 (PAX-6) ──► S-01 (PAX-7) ⭐ ──┬──► S-02 (PAX-8)
+                                    ├──► S-03 (PAX-9)
+                                    ├──► S-04 (PAX-10)
+R-01 (PAX-17) ──► S-01 (PAX-7)     ├──► S-05 (PAX-11)
+R-02 (PAX-18) ──► S-01 (PAX-7)     ├──► S-06 (PAX-12) ◄── Q-01 (PAX-15)
+                                    └──► S-07 (PAX-13) ──► S-08 (PAX-14)
 ```
 
 ## Blocking relations (native Linear)
@@ -82,9 +78,9 @@ Linear uses native `blockedBy` / `blocks` relations. These are enforced in the U
 
 | Issue | blockedBy | blocks |
 |-------|-----------|--------|
-| PAX-5 (F-01) | — | PAX-7 |
+| ~~PAX-5 (F-01)~~ | — | ~~canceled~~ |
 | PAX-6 (F-02) | — | PAX-7 |
-| PAX-7 (S-01) | PAX-5, PAX-6 | PAX-8, PAX-9, PAX-10, PAX-11, PAX-12, PAX-13 |
+| PAX-7 (S-01) | PAX-6 | PAX-8, PAX-9, PAX-10, PAX-11, PAX-12, PAX-13 |
 | PAX-8 (S-02) | PAX-7 | — |
 | PAX-9 (S-03) | PAX-7 | — |
 | PAX-10 (S-04) | PAX-7 | — |
@@ -93,16 +89,16 @@ Linear uses native `blockedBy` / `blocks` relations. These are enforced in the U
 | PAX-13 (S-07) | PAX-7 | PAX-14 |
 | PAX-14 (S-08) | PAX-13 | — |
 | PAX-15 (Q-01) | — | PAX-12 |
-| PAX-16 (Q-02) | — | PAX-5 |
+| ~~PAX-16 (Q-02)~~ | — | ~~canceled~~ |
 | PAX-17 (R-01) | — | PAX-7 |
 | PAX-18 (R-02) | — | PAX-7 |
-| PAX-19 (R-03) | — | PAX-5 |
+| ~~PAX-19 (R-03)~~ | — | ~~canceled~~ |
 
 ## Streams
 
 | Stream | Theme | Linear issues | Note |
 |--------|-------|---------------|------|
-| A | Core trade | PAX-5, PAX-6 → PAX-7 | North star; everything depends on S-01 |
+| A | Core trade | PAX-6 → PAX-7 | North star; everything depends on S-01 |
 | B | Portfolio views | PAX-8, PAX-9, PAX-10 | Parallel after S-01 |
 | C | Additional operations | PAX-11, PAX-12 | DEPOSIT + WITHDRAW after S-01 |
 | D | Sell-all | PAX-13 → PAX-14 | Single-location then global |
@@ -111,7 +107,6 @@ Linear uses native `blockedBy` / `blocks` relations. These are enforced in the U
 
 | Issue | Branch |
 |-------|--------|
-| PAX-5 | `strozynskijoachim5/pax-5-f-01-google-oauth-auth` |
 | PAX-6 | `strozynskijoachim5/pax-6-f-02-transaction-schema-rls` |
 | PAX-7 | `strozynskijoachim5/pax-7-s-01-trade-buysellswap-portfolio-with-pl` |
 | PAX-8 | `strozynskijoachim5/pax-8-s-02-per-buy-pl-breakdown` |
@@ -124,7 +119,7 @@ Linear uses native `blockedBy` / `blocks` relations. These are enforced in the U
 
 ## How to use
 
-- **Start planning:** pick a `Todo` issue (currently PAX-5 and PAX-6) and run `/10x-plan <change-id>`
+- **Start planning:** pick a `Todo` issue (currently PAX-6) and run `/10x-plan <change-id>`
 - **Move to In Progress:** when starting work, update status in Linear (auto-syncs to the board)
 - **Use Linear branches:** checkout the auto-generated branch name; Linear links PRs to issues automatically
 - **After completing a foundation:** flip to Done in Linear, close the GitHub issue, and move downstream slices from Backlog to Todo
