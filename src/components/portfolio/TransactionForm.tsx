@@ -6,7 +6,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AssetAutocomplete } from "@/components/portfolio/AssetAutocomplete";
 import { USD_STABLECOINS } from "@/lib/schemas";
 
-type TxType = "DEPOSIT" | "BUY" | "SELL" | "SWAP";
+type TxType = "DEPOSIT" | "BUY" | "SELL";
 
 interface TransactionFormProps {
   onSuccess: () => void;
@@ -20,7 +20,6 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
   const [targetSymbol, setTargetSymbol] = useState("");
   const [amount, setAmount] = useState("");
   const [price, setPrice] = useState("");
-  const [targetAmount, setTargetAmount] = useState("");
   const [fee, setFee] = useState("");
   const [location, setLocation] = useState("");
   const [locationSuggestions, setLocationSuggestions] = useState<string[]>([]);
@@ -57,13 +56,9 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
   }, []);
 
   useEffect(() => {
-    const assetForPrice = type === "BUY" || type === "SWAP" ? targetAsset : sourceAsset;
-    if (!assetForPrice || type === "DEPOSIT") {
-      return;
-    }
-    if (USD_STABLECOINS.includes(assetForPrice)) {
-      return;
-    }
+    const assetForPrice = type === "BUY" ? targetAsset : sourceAsset;
+    if (!assetForPrice || type === "DEPOSIT") return;
+    if (USD_STABLECOINS.includes(assetForPrice)) return;
 
     let cancelled = false;
     const dateStr = transactionDate.slice(0, 10);
@@ -96,7 +91,6 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
     setTargetSymbol("");
     setAmount("");
     setPrice("");
-    setTargetAmount("");
     setFee("");
     setSuggestedPrice(null);
     setAvailableBalance(null);
@@ -133,26 +127,15 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
       };
     }
 
-    if (type === "SELL") {
-      const qty = Number(amount);
-      const p = Number(price);
-      return {
-        ...base,
-        source_asset: sourceAsset,
-        source_quantity: qty,
-        target_asset: targetAsset,
-        target_quantity: qty * p,
-        price: p,
-      };
-    }
-
+    const qty = Number(amount);
+    const p = Number(price);
     return {
       ...base,
       source_asset: sourceAsset,
-      source_quantity: Number(amount),
+      source_quantity: qty,
       target_asset: targetAsset,
-      target_quantity: Number(targetAmount),
-      price: Number(targetAmount) / Number(amount),
+      target_quantity: qty * p,
+      price: p,
     };
   }
 
@@ -185,21 +168,18 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
 
   const computedTotal =
     type === "BUY" && amount && price
-      ? `${(Number(amount) * Number(price)).toLocaleString()} ${sourceSymbol || "source"}`
+      ? `Total cost: $${(Number(amount) * Number(price)).toLocaleString()} ${sourceSymbol}`
       : type === "SELL" && amount && price
-        ? `${(Number(amount) * Number(price)).toLocaleString()} ${targetSymbol || "target"}`
-        : type === "SWAP" && amount && targetAmount
-          ? `Rate: ${(Number(targetAmount) / Number(amount)).toFixed(6)}`
-          : null;
+        ? `Proceeds: $${(Number(amount) * Number(price)).toLocaleString()} ${targetSymbol}`
+        : null;
 
   return (
     <form onSubmit={handleSubmit} className="grid gap-4">
       <Tabs value={type} onValueChange={handleTypeChange}>
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="DEPOSIT">Deposit</TabsTrigger>
           <TabsTrigger value="BUY">Buy</TabsTrigger>
           <TabsTrigger value="SELL">Sell</TabsTrigger>
-          <TabsTrigger value="SWAP">Swap</TabsTrigger>
         </TabsList>
       </Tabs>
 
@@ -248,7 +228,7 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
             placeholder="Search asset..."
           />
           <div className="grid gap-1.5">
-            <Label>Amount</Label>
+            <Label>Quantity</Label>
             <Input
               type="number"
               step="any"
@@ -290,62 +270,6 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
             }}
             placeholder="Search asset..."
           />
-          {availableBalance !== null && (
-            <p className={insufficientBalance ? "text-sm text-red-500" : "text-muted-foreground text-sm"}>
-              Available: {availableBalance.toLocaleString(undefined, { maximumFractionDigits: 8 })} {sourceSymbol}
-              {insufficientBalance && " — insufficient balance"}
-            </p>
-          )}
-          {computedTotal && <p className="text-muted-foreground text-sm">Total: {computedTotal}</p>}
-        </>
-      )}
-
-      {type === "SWAP" && (
-        <>
-          <AssetAutocomplete
-            label="From asset"
-            value={sourceSymbol}
-            onChange={(id, sym) => {
-              setSourceAsset(id);
-              setSourceSymbol(sym);
-            }}
-            placeholder="Search asset..."
-          />
-          <div className="grid gap-1.5">
-            <Label>From amount</Label>
-            <Input
-              type="number"
-              step="any"
-              min="0"
-              value={amount}
-              onChange={(e) => {
-                setAmount(e.target.value);
-              }}
-              required
-            />
-          </div>
-          <AssetAutocomplete
-            label="To asset"
-            value={targetSymbol}
-            onChange={(id, sym) => {
-              setTargetAsset(id);
-              setTargetSymbol(sym);
-            }}
-            placeholder="Search asset..."
-          />
-          <div className="grid gap-1.5">
-            <Label>To amount</Label>
-            <Input
-              type="number"
-              step="any"
-              min="0"
-              value={targetAmount}
-              onChange={(e) => {
-                setTargetAmount(e.target.value);
-              }}
-              required
-            />
-          </div>
           {availableBalance !== null && (
             <p className={insufficientBalance ? "text-sm text-red-500" : "text-muted-foreground text-sm"}>
               Available: {availableBalance.toLocaleString(undefined, { maximumFractionDigits: 8 })} {sourceSymbol}
