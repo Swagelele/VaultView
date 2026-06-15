@@ -618,32 +618,32 @@ Build the full portfolio dashboard as a React island: a table showing per-asset 
 
 #### Automated
 
-- [x] 1.1 Migration applies cleanly: `npx supabase db reset`
-- [x] 1.2 Type checking passes: `npm run lint`
-- [x] 1.3 Build passes: `npm run build`
-- [x] 1.4 shadcn/ui components exist in `src/components/ui/`
-- [x] 1.5 Zod is in `package.json` dependencies
-- [x] 1.6 Vitest is in devDependencies and `npm run test` is defined
+- [x] 1.1 Migration applies cleanly: `npx supabase db reset` — bf767fc
+- [x] 1.2 Type checking passes: `npm run lint` — bf767fc
+- [x] 1.3 Build passes: `npm run build` — bf767fc
+- [x] 1.4 shadcn/ui components exist in `src/components/ui/` — bf767fc
+- [x] 1.5 Zod is in `package.json` dependencies — bf767fc
+- [x] 1.6 Vitest is in devDependencies and `npm run test` is defined — bf767fc
 
 #### Manual
 
-- [x] 1.7 Supabase Studio shows `price_usd` column on `transactions` table
+- [x] 1.7 Supabase Studio shows `price_usd` column on `transactions` table — bf767fc
 
 ### Phase 2: CoinPaprika Integration
 
 #### Automated
 
-- [ ] 2.1 Type checking passes: `npm run lint`
-- [ ] 2.2 Build passes: `npm run build`
+- [x] 2.1 Type checking passes: `npm run lint`
+- [x] 2.2 Build passes: `npm run build`
 
 #### Manual
 
-- [ ] 2.3 `GET /api/assets/search?q=bitcoin` returns CoinPaprika results
-- [ ] 2.4 `GET /api/prices?ids=btc-bitcoin,eth-ethereum` returns current USD prices
-- [ ] 2.5 `GET /api/prices?ids=btc-bitcoin&date=2026-01-15` returns historical USD price
-- [ ] 2.6 Repeated price requests inside TTL use cached values
-- [ ] 2.7 Failed price refresh returns cached stale prices
-- [ ] 2.8 Asset and price endpoints return 401 when unauthenticated
+- [x] 2.3 `GET /api/assets/search?q=bitcoin` returns CoinPaprika results
+- [x] 2.4 `GET /api/prices?ids=btc-bitcoin,eth-ethereum` returns current USD prices
+- [x] 2.5 `GET /api/prices?ids=btc-bitcoin&date=2026-01-15` returns historical USD price
+- [x] 2.6 Repeated price requests inside TTL use cached values
+- [x] 2.7 Failed price refresh returns cached stale prices
+- [x] 2.8 Asset and price endpoints return 401 when unauthenticated
 
 ### Phase 3: Transaction Backend
 
