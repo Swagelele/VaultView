@@ -95,6 +95,7 @@ export function PortfolioTable({ assets, showClosed }: PortfolioTableProps) {
                   <TableCell className="text-muted-foreground text-right text-sm">
                     {formatUsd(loc.avg_cost_usd)}
                   </TableCell>
+                  <TableCell></TableCell>
                   <TableCell className="text-muted-foreground text-right text-sm">
                     {formatUsd(a.current_price_usd !== null ? loc.quantity * a.current_price_usd : null)}
                   </TableCell>
