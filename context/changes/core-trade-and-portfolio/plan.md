@@ -688,40 +688,40 @@ Build the full portfolio dashboard as a React island: a table showing per-asset 
 
 #### Automated
 
-- [x] 5.1 Type checking passes: `npm run lint`
-- [x] 5.2 Build passes: `npm run build`
-- [x] 5.3 Unit tests pass: `npm run test`
+- [x] 5.1 Type checking passes: `npm run lint` — 6d24f76
+- [x] 5.2 Build passes: `npm run build` — 6d24f76
+- [x] 5.3 Unit tests pass: `npm run test` — 6d24f76
 
 #### Manual
 
-- [x] 5.4 Portfolio shows stablecoin position after DEPOSIT
-- [x] 5.5 Portfolio shows correct position after BUY
-- [x] 5.6 Average cost correct after multiple BUYs at different prices
-- [x] 5.7 Realized P&L correct after partial SELL
-- [x] 5.8 Unrealized P&L computed against current CoinPaprika price
-- [x] 5.9 Per-location breakdown shows correct quantities
-- [x] 5.10 SWAP correctly updates both asset positions
-- [x] 5.11 Zero-balance assets marked as closed
-- [x] 5.12 Backdated/manual transaction P&L uses stored execution valuation
-- [x] 5.13 BUY before source DEPOSIT is rejected and cannot produce negative holdings
+- [x] 5.4 Portfolio shows stablecoin position after DEPOSIT — 6d24f76
+- [x] 5.5 Portfolio shows correct position after BUY — 6d24f76
+- [x] 5.6 Average cost correct after multiple BUYs at different prices — 6d24f76
+- [x] 5.7 Realized P&L correct after partial SELL — 6d24f76
+- [x] 5.8 Unrealized P&L computed against current CoinPaprika price — 6d24f76
+- [x] 5.9 Per-location breakdown shows correct quantities — 6d24f76
+- [x] 5.10 SWAP correctly updates both asset positions — 6d24f76
+- [x] 5.11 Zero-balance assets marked as closed — 6d24f76
+- [x] 5.12 Backdated/manual transaction P&L uses stored execution valuation — 6d24f76
+- [x] 5.13 BUY before source DEPOSIT is rejected and cannot produce negative holdings — 6d24f76
 
 ### Phase 6: Portfolio Dashboard UI
 
 #### Automated
 
-- [ ] 6.1 Type checking passes: `npm run lint`
-- [ ] 6.2 Build passes: `npm run build`
+- [x] 6.1 Type checking passes: `npm run lint`
+- [x] 6.2 Build passes: `npm run build`
 
 #### Manual
 
-- [ ] 6.3 Portfolio table displays correct data
-- [ ] 6.4 Asset rows expand to show per-location breakdown
-- [ ] 6.5 Prices auto-refresh every ~20 seconds
-- [ ] 6.6 Price polling pauses while tab is hidden and resumes when visible
-- [ ] 6.7 Stale price state renders when API returns cached stale prices
-- [ ] 6.8 Adding transaction via dialog refreshes portfolio
-- [ ] 6.9 Zero-balance toggle works correctly
-- [ ] 6.10 Empty state shown with no transactions
-- [ ] 6.11 Loading skeleton shown during initial fetch
-- [ ] 6.12 P&L values colored green/red appropriately
-- [ ] 6.13 No console errors during normal usage
+- [x] 6.3 Portfolio table displays correct data
+- [x] 6.4 Asset rows expand to show per-location breakdown
+- [x] 6.5 Prices auto-refresh every ~20 seconds
+- [x] 6.6 Price polling pauses while tab is hidden and resumes when visible
+- [x] 6.7 Stale price state renders when API returns cached stale prices
+- [x] 6.8 Adding transaction via dialog refreshes portfolio
+- [x] 6.9 Zero-balance toggle works correctly
+- [x] 6.10 Empty state shown with no transactions
+- [x] 6.11 Loading skeleton shown during initial fetch
+- [x] 6.12 P&L values colored green/red appropriately
+- [x] 6.13 No console errors during normal usage

@@ -1,7 +1,14 @@
 import { useState } from "react";
 import { PlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { TransactionForm } from "@/components/portfolio/TransactionForm";
 
 interface AddTransactionDialogProps {
@@ -27,6 +34,7 @@ export function AddTransactionDialog({ onTransactionCreated }: AddTransactionDia
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>New Transaction</DialogTitle>
+          <DialogDescription>Record a deposit, buy, sell, or swap transaction.</DialogDescription>
         </DialogHeader>
         <TransactionForm onSuccess={handleSuccess} />
       </DialogContent>
