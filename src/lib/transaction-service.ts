@@ -61,6 +61,15 @@ async function resolvePriceUsd(
   }
 
   const dateStr = transactionDate.slice(0, 10);
+
+  // Crypto-to-crypto: derive source USD from target side per plan convention
+  if (targetAsset && targetQuantity && targetQuantity > 0) {
+    const targetUsdPrice = await getPriceForDate(targetAsset, dateStr);
+    if (targetUsdPrice !== null) {
+      return (targetQuantity * targetUsdPrice) / sourceQuantity;
+    }
+  }
+
   const apiPrice = await getPriceForDate(sourceAsset, dateStr);
   return apiPrice;
 }

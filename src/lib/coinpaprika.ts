@@ -100,42 +100,31 @@ export async function getMultiplePrices(coinIds: string[]): Promise<PriceLookupR
     };
   }
 
-  interface TickerItem {
-    id: string;
-    quotes?: { USD?: { price?: number } };
+  const now = Date.now();
+  const results = await Promise.all(toFetch.map((id) => getCurrentPrice(id).then((p) => ({ id, price: p }))));
+  let anyFailed = false;
+
+  for (const { id, price } of results) {
+    if (price !== null) {
+      fresh[id] = price;
+      currentPriceCache.set(id, { price, fetchedAt: now });
+    } else if (id in staleEntries) {
+      anyFailed = true;
+    }
   }
 
-  const data = await safeFetch<TickerItem[]>(`${BASE_URL}/tickers`);
-  const now = Date.now();
-
-  if (data) {
-    const tickerMap = new Map<string, number>();
-    for (const item of data) {
-      const price = item.quotes?.USD?.price;
-      if (price !== undefined) {
-        tickerMap.set(item.id, price);
-      }
-    }
-
-    for (const id of toFetch) {
-      const price = tickerMap.get(id);
-      if (price !== undefined) {
-        fresh[id] = price;
-        currentPriceCache.set(id, { price, fetchedAt: now });
-      }
-    }
-
+  if (anyFailed) {
     return {
-      prices: { ...fresh },
-      stale: false,
-      updated_at: new Date().toISOString(),
+      prices: { ...fresh, ...staleEntries },
+      stale: true,
+      updated_at: null,
     };
   }
 
   return {
-    prices: { ...fresh, ...staleEntries },
-    stale: Object.keys(staleEntries).length > 0,
-    updated_at: null,
+    prices: { ...fresh },
+    stale: false,
+    updated_at: new Date().toISOString(),
   };
 }
 

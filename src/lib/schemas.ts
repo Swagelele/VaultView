@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const USD_STABLECOINS = ["usdt-tether", "usdc-usd-coin"];
+export const USD_STABLECOINS = ["usdt-tether", "usdc-usd-coin"];
 
 export function isUsdStablecoin(coinId: string): boolean {
   return USD_STABLECOINS.includes(coinId.toLowerCase());

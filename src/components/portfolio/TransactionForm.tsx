@@ -4,10 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AssetAutocomplete } from "@/components/portfolio/AssetAutocomplete";
+import { USD_STABLECOINS } from "@/lib/schemas";
 
 type TxType = "DEPOSIT" | "BUY" | "SELL" | "SWAP";
-
-const USD_STABLECOIN_IDS = ["usdt-tether", "usdc-usd-coin"];
 
 interface TransactionFormProps {
   onSuccess: () => void;
@@ -44,7 +43,7 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
     if (!assetForPrice || type === "DEPOSIT") {
       return;
     }
-    if (USD_STABLECOIN_IDS.includes(assetForPrice)) {
+    if (USD_STABLECOINS.includes(assetForPrice)) {
       return;
     }
 
@@ -204,7 +203,7 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
               setSourceAsset(id);
               setSourceSymbol(sym);
             }}
-            filterIds={USD_STABLECOIN_IDS}
+            filterIds={USD_STABLECOINS}
             placeholder="Search stablecoin..."
           />
         </>

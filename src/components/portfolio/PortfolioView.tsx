@@ -13,7 +13,13 @@ interface PortfolioApiResponse {
 
 function fetchPortfolioData(): Promise<PortfolioApiResponse | null> {
   return fetch("/api/portfolio")
-    .then((res) => (res.ok ? (res.json() as Promise<PortfolioApiResponse>) : null))
+    .then((res) => {
+      if (res.status === 401) {
+        window.location.href = "/auth/signin";
+        return null;
+      }
+      return res.ok ? (res.json() as Promise<PortfolioApiResponse>) : null;
+    })
     .catch(() => null);
 }
 
