@@ -709,19 +709,19 @@ Build the full portfolio dashboard as a React island: a table showing per-asset 
 
 #### Automated
 
-- [x] 6.1 Type checking passes: `npm run lint`
-- [x] 6.2 Build passes: `npm run build`
+- [x] 6.1 Type checking passes: `npm run lint` — 3b6ac0f
+- [x] 6.2 Build passes: `npm run build` — 3b6ac0f
 
 #### Manual
 
-- [x] 6.3 Portfolio table displays correct data
-- [x] 6.4 Asset rows expand to show per-location breakdown
-- [x] 6.5 Prices auto-refresh every ~20 seconds
-- [x] 6.6 Price polling pauses while tab is hidden and resumes when visible
-- [x] 6.7 Stale price state renders when API returns cached stale prices
-- [x] 6.8 Adding transaction via dialog refreshes portfolio
-- [x] 6.9 Zero-balance toggle works correctly
-- [x] 6.10 Empty state shown with no transactions
-- [x] 6.11 Loading skeleton shown during initial fetch
-- [x] 6.12 P&L values colored green/red appropriately
-- [x] 6.13 No console errors during normal usage
+- [x] 6.3 Portfolio table displays correct data — 3b6ac0f
+- [x] 6.4 Asset rows expand to show per-location breakdown — 3b6ac0f
+- [x] 6.5 Prices auto-refresh every ~20 seconds — 3b6ac0f
+- [x] 6.6 Price polling pauses while tab is hidden and resumes when visible — 3b6ac0f
+- [x] 6.7 Stale price state renders when API returns cached stale prices — 3b6ac0f
+- [x] 6.8 Adding transaction via dialog refreshes portfolio — 3b6ac0f
+- [x] 6.9 Zero-balance toggle works correctly — 3b6ac0f
+- [x] 6.10 Empty state shown with no transactions — 3b6ac0f
+- [x] 6.11 Loading skeleton shown during initial fetch — 3b6ac0f
+- [x] 6.12 P&L values colored green/red appropriately — 3b6ac0f
+- [x] 6.13 No console errors during normal usage — 3b6ac0f

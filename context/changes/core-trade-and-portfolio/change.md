@@ -1,7 +1,7 @@
 ---
 change_id: core-trade-and-portfolio
 title: Core trade and portfolio
-status: implementing
+status: implemented
 created: 2026-06-15
 updated: 2026-06-15
 archived_at: null
