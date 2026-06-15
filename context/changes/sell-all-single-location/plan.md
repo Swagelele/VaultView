@@ -189,22 +189,22 @@ None. No new API calls — sell-all reads from `availableBalance` state that's a
 
 #### Automated
 
-- [x] 1.1 Lint passes: `npm run lint`
-- [x] 1.2 Build passes: `npm run build`
+- [x] 1.1 Lint passes: `npm run lint` — ac06f82
+- [x] 1.2 Build passes: `npm run build` — ac06f82
 
 #### Manual
 
-- [ ] 1.3 SELL tab field order is correct (sell asset → location → quantity/Max → price → receiving → balance → date → fee)
-- [ ] 1.4 Max fills quantity with exact holding at location
-- [ ] 1.5 Max disabled when balance is zero or unavailable
-- [ ] 1.6 BUY and DEPOSIT tabs still function correctly
+- [x] 1.3 SELL tab field order is correct (sell asset → location → quantity/Max → price → receiving → balance → date → fee) — ac06f82
+- [x] 1.4 Max fills quantity with exact holding at location — ac06f82
+- [x] 1.5 Max disabled when balance is zero or unavailable — ac06f82
+- [x] 1.6 BUY and DEPOSIT tabs still function correctly — ac06f82
 
 ### Phase 2: BUY tab — form reorder + sell-all button
 
 #### Automated
 
-- [ ] 2.1 Lint passes: `npm run lint`
-- [ ] 2.2 Build passes: `npm run build`
+- [x] 2.1 Lint passes: `npm run lint`
+- [x] 2.2 Build passes: `npm run build`
 
 #### Manual
 
