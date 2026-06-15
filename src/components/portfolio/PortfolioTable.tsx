@@ -55,6 +55,7 @@ export function PortfolioTable({ assets, showClosed }: PortfolioTableProps) {
           <TableHead className="text-right text-white/70">Quantity</TableHead>
           <TableHead className="text-right text-white/70">Avg Cost</TableHead>
           <TableHead className="text-right text-white/70">Current Price</TableHead>
+          <TableHead className="text-right text-white/70">Value</TableHead>
           <TableHead className="text-right text-white/70">Unrealized P&L</TableHead>
           <TableHead className="text-right text-white/70">Realized P&L</TableHead>
         </TableRow>
@@ -75,6 +76,9 @@ export function PortfolioTable({ assets, showClosed }: PortfolioTableProps) {
               <TableCell className="text-right text-white/90">{formatQty(a.total_quantity)}</TableCell>
               <TableCell className="text-right text-white/90">{formatUsd(a.avg_cost_usd)}</TableCell>
               <TableCell className="text-right text-white/90">{formatUsd(a.current_price_usd)}</TableCell>
+              <TableCell className="text-right text-white/90">
+                {formatUsd(a.current_price_usd !== null ? a.total_quantity * a.current_price_usd : null)}
+              </TableCell>
               <TableCell className={cn("text-right", pnlColor(a.unrealized_pnl_usd))}>
                 {formatUsd(a.unrealized_pnl_usd)}
               </TableCell>
@@ -91,7 +95,9 @@ export function PortfolioTable({ assets, showClosed }: PortfolioTableProps) {
                   <TableCell className="text-muted-foreground text-right text-sm">
                     {formatUsd(loc.avg_cost_usd)}
                   </TableCell>
-                  <TableCell></TableCell>
+                  <TableCell className="text-muted-foreground text-right text-sm">
+                    {formatUsd(a.current_price_usd !== null ? loc.quantity * a.current_price_usd : null)}
+                  </TableCell>
                   <TableCell className={cn("text-right text-sm", pnlColor(loc.unrealized_pnl))}>
                     {formatUsd(loc.unrealized_pnl)}
                   </TableCell>
