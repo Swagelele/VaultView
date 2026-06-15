@@ -36,7 +36,7 @@ Portfele kryptowalutowe są rozproszone po wielu giełdach i portfelach — brak
 | S-04 | transaction-list-filters | przegląda listę transakcji z filtrami po typie, lokalizacji i assecie        | S-01          | FR-011                                               | proposed |
 | S-05 | deposit-historical-cost  | rejestruje istniejący asset (DEPOSIT) z historycznym kosztem nabycia         | S-01          | US-04, FR-005                                        | proposed |
 | S-06 | withdraw-cash-out        | wycofuje asset z trackingu (WITHDRAW) z realizacją P&L                       | S-01          | US-05, FR-006                                        | proposed |
-| S-07 | sell-all-single-location | sprzedaje całą pozycję w jednej lokalizacji jednym kliknięciem               | S-01          | US-03, FR-004                                        | proposed |
+| S-07 | sell-all-single-location | sprzedaje całą pozycję w jednej lokalizacji jednym kliknięciem               | S-01          | US-03, FR-004                                        | done     |
 | S-08 | sell-all-global          | sprzedaje asset we wszystkich lokalizacjach z per-lokalizacyjną konfiguracją | S-07          | FR-004                                               | proposed |
 
 ## Streams
@@ -163,7 +163,7 @@ Foundations poniżej zakładają że te warstwy są obecne i NIE budują ich od 
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Niski — rozszerzenie formularza handlu z S-01 o przycisk auto-fill. Wymaga precyzyjnej kalkulacji holdingu per lokalizacja.
-- **Status:** proposed
+- **Status:** done
 
 ### S-08: Sell-all globalny (wszystkie lokalizacje)
 
@@ -188,8 +188,8 @@ Foundations poniżej zakładają że te warstwy są obecne i NIE budują ich od 
 | S-04       | transaction-list-filters | Lista transakcji z filtrami               | yes                   | S-01 done. Run `/10x-plan transaction-list-filters` |
 | S-05       | deposit-historical-cost  | DEPOSIT z historycznym kosztem nabycia    | yes                   | S-01 done. Run `/10x-plan deposit-historical-cost`  |
 | S-06       | withdraw-cash-out        | WITHDRAW z realizacją P&L                 | yes                   | S-01 done. Run `/10x-plan withdraw-cash-out`        |
-| S-07       | sell-all-single-location | Sell-all w pojedynczej lokalizacji        | yes                   | S-01 done. Run `/10x-plan sell-all-single-location` |
-| S-08       | sell-all-global          | Sell-all globalny (wszystkie lokalizacje) | no                    | Czeka na S-07                                       |
+| S-07       | sell-all-single-location | Sell-all w pojedynczej lokalizacji        | done                  | Implemented — `ac06f82`..`0123bf3`                  |
+| S-08       | sell-all-global          | Sell-all globalny (wszystkie lokalizacje) | yes                   | S-07 done. Run `/10x-plan sell-all-global`          |
 
 ## Open Roadmap Questions
 
