@@ -667,43 +667,43 @@ Build the full portfolio dashboard as a React island: a table showing per-asset 
 
 #### Automated
 
-- [x] 4.1 Type checking passes: `npm run lint`
-- [x] 4.2 Build passes: `npm run build`
+- [x] 4.1 Type checking passes: `npm run lint` — 10e8ee0
+- [x] 4.2 Build passes: `npm run build` — 10e8ee0
 
 #### Manual
 
-- [x] 4.3 "Add Transaction" button opens dialog with form
-- [x] 4.4 DEPOSIT/BUY/SELL/SWAP toggle updates field labels
-- [x] 4.5 DEPOSIT mode accepts USD stablecoin opening balance without price field
-- [x] 4.6 Asset autocomplete shows CoinPaprika results
-- [x] 4.7 Price suggestion pre-fills on asset selection
-- [x] 4.8 Price field remains editable after suggestion
-- [x] 4.9 Location autocomplete shows prior locations
-- [x] 4.10 Valid DEPOSIT submission succeeds and dialog closes
-- [x] 4.11 Valid BUY submission after sufficient DEPOSIT succeeds and dialog closes
-- [x] 4.12 Invalid submission shows validation errors
-- [x] 4.13 Created transaction appears in Supabase Studio
+- [x] 4.3 "Add Transaction" button opens dialog with form — 10e8ee0
+- [x] 4.4 DEPOSIT/BUY/SELL/SWAP toggle updates field labels — 10e8ee0
+- [x] 4.5 DEPOSIT mode accepts USD stablecoin opening balance without price field — 10e8ee0
+- [x] 4.6 Asset autocomplete shows CoinPaprika results — 10e8ee0
+- [x] 4.7 Price suggestion pre-fills on asset selection — 10e8ee0
+- [x] 4.8 Price field remains editable after suggestion — 10e8ee0
+- [x] 4.9 Location autocomplete shows prior locations — 10e8ee0
+- [x] 4.10 Valid DEPOSIT submission succeeds and dialog closes — 10e8ee0
+- [x] 4.11 Valid BUY submission after sufficient DEPOSIT succeeds and dialog closes — 10e8ee0
+- [x] 4.12 Invalid submission shows validation errors — 10e8ee0
+- [x] 4.13 Created transaction appears in Supabase Studio — 10e8ee0
 
 ### Phase 5: P&L Engine & Portfolio API
 
 #### Automated
 
-- [ ] 5.1 Type checking passes: `npm run lint`
-- [ ] 5.2 Build passes: `npm run build`
-- [ ] 5.3 Unit tests pass: `npm run test`
+- [x] 5.1 Type checking passes: `npm run lint`
+- [x] 5.2 Build passes: `npm run build`
+- [x] 5.3 Unit tests pass: `npm run test`
 
 #### Manual
 
-- [ ] 5.4 Portfolio shows stablecoin position after DEPOSIT
-- [ ] 5.5 Portfolio shows correct position after BUY
-- [ ] 5.6 Average cost correct after multiple BUYs at different prices
-- [ ] 5.7 Realized P&L correct after partial SELL
-- [ ] 5.8 Unrealized P&L computed against current CoinPaprika price
-- [ ] 5.9 Per-location breakdown shows correct quantities
-- [ ] 5.10 SWAP correctly updates both asset positions
-- [ ] 5.11 Zero-balance assets marked as closed
-- [ ] 5.12 Backdated/manual transaction P&L uses stored execution valuation
-- [ ] 5.13 BUY before source DEPOSIT is rejected and cannot produce negative holdings
+- [x] 5.4 Portfolio shows stablecoin position after DEPOSIT
+- [x] 5.5 Portfolio shows correct position after BUY
+- [x] 5.6 Average cost correct after multiple BUYs at different prices
+- [x] 5.7 Realized P&L correct after partial SELL
+- [x] 5.8 Unrealized P&L computed against current CoinPaprika price
+- [x] 5.9 Per-location breakdown shows correct quantities
+- [x] 5.10 SWAP correctly updates both asset positions
+- [x] 5.11 Zero-balance assets marked as closed
+- [x] 5.12 Backdated/manual transaction P&L uses stored execution valuation
+- [x] 5.13 BUY before source DEPOSIT is rejected and cannot produce negative holdings
 
 ### Phase 6: Portfolio Dashboard UI
 
