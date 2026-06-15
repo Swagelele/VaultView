@@ -203,12 +203,12 @@ None. No new API calls — sell-all reads from `availableBalance` state that's a
 
 #### Automated
 
-- [x] 2.1 Lint passes: `npm run lint`
-- [x] 2.2 Build passes: `npm run build`
+- [x] 2.1 Lint passes: `npm run lint` — 0123bf3
+- [x] 2.2 Build passes: `npm run build` — 0123bf3
 
 #### Manual
 
-- [ ] 2.3 BUY tab field order is correct (buy asset → paying with → location → price → quantity/Max → balance → date → fee)
-- [ ] 2.4 Max computes correct target quantity from source balance / price
-- [ ] 2.5 Max disabled when price empty/zero or balance unavailable
-- [ ] 2.6 SELL tab still functions correctly (no regression)
+- [x] 2.3 BUY tab field order is correct (buy asset → paying with → location → price → quantity/Max → balance → date → fee) — 0123bf3
+- [x] 2.4 Max computes correct target quantity from source balance / price — 0123bf3
+- [x] 2.5 Max disabled when price empty/zero or balance unavailable — 0123bf3
+- [x] 2.6 SELL tab still functions correctly (no regression) — 0123bf3

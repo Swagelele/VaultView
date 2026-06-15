@@ -1,7 +1,7 @@
 ---
 change_id: sell-all-single-location
 title: Sell all single location
-status: implementing
+status: implemented
 created: 2026-06-15
 updated: 2026-06-15
 archived_at: null
