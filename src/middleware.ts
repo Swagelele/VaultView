@@ -7,6 +7,7 @@ const PROTECTED_API_ROUTES = [
   "/api/transactions",
   "/api/portfolio",
   "/api/locations",
+  "/api/holdings",
   "/api/assets/search",
   "/api/prices",
 ];

@@ -28,6 +28,24 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
   const [suggestedPrice, setSuggestedPrice] = useState<number | null>(null);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [availableBalance, setAvailableBalance] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (type === "DEPOSIT" || !sourceAsset || !location) return;
+
+    let cancelled = false;
+    fetch(`/api/holdings?asset=${encodeURIComponent(sourceAsset)}&location=${encodeURIComponent(location)}`)
+      .then((r) => (r.ok ? (r.json() as Promise<{ data: number }>) : null))
+      .then((d) => {
+        if (!cancelled && d) setAvailableBalance(d.data);
+      })
+      .catch(() => undefined);
+
+    return () => {
+      cancelled = true;
+      setAvailableBalance(null);
+    };
+  }, [sourceAsset, location, type]);
 
   useEffect(() => {
     fetch("/api/locations")
@@ -68,6 +86,9 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
     };
   }, [sourceAsset, targetAsset, type, transactionDate]);
 
+  const sourceAmount = type === "BUY" && amount && price ? Number(amount) * Number(price) : amount ? Number(amount) : 0;
+  const insufficientBalance = type !== "DEPOSIT" && availableBalance !== null && sourceAmount > availableBalance;
+
   function resetForm() {
     setSourceAsset("");
     setSourceSymbol("");
@@ -78,6 +99,7 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
     setTargetAmount("");
     setFee("");
     setSuggestedPrice(null);
+    setAvailableBalance(null);
     setError("");
   }
 
@@ -268,6 +290,12 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
             }}
             placeholder="Search asset..."
           />
+          {availableBalance !== null && (
+            <p className={insufficientBalance ? "text-sm text-red-500" : "text-muted-foreground text-sm"}>
+              Available: {availableBalance.toLocaleString(undefined, { maximumFractionDigits: 8 })} {sourceSymbol}
+              {insufficientBalance && " — insufficient balance"}
+            </p>
+          )}
           {computedTotal && <p className="text-muted-foreground text-sm">Total: {computedTotal}</p>}
         </>
       )}
@@ -318,6 +346,12 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
               required
             />
           </div>
+          {availableBalance !== null && (
+            <p className={insufficientBalance ? "text-sm text-red-500" : "text-muted-foreground text-sm"}>
+              Available: {availableBalance.toLocaleString(undefined, { maximumFractionDigits: 8 })} {sourceSymbol}
+              {insufficientBalance && " — insufficient balance"}
+            </p>
+          )}
           {computedTotal && <p className="text-muted-foreground text-sm">{computedTotal}</p>}
         </>
       )}
@@ -370,7 +404,7 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
 
       {error && <p className="text-sm text-red-500">{error}</p>}
 
-      <Button type="submit" disabled={submitting}>
+      <Button type="submit" disabled={submitting || insufficientBalance}>
         {submitting ? "Saving..." : "Save Transaction"}
       </Button>
     </form>
