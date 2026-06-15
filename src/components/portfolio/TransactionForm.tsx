@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AssetAutocomplete } from "@/components/portfolio/AssetAutocomplete";
 import { USD_STABLECOINS } from "@/lib/schemas";
+import { cn } from "@/lib/utils";
 
 type TxType = "DEPOSIT" | "BUY" | "SELL";
 
@@ -211,19 +212,14 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
         </>
       )}
 
-      {(type === "BUY" || type === "SELL") && (
+      {type === "BUY" && (
         <>
           <AssetAutocomplete
-            label={type === "BUY" ? "Buy asset" : "Sell asset"}
-            value={type === "BUY" ? targetSymbol : sourceSymbol}
+            label="Buy asset"
+            value={targetSymbol}
             onChange={(id, sym) => {
-              if (type === "BUY") {
-                setTargetAsset(id);
-                setTargetSymbol(sym);
-              } else {
-                setSourceAsset(id);
-                setSourceSymbol(sym);
-              }
+              setTargetAsset(id);
+              setTargetSymbol(sym);
             }}
             placeholder="Search asset..."
           />
@@ -257,16 +253,11 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
             />
           </div>
           <AssetAutocomplete
-            label={type === "BUY" ? "Paying with" : "Receiving"}
-            value={type === "BUY" ? sourceSymbol : targetSymbol}
+            label="Paying with"
+            value={sourceSymbol}
             onChange={(id, sym) => {
-              if (type === "BUY") {
-                setSourceAsset(id);
-                setSourceSymbol(sym);
-              } else {
-                setTargetAsset(id);
-                setTargetSymbol(sym);
-              }
+              setSourceAsset(id);
+              setSourceSymbol(sym);
             }}
             placeholder="Search asset..."
           />
@@ -280,38 +271,159 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
         </>
       )}
 
-      <div className="grid gap-1.5">
-        <Label>Location</Label>
-        <Input
-          type="text"
-          value={location}
-          onChange={(e) => {
-            setLocation(e.target.value);
-          }}
-          list="location-suggestions"
-          placeholder="e.g. Binance, MetaMask..."
-          required
-        />
-        <datalist id="location-suggestions">
-          {locationSuggestions.map((loc) => (
-            <option key={loc} value={loc} />
-          ))}
-        </datalist>
-      </div>
+      {type === "SELL" && (
+        <>
+          <AssetAutocomplete
+            label="Sell asset"
+            value={sourceSymbol}
+            onChange={(id, sym) => {
+              setSourceAsset(id);
+              setSourceSymbol(sym);
+            }}
+            placeholder="Search asset..."
+          />
+          <div className="grid gap-1.5">
+            <Label>Location</Label>
+            <Input
+              type="text"
+              value={location}
+              onChange={(e) => {
+                setLocation(e.target.value);
+              }}
+              list="location-suggestions"
+              placeholder="e.g. Binance, MetaMask..."
+              required
+            />
+            <datalist id="location-suggestions">
+              {locationSuggestions.map((loc) => (
+                <option key={loc} value={loc} />
+              ))}
+            </datalist>
+          </div>
+          <div className="grid gap-1.5">
+            <div className="flex items-center justify-between">
+              <Label>Quantity</Label>
+              <button
+                type="button"
+                className={cn(
+                  "text-primary cursor-pointer text-xs hover:underline",
+                  (availableBalance === null || availableBalance <= 0) && "cursor-not-allowed opacity-50",
+                )}
+                disabled={availableBalance === null || availableBalance <= 0}
+                onClick={() => {
+                  if (availableBalance !== null && availableBalance > 0) {
+                    setAmount(String(availableBalance));
+                  }
+                }}
+              >
+                Max
+              </button>
+            </div>
+            <Input
+              type="number"
+              step="any"
+              min="0"
+              value={amount}
+              onChange={(e) => {
+                setAmount(e.target.value);
+              }}
+              required
+            />
+          </div>
+          <div className="grid gap-1.5">
+            <Label>
+              Price per unit (USD)
+              {suggestedPrice !== null && <span className="text-muted-foreground ml-1">(suggested)</span>}
+            </Label>
+            <Input
+              type="number"
+              step="any"
+              min="0"
+              value={price}
+              onChange={(e) => {
+                setPrice(e.target.value);
+              }}
+              required
+            />
+          </div>
+          <AssetAutocomplete
+            label="Receiving"
+            value={targetSymbol}
+            onChange={(id, sym) => {
+              setTargetAsset(id);
+              setTargetSymbol(sym);
+            }}
+            placeholder="Search asset..."
+          />
+          {availableBalance !== null && (
+            <p className={insufficientBalance ? "text-sm text-red-500" : "text-muted-foreground text-sm"}>
+              Available: {availableBalance.toLocaleString(undefined, { maximumFractionDigits: 8 })} {sourceSymbol}
+              {insufficientBalance && " — insufficient balance"}
+            </p>
+          )}
+          {computedTotal && <p className="text-muted-foreground text-sm">{computedTotal}</p>}
+          <div className="grid gap-1.5">
+            <Label>Date & Time</Label>
+            <Input
+              type="datetime-local"
+              value={transactionDate}
+              onChange={(e) => {
+                setTransactionDate(e.target.value);
+              }}
+              required
+            />
+          </div>
+          <div className="grid gap-1.5">
+            <Label>Fee (optional)</Label>
+            <Input
+              type="number"
+              step="any"
+              min="0"
+              value={fee}
+              onChange={(e) => {
+                setFee(e.target.value);
+              }}
+            />
+          </div>
+        </>
+      )}
 
-      <div className="grid gap-1.5">
-        <Label>Date & Time</Label>
-        <Input
-          type="datetime-local"
-          value={transactionDate}
-          onChange={(e) => {
-            setTransactionDate(e.target.value);
-          }}
-          required
-        />
-      </div>
+      {type !== "SELL" && (
+        <div className="grid gap-1.5">
+          <Label>Location</Label>
+          <Input
+            type="text"
+            value={location}
+            onChange={(e) => {
+              setLocation(e.target.value);
+            }}
+            list="location-suggestions"
+            placeholder="e.g. Binance, MetaMask..."
+            required
+          />
+          <datalist id="location-suggestions">
+            {locationSuggestions.map((loc) => (
+              <option key={loc} value={loc} />
+            ))}
+          </datalist>
+        </div>
+      )}
 
-      {type !== "DEPOSIT" && (
+      {type !== "SELL" && (
+        <div className="grid gap-1.5">
+          <Label>Date & Time</Label>
+          <Input
+            type="datetime-local"
+            value={transactionDate}
+            onChange={(e) => {
+              setTransactionDate(e.target.value);
+            }}
+            required
+          />
+        </div>
+      )}
+
+      {type === "BUY" && (
         <div className="grid gap-1.5">
           <Label>Fee (optional)</Label>
           <Input
