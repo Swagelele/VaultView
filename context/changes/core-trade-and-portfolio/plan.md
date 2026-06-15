@@ -649,40 +649,40 @@ Build the full portfolio dashboard as a React island: a table showing per-asset 
 
 #### Automated
 
-- [x] 3.1 Type checking passes: `npm run lint`
-- [x] 3.2 Build passes: `npm run build`
+- [x] 3.1 Type checking passes: `npm run lint` — 23deb7a
+- [x] 3.2 Build passes: `npm run build` — 23deb7a
 
 #### Manual
 
-- [x] 3.3 POST valid USD-stablecoin DEPOSIT creates target-null transaction with `price_usd = 1`
-- [x] 3.4 POST valid BUY after sufficient DEPOSIT creates transaction with `price_usd` populated
-- [x] 3.5 POST backdated/manual trade stores execution valuation, not current market price
-- [x] 3.6 POST BUY/SELL/SWAP exceeding source holdings returns 409
-- [x] 3.7 POST invalid data returns 400 with Zod error
-- [x] 3.8 GET /api/transactions returns created transactions
-- [x] 3.9 GET /api/locations returns distinct locations
-- [x] 3.10 All API endpoints return 401 JSON when unauthenticated
+- [x] 3.3 POST valid USD-stablecoin DEPOSIT creates target-null transaction with `price_usd = 1` — 23deb7a
+- [x] 3.4 POST valid BUY after sufficient DEPOSIT creates transaction with `price_usd` populated — 23deb7a
+- [x] 3.5 POST backdated/manual trade stores execution valuation, not current market price — 23deb7a
+- [x] 3.6 POST BUY/SELL/SWAP exceeding source holdings returns 409 — 23deb7a
+- [x] 3.7 POST invalid data returns 400 with Zod error — 23deb7a
+- [x] 3.8 GET /api/transactions returns created transactions — 23deb7a
+- [x] 3.9 GET /api/locations returns distinct locations — 23deb7a
+- [x] 3.10 All API endpoints return 401 JSON when unauthenticated — 23deb7a
 
 ### Phase 4: Transaction Form UI
 
 #### Automated
 
-- [ ] 4.1 Type checking passes: `npm run lint`
-- [ ] 4.2 Build passes: `npm run build`
+- [x] 4.1 Type checking passes: `npm run lint`
+- [x] 4.2 Build passes: `npm run build`
 
 #### Manual
 
-- [ ] 4.3 "Add Transaction" button opens dialog with form
-- [ ] 4.4 DEPOSIT/BUY/SELL/SWAP toggle updates field labels
-- [ ] 4.5 DEPOSIT mode accepts USD stablecoin opening balance without price field
-- [ ] 4.6 Asset autocomplete shows CoinPaprika results
-- [ ] 4.7 Price suggestion pre-fills on asset selection
-- [ ] 4.8 Price field remains editable after suggestion
-- [ ] 4.9 Location autocomplete shows prior locations
-- [ ] 4.10 Valid DEPOSIT submission succeeds and dialog closes
-- [ ] 4.11 Valid BUY submission after sufficient DEPOSIT succeeds and dialog closes
-- [ ] 4.12 Invalid submission shows validation errors
-- [ ] 4.13 Created transaction appears in Supabase Studio
+- [x] 4.3 "Add Transaction" button opens dialog with form
+- [x] 4.4 DEPOSIT/BUY/SELL/SWAP toggle updates field labels
+- [x] 4.5 DEPOSIT mode accepts USD stablecoin opening balance without price field
+- [x] 4.6 Asset autocomplete shows CoinPaprika results
+- [x] 4.7 Price suggestion pre-fills on asset selection
+- [x] 4.8 Price field remains editable after suggestion
+- [x] 4.9 Location autocomplete shows prior locations
+- [x] 4.10 Valid DEPOSIT submission succeeds and dialog closes
+- [x] 4.11 Valid BUY submission after sufficient DEPOSIT succeeds and dialog closes
+- [x] 4.12 Invalid submission shows validation errors
+- [x] 4.13 Created transaction appears in Supabase Studio
 
 ### Phase 5: P&L Engine & Portfolio API
 
