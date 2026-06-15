@@ -633,35 +633,35 @@ Build the full portfolio dashboard as a React island: a table showing per-asset 
 
 #### Automated
 
-- [x] 2.1 Type checking passes: `npm run lint`
-- [x] 2.2 Build passes: `npm run build`
+- [x] 2.1 Type checking passes: `npm run lint` — 0542f4d
+- [x] 2.2 Build passes: `npm run build` — 0542f4d
 
 #### Manual
 
-- [x] 2.3 `GET /api/assets/search?q=bitcoin` returns CoinPaprika results
-- [x] 2.4 `GET /api/prices?ids=btc-bitcoin,eth-ethereum` returns current USD prices
-- [x] 2.5 `GET /api/prices?ids=btc-bitcoin&date=2026-01-15` returns historical USD price
-- [x] 2.6 Repeated price requests inside TTL use cached values
-- [x] 2.7 Failed price refresh returns cached stale prices
-- [x] 2.8 Asset and price endpoints return 401 when unauthenticated
+- [x] 2.3 `GET /api/assets/search?q=bitcoin` returns CoinPaprika results — 0542f4d
+- [x] 2.4 `GET /api/prices?ids=btc-bitcoin,eth-ethereum` returns current USD prices — 0542f4d
+- [x] 2.5 `GET /api/prices?ids=btc-bitcoin&date=2026-01-15` returns historical USD price — 0542f4d
+- [x] 2.6 Repeated price requests inside TTL use cached values — 0542f4d
+- [x] 2.7 Failed price refresh returns cached stale prices — 0542f4d
+- [x] 2.8 Asset and price endpoints return 401 when unauthenticated — 0542f4d
 
 ### Phase 3: Transaction Backend
 
 #### Automated
 
-- [ ] 3.1 Type checking passes: `npm run lint`
-- [ ] 3.2 Build passes: `npm run build`
+- [x] 3.1 Type checking passes: `npm run lint`
+- [x] 3.2 Build passes: `npm run build`
 
 #### Manual
 
-- [ ] 3.3 POST valid USD-stablecoin DEPOSIT creates target-null transaction with `price_usd = 1`
-- [ ] 3.4 POST valid BUY after sufficient DEPOSIT creates transaction with `price_usd` populated
-- [ ] 3.5 POST backdated/manual trade stores execution valuation, not current market price
-- [ ] 3.6 POST BUY/SELL/SWAP exceeding source holdings returns 409
-- [ ] 3.7 POST invalid data returns 400 with Zod error
-- [ ] 3.8 GET /api/transactions returns created transactions
-- [ ] 3.9 GET /api/locations returns distinct locations
-- [ ] 3.10 All API endpoints return 401 JSON when unauthenticated
+- [x] 3.3 POST valid USD-stablecoin DEPOSIT creates target-null transaction with `price_usd = 1`
+- [x] 3.4 POST valid BUY after sufficient DEPOSIT creates transaction with `price_usd` populated
+- [x] 3.5 POST backdated/manual trade stores execution valuation, not current market price
+- [x] 3.6 POST BUY/SELL/SWAP exceeding source holdings returns 409
+- [x] 3.7 POST invalid data returns 400 with Zod error
+- [x] 3.8 GET /api/transactions returns created transactions
+- [x] 3.9 GET /api/locations returns distinct locations
+- [x] 3.10 All API endpoints return 401 JSON when unauthenticated
 
 ### Phase 4: Transaction Form UI
 
