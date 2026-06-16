@@ -207,4 +207,4 @@ Foundations poniżej zakładają że te warstwy są obecne i NIE budują ich od 
 
 ## Done
 
-(Empty on first generation. `/10x-archive` appends entries here when a change is archived.)
+- **S-08: sprzedaje asset we wszystkich lokalizacjach z per-lokalizacyjną konfiguracją** — Archived 2026-06-16 → `context/archive/2026-06-16-sell-all-global/`. Lesson: —.
