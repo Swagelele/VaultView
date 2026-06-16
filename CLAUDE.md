@@ -112,3 +112,16 @@ Turn one roadmap item into the first implementation cycle with the **change plan
 Skills must not write to `context/archive/`. Archived changes are immutable; if a resolved target path starts with `context/archive/`, abort with: "This change is archived. Open a new change with `/10x-new` instead."
 
 <!-- END @przeprogramowani/10x-cli -->
+
+## Project conventions (user-owned — not managed by @przeprogramowani/10x-cli)
+
+### Roadmap sync after implementation (always)
+
+When `/10x-implement` finishes the final phase of a change (i.e. `change.md` flips to `implemented`), **always** update `context/foundation/roadmap.md` automatically, without being asked, to mark the matching roadmap item `done`:
+
+- flip its status in the **At a glance** table,
+- flip the slice's `**Status:**` line,
+- update its **Backlog Handoff** row (readiness → `done`, Notes → `Implemented — <first-sha>..<epilogue-sha>`),
+- bump the roadmap frontmatter `updated:` to today.
+
+Do this as part of closeout, before offering `/10x-archive`. Fold the roadmap edit into the epilogue commit, or land a follow-up `docs:` commit if the epilogue already committed.

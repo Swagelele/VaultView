@@ -3,7 +3,7 @@ project: "VaultView"
 version: 1
 status: draft
 created: 2026-06-12
-updated: 2026-06-15
+updated: 2026-06-16
 prd_version: 1
 main_goal: speed
 top_blocker: time
@@ -37,7 +37,7 @@ Portfele kryptowalutowe są rozproszone po wielu giełdach i portfelach — brak
 | S-05 | deposit-historical-cost  | rejestruje istniejący asset (DEPOSIT) z historycznym kosztem nabycia         | S-01          | US-04, FR-005                                        | proposed |
 | S-06 | withdraw-cash-out        | wycofuje asset z trackingu (WITHDRAW) z realizacją P&L                       | S-01          | US-05, FR-006                                        | proposed |
 | S-07 | sell-all-single-location | sprzedaje całą pozycję w jednej lokalizacji jednym kliknięciem               | S-01          | US-03, FR-004                                        | done     |
-| S-08 | sell-all-global          | sprzedaje asset we wszystkich lokalizacjach z per-lokalizacyjną konfiguracją | S-07          | FR-004                                               | proposed |
+| S-08 | sell-all-global          | sprzedaje asset we wszystkich lokalizacjach z per-lokalizacyjną konfiguracją | S-07          | FR-004                                               | done     |
 
 ## Streams
 
@@ -175,7 +175,7 @@ Foundations poniżej zakładają że te warstwy są obecne i NIE budują ich od 
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Najbardziej złożony UX w roadmapie — wielolokalizacyjna konfiguracja w jednym formularzu. Sekwencjonowany jako ostatni ponieważ jest rozszerzeniem S-07 i odpowiada wtórnemu kryterium sukcesu PRD.
-- **Status:** proposed
+- **Status:** done
 
 ## Backlog Handoff
 
@@ -189,7 +189,7 @@ Foundations poniżej zakładają że te warstwy są obecne i NIE budują ich od 
 | S-05       | deposit-historical-cost  | DEPOSIT z historycznym kosztem nabycia    | yes                   | S-01 done. Run `/10x-plan deposit-historical-cost`  |
 | S-06       | withdraw-cash-out        | WITHDRAW z realizacją P&L                 | yes                   | S-01 done. Run `/10x-plan withdraw-cash-out`        |
 | S-07       | sell-all-single-location | Sell-all w pojedynczej lokalizacji        | done                  | Implemented — `ac06f82`..`0123bf3`                  |
-| S-08       | sell-all-global          | Sell-all globalny (wszystkie lokalizacje) | yes                   | S-07 done. Run `/10x-plan sell-all-global`          |
+| S-08       | sell-all-global          | Sell-all globalny (wszystkie lokalizacje) | done                  | Implemented — `6d5d344`..`ee8c2f0`                  |
 
 ## Open Roadmap Questions
 
