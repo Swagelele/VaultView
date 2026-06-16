@@ -38,9 +38,16 @@ export function computePositions(transactions: Transaction[]): ComputeResult {
   const positions: PositionMap = new Map();
   const unpriced: UnpricedTransaction[] = [];
 
-  const sorted = [...transactions].sort(
-    (a, b) => new Date(a.transaction_date).getTime() - new Date(b.transaction_date).getTime(),
-  );
+  // Sort by transaction_date, then by created_at as a deterministic tiebreaker. Without the
+  // tiebreaker, same-minute ties (datetime inputs are minute-precision) order nondeterministically;
+  // if a SELL sorts before the BUY that funds it, the `quantity > 0` clamp below silently skips the
+  // SELL while the BUY still adds — producing a phantom position and dropping the SELL's realized
+  // P&L. created_at reflects causal insertion order (a funding BUY is always created before its SELL).
+  const sorted = [...transactions].sort((a, b) => {
+    const byDate = new Date(a.transaction_date).getTime() - new Date(b.transaction_date).getTime();
+    if (byDate !== 0) return byDate;
+    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+  });
 
   for (const tx of sorted) {
     if (tx.price_usd === null) {

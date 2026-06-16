@@ -239,28 +239,28 @@ None — no schema change. Created rows use the existing `transactions` table an
 
 #### Automated
 
-- [x] 1.1 Lint passes: `npm run lint`
-- [x] 1.2 Build passes: `npm run build`
+- [x] 1.1 Lint passes: `npm run lint` — 6d5d344
+- [x] 1.2 Build passes: `npm run build` — 6d5d344
 
 #### Manual
 
-- [x] 1.3 Two-location batch creates exactly two SELL rows and returns them
-- [x] 1.4 Zero-holding location returns 409 and creates nothing (all-or-nothing)
-- [x] 1.5 Duplicate location in the array is rejected with 400
-- [x] 1.6 Created rows have price_usd = submitted shared price and source_quantity = server-computed holding
+- [x] 1.3 Two-location batch creates exactly two SELL rows and returns them — 6d5d344
+- [x] 1.4 Zero-holding location returns 409 and creates nothing (all-or-nothing) — 6d5d344
+- [x] 1.5 Duplicate location in the array is rejected with 400 — 6d5d344
+- [x] 1.6 Created rows have price_usd = submitted shared price and source_quantity = server-computed holding — 6d5d344
 
 ### Phase 2: Frontend — SellAllDialog + portfolio row trigger
 
 #### Automated
 
-- [ ] 2.1 Lint passes: `npm run lint`
-- [ ] 2.2 Build passes: `npm run build`
+- [x] 2.1 Lint passes: `npm run lint`
+- [x] 2.2 Build passes: `npm run build`
 
 #### Manual
 
-- [ ] 2.3 Portfolio row shows "Sell all"; dialog lists all non-zero locations with correct quantities, target defaulted to USDT
-- [ ] 2.4 Submit creates one SELL per selected location; dialog closes; portfolio refreshes; positions close
-- [ ] 2.5 Deselecting a location excludes it; per-location stablecoin target override is recorded; non-stablecoin targets are not selectable
-- [ ] 2.6 Shared price edit updates summary and recorded cost basis matches (parity check)
-- [ ] 2.7 "Sell all" is disabled/absent for closed positions and does not toggle row expansion
-- [ ] 2.8 Stale dialog submit returns all-or-nothing 409 and creates nothing
+- [x] 2.3 Portfolio row shows "Sell all"; dialog lists all non-zero locations with correct quantities, target defaulted to USDT
+- [x] 2.4 Submit creates one SELL per selected location; dialog closes; portfolio refreshes; positions close
+- [x] 2.5 Deselecting a location excludes it; per-location stablecoin target override is recorded; non-stablecoin targets are not selectable
+- [x] 2.6 Shared price edit updates summary and recorded cost basis matches (parity check)
+- [x] 2.7 "Sell all" is disabled/absent for closed positions and does not toggle row expansion
+- [x] 2.8 Stale dialog submit returns all-or-nothing 409 and creates nothing

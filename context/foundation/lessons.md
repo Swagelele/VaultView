@@ -8,3 +8,10 @@
 - **Problem**: After buying an asset, instant unrealized P&L appeared even though the trade was just submitted. The root cause is not yet diagnosed — it could be price suggestion drift, rounding, or a cost basis resolution issue. The symptom is that cost basis doesn't match what the user expected to pay.
 - **Rule**: Always verify that the cost basis stored from a transaction matches the price the user saw in the form at submission time. When implementing or testing P&L features, compare the recorded `avg_cost_usd` against the price entered in the form to catch drift.
 - **Applies to**: plan, implement
+
+## Order P&L transactions deterministically — transaction_date ties cause phantom positions
+
+- **Context**: Any holding/P&L computation that processes transactions in sequence (`pnl-engine.ts` `computePositions`, anything sorting by `transaction_date`).
+- **Problem**: Datetime inputs are minute-precision (`datetime-local` + `.slice(0,16)`), so a BUY and a same-minute SELL get identical `transaction_date`. The P&L engine clamps over-sells (`if (position > 0)`). When the SELL sorts *before* its funding BUY (tie order is nondeterministic from the DB), the clamp silently skips the SELL's source reduction while the BUY still adds quantity — leaving a **phantom position** and **dropping the SELL's realized P&L**. The unclamped validator (`getHoldingAtLocation`, an order-independent sum) disagrees, so the UI shows a sellable quantity the server rejects ("have 0"). Surfaced by sell-all-global (S-08).
+- **Rule**: Sort P&L/holding transactions by `(transaction_date, created_at)`, never `transaction_date` alone. `created_at` reflects causal insertion order (a funding BUY is always created before the SELL of its proceeds), which makes the clamp behave correctly. When a sequential reducer clamps, a deterministic tiebreaker is part of correctness, not cosmetics.
+- **Applies to**: plan, implement

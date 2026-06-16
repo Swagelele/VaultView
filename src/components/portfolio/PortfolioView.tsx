@@ -171,7 +171,7 @@ export function PortfolioView() {
           No positions yet — add your first transaction to get started.
         </p>
       ) : (
-        <PortfolioTable assets={assets} showClosed={showClosed} />
+        <PortfolioTable assets={assets} showClosed={showClosed} onSellAllSuccess={handleTransactionCreated} />
       )}
     </div>
   );

@@ -221,7 +221,8 @@ export async function getTransactions(supabase: SupabaseClient, userId: string):
     .from("transactions")
     .select("*")
     .eq("user_id", userId)
-    .order("transaction_date", { ascending: true });
+    .order("transaction_date", { ascending: true })
+    .order("created_at", { ascending: true });
 
   return (data ?? []) as Transaction[];
 }
