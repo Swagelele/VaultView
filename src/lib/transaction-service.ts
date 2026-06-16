@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Transaction } from "@/types";
-import { createTransactionSchema, isUsdStablecoin } from "@/lib/schemas";
+import { createTransactionSchema, createSellAllGlobalSchema, isUsdStablecoin } from "@/lib/schemas";
 import { getPriceForDate } from "@/lib/coinpaprika";
 
 interface ServiceResult<T> {
@@ -143,6 +143,77 @@ export async function createTransaction(
   }
 
   return { data: created as Transaction };
+}
+
+export async function createSellAllGlobal(
+  supabase: SupabaseClient,
+  userId: string,
+  data: unknown,
+): Promise<ServiceResult<Transaction[]>> {
+  const parsed = createSellAllGlobalSchema.safeParse(data);
+  if (!parsed.success) {
+    const messages = parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`);
+    return { error: messages.join("; "), status: 400 };
+  }
+
+  const { source_asset, price, transaction_date, locations } = parsed.data;
+
+  // Validation pass — insert nothing until every location is known-good (all-or-nothing).
+  const rows: Record<string, unknown>[] = [];
+  const errors: string[] = [];
+
+  for (const row of locations) {
+    const holding = await getHoldingAtLocation(supabase, userId, source_asset, row.location);
+    if (holding <= 0) {
+      errors.push(`No ${source_asset} to sell at ${row.location} (have ${holding})`);
+      continue;
+    }
+
+    const targetQuantity = holding * price;
+
+    // Pass the shared form price as the override so recorded cost basis matches what the
+    // user saw at submit time (see context/foundation/lessons.md).
+    const priceUsd = await resolvePriceUsd(
+      "SELL",
+      source_asset,
+      row.target_asset,
+      targetQuantity,
+      holding,
+      transaction_date,
+      price,
+    );
+    if (priceUsd === null) {
+      errors.push(`Cannot resolve USD valuation for ${source_asset} at ${row.location}`);
+      continue;
+    }
+
+    rows.push({
+      user_id: userId,
+      type: "SELL",
+      source_asset,
+      source_quantity: holding,
+      target_asset: row.target_asset,
+      target_quantity: targetQuantity,
+      price,
+      price_usd: priceUsd,
+      fee: row.fee,
+      location: row.location,
+      transaction_date,
+    });
+  }
+
+  if (errors.length > 0) {
+    return { error: errors.join("; "), status: 409 };
+  }
+
+  // Single multi-row insert is the atomic unit — all rows land or none do.
+  const { data: created, error } = await supabase.from("transactions").insert(rows).select();
+
+  if (error) {
+    return { error: error.message, status: 500 };
+  }
+
+  return { data: created as Transaction[] };
 }
 
 export async function getTransactions(supabase: SupabaseClient, userId: string): Promise<Transaction[]> {

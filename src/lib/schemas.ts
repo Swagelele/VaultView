@@ -61,3 +61,42 @@ export const createTransactionSchema = baseSchema.superRefine((data, ctx) => {
 });
 
 export type CreateTransactionInput = z.infer<typeof createTransactionSchema>;
+
+const sellAllLocationSchema = z.object({
+  location: z.string().min(1, "Location is required"),
+  target_asset: z.string().min(1, "Target asset is required"),
+  fee: z.number().min(0, "Fee cannot be negative").optional().default(0),
+});
+
+export const createSellAllGlobalSchema = z
+  .object({
+    source_asset: z.string().min(1, "Source asset is required"),
+    price: z.number().positive("Price must be positive"),
+    transaction_date: z.string().min(1, "Transaction date is required"),
+    locations: z.array(sellAllLocationSchema).min(1, "At least one location is required"),
+  })
+  .superRefine((data, ctx) => {
+    const seen = new Set<string>();
+    data.locations.forEach((row, i) => {
+      if (seen.has(row.location)) {
+        ctx.addIssue({
+          code: "custom",
+          message: `Duplicate location: ${row.location}`,
+          path: ["locations", i, "location"],
+        });
+      }
+      seen.add(row.location);
+
+      // S-08 scope: sell-all targets are restricted to USD stablecoins so the
+      // non-stablecoin target_quantity quirk (wrong P&L) can never be triggered.
+      if (!isUsdStablecoin(row.target_asset)) {
+        ctx.addIssue({
+          code: "custom",
+          message: `Sell-all target must be a USD stablecoin (usdt-tether, usdc-usd-coin); got ${row.target_asset}`,
+          path: ["locations", i, "target_asset"],
+        });
+      }
+    });
+  });
+
+export type CreateSellAllGlobalInput = z.infer<typeof createSellAllGlobalSchema>;
