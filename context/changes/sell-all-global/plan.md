@@ -253,14 +253,14 @@ None — no schema change. Created rows use the existing `transactions` table an
 
 #### Automated
 
-- [x] 2.1 Lint passes: `npm run lint`
-- [x] 2.2 Build passes: `npm run build`
+- [x] 2.1 Lint passes: `npm run lint` — 7e7edab
+- [x] 2.2 Build passes: `npm run build` — 7e7edab
 
 #### Manual
 
-- [x] 2.3 Portfolio row shows "Sell all"; dialog lists all non-zero locations with correct quantities, target defaulted to USDT
-- [x] 2.4 Submit creates one SELL per selected location; dialog closes; portfolio refreshes; positions close
-- [x] 2.5 Deselecting a location excludes it; per-location stablecoin target override is recorded; non-stablecoin targets are not selectable
-- [x] 2.6 Shared price edit updates summary and recorded cost basis matches (parity check)
-- [x] 2.7 "Sell all" is disabled/absent for closed positions and does not toggle row expansion
-- [x] 2.8 Stale dialog submit returns all-or-nothing 409 and creates nothing
+- [x] 2.3 Portfolio row shows "Sell all"; dialog lists all non-zero locations with correct quantities, target defaulted to USDT — 7e7edab
+- [x] 2.4 Submit creates one SELL per selected location; dialog closes; portfolio refreshes; positions close — 7e7edab
+- [x] 2.5 Deselecting a location excludes it; per-location stablecoin target override is recorded; non-stablecoin targets are not selectable — 7e7edab
+- [x] 2.6 Shared price edit updates summary and recorded cost basis matches (parity check) — 7e7edab
+- [x] 2.7 "Sell all" is disabled/absent for closed positions and does not toggle row expansion — 7e7edab
+- [x] 2.8 Stale dialog submit returns all-or-nothing 409 and creates nothing — 7e7edab
