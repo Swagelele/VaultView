@@ -206,7 +206,10 @@ export async function createSellAllGlobal(
     return { error: errors.join("; "), status: 409 };
   }
 
-  // Single multi-row insert is the atomic unit — all rows land or none do.
+  // The insert itself is atomic — one multi-row statement, so a constraint violation rolls back
+  // all rows (no half-sold portfolio). Note the per-location holdings read above is NOT in the same
+  // transaction, so concurrent writers could TOCTOU-oversell; acceptable at the PRD's single-user
+  // scale, same posture as createTransaction.
   const { data: created, error } = await supabase.from("transactions").insert(rows).select();
 
   if (error) {

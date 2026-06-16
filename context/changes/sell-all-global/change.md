@@ -1,7 +1,7 @@
 ---
 change_id: sell-all-global
 title: Sell all global
-status: implemented
+status: impl_reviewed
 created: 2026-06-16
 updated: 2026-06-16
 archived_at: null

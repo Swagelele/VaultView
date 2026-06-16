@@ -47,6 +47,10 @@ On the portfolio table, each asset row with a holding shows a "Sell all" control
 - No two-step confirmation modal — a single inline summary + submit.
 - No DEPOSIT/BUY/WITHDRAW batching.
 
+## Deviations from plan (recorded during implementation)
+
+- **P&L-engine tiebreaker (contradicts "No changes to the P&L engine" above).** During Phase 2 manual testing, sell-all surfaced a pre-existing phantom-position bug: `pnl-engine.ts` clamps over-sells while `getHoldingAtLocation` does not, and same-minute `transaction_date` ties (datetime inputs are minute-precision) sorted nondeterministically — so a SELL could sort before its funding BUY, dropping the SELL's source reduction and its realized P&L. Fixed by agreement (commit `7e7edab`) with a deterministic `(transaction_date, created_at)` secondary sort in both `computePositions` and `getTransactions`. Captured as a rule in `context/foundation/lessons.md`. This is the one place the implementation intentionally touched the P&L engine despite the scope guard above.
+
 ## Implementation Approach
 
 Phase 1 builds the server contract: a Zod schema for the batch request, a `createSellAllGlobal()` service function that validates every location (holding sufficiency + USD price resolution) before inserting anything, then performs one bulk insert; and a `POST /api/transactions/batch` endpoint. Phase 2 builds the `SellAllDialog` React component seeded from the `PortfolioAsset` object and wires a "Sell all" trigger into each `PortfolioTable` row, reusing the existing portfolio-refresh callback. Backend-first so the UI builds against a known contract.
