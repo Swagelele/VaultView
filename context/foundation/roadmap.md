@@ -31,10 +31,10 @@ Portfele kryptowalutowe są rozproszone po wielu giełdach i portfelach — brak
 | ---- | ------------------------ | ---------------------------------------------------------------------------- | ------------- | ---------------------------------------------------- | -------- |
 | F-02 | transaction-schema-rls   | (foundation) tabela transakcji z RLS zapewniającym izolację danych           | —             | NFR (data isolation, data retention)                 | done     |
 | S-01 | core-trade-and-portfolio | dodaje BUY/SELL/SWAP z lokalizacją i widzi portfolio z P&L                   | F-02          | US-01, US-02, FR-003, FR-007, FR-008, FR-012, FR-013 | done     |
-| S-02 | per-buy-pnl-breakdown    | przegląda P&L w trybie per-buy (każdy zakup jako osobna pozycja)             | S-01          | FR-009                                               | proposed |
+| S-02 | per-buy-pnl-breakdown    | przegląda P&L w trybie per-buy (każdy zakup jako osobna pozycja)             | S-01          | FR-009                                               | descoped |
 | S-03 | summary-dashboard        | widzi dashboard: łączny realized P&L, unrealized P&L, opłaty                 | S-01          | FR-010                                               | done     |
 | S-04 | transaction-list-filters | przegląda listę transakcji z filtrami po typie, lokalizacji i assecie        | S-01          | FR-011                                               | done     |
-| S-05 | deposit-historical-cost  | rejestruje istniejący asset (DEPOSIT) z historycznym kosztem nabycia         | S-01          | US-04, FR-005                                        | proposed |
+| S-05 | deposit-historical-cost  | rejestruje istniejący asset (DEPOSIT) z historycznym kosztem nabycia         | S-01          | US-04, FR-005                                        | done     |
 | S-06 | withdraw-cash-out        | wycofuje asset z trackingu (WITHDRAW) z realizacją P&L                       | S-01          | US-05, FR-006                                        | proposed |
 | S-07 | sell-all-single-location | sprzedaje całą pozycję w jednej lokalizacji jednym kliknięciem               | S-01          | US-03, FR-004                                        | done     |
 | S-08 | sell-all-global          | sprzedaje asset we wszystkich lokalizacjach z per-lokalizacyjną konfiguracją | S-07          | FR-004                                               | done     |
@@ -103,7 +103,8 @@ Foundations poniżej zakładają że te warstwy są obecne i NIE budują ich od 
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Wymaga przechowywania lub rekonstrukcji poszczególnych lotów zakupowych — Average Cost agreguje, per-buy rozbija. Silnik P&L z S-01 musi być zaprojektowany tak, by dane per-buy były dostępne.
-- **Status:** proposed
+- **Status:** descoped
+- **Descoped (2026-06-17):** Per-buy unrealized P&L już istnieje per-wiersz na liście `/transactions` — `getTransactionsWithPnl` (`src/lib/transaction-service.ts`) wycenia każdy lot BUY/SWAP do rynku (własny cost basis, marka do live price), wyświetlany jako kolumna w `TransactionList.tsx`. Dedykowany tryb portfolio (toggle aggregate ↔ per-buy) uznano za niewart kosztu — sama kalkulacja per-buy jest już dostarczona, brakuje tylko zgrupowanego widoku. Cięcie świadome; FR-009 pokryte częściowo (kalkulacja tak, osobny widok nie).
 
 ### S-03: Summary dashboard
 
@@ -139,7 +140,7 @@ Foundations poniżej zakładają że te warstwy są obecne i NIE budują ich od 
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Wymaga endpointu CoinPaprika dla cen historycznych (inny niż bieżące ceny z S-01). Free tier 20K calls/miesiąc powinien wystarczyć dla personal trackera.
-- **Status:** proposed
+- **Status:** done
 
 ### S-06: WITHDRAW (cash-out z realizacją P&L)
 
@@ -197,10 +198,10 @@ Foundations poniżej zakładają że te warstwy są obecne i NIE budują ich od 
 | ---------- | ------------------------ | ----------------------------------------- | --------------------- | --------------------------------------------------- |
 | F-02       | transaction-schema-rls   | Utwórz schemat transakcji z RLS           | done                  | Implemented — `de6aed5`, `5577087`                  |
 | S-01       | core-trade-and-portfolio | Handel BUY/SELL/SWAP + portfolio z P&L    | done                  | Implemented — `bf767fc`..`f2705e3`                  |
-| S-02       | per-buy-pnl-breakdown    | Widok P&L per-buy breakdown               | yes                   | S-01 done. Run `/10x-plan per-buy-pnl-breakdown`   |
+| S-02       | per-buy-pnl-breakdown    | Widok P&L per-buy breakdown               | descoped              | Cięte 2026-06-17 — per-buy P&L już per-wiersz na `/transactions`; osobny tryb portfolio niewart kosztu |
 | S-03       | summary-dashboard        | Dashboard z łącznymi P&L i opłatami       | done                  | Implemented — `f8f2a83`..`a6a1165`                  |
 | S-04       | transaction-list-filters | Lista transakcji z filtrami               | done                  | Implemented — `850edd3`..`bd507f0`                  |
-| S-05       | deposit-historical-cost  | DEPOSIT z historycznym kosztem nabycia    | yes                   | S-01 done. Run `/10x-plan deposit-historical-cost`  |
+| S-05       | deposit-historical-cost  | DEPOSIT z historycznym kosztem nabycia    | done                  | Implemented — `6dc57f2`..`e599545`                  |
 | S-06       | withdraw-cash-out        | WITHDRAW z realizacją P&L                 | yes                   | S-01 done. Run `/10x-plan withdraw-cash-out`        |
 | S-07       | sell-all-single-location | Sell-all w pojedynczej lokalizacji        | done                  | Implemented — `ac06f82`..`0123bf3`                  |
 | S-08       | sell-all-global          | Sell-all globalny (wszystkie lokalizacje) | done                  | Implemented — `6d5d344`..`ee8c2f0`                  |
