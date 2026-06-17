@@ -3,7 +3,7 @@ project: "VaultView"
 version: 1
 status: draft
 created: 2026-06-12
-updated: 2026-06-16
+updated: 2026-06-17
 prd_version: 1
 main_goal: speed
 top_blocker: time
@@ -32,7 +32,7 @@ Portfele kryptowalutowe są rozproszone po wielu giełdach i portfelach — brak
 | F-02 | transaction-schema-rls   | (foundation) tabela transakcji z RLS zapewniającym izolację danych           | —             | NFR (data isolation, data retention)                 | done     |
 | S-01 | core-trade-and-portfolio | dodaje BUY/SELL/SWAP z lokalizacją i widzi portfolio z P&L                   | F-02          | US-01, US-02, FR-003, FR-007, FR-008, FR-012, FR-013 | done     |
 | S-02 | per-buy-pnl-breakdown    | przegląda P&L w trybie per-buy (każdy zakup jako osobna pozycja)             | S-01          | FR-009                                               | proposed |
-| S-03 | summary-dashboard        | widzi dashboard: łączny realized P&L, unrealized P&L, opłaty                 | S-01          | FR-010                                               | proposed |
+| S-03 | summary-dashboard        | widzi dashboard: łączny realized P&L, unrealized P&L, opłaty                 | S-01          | FR-010                                               | done     |
 | S-04 | transaction-list-filters | przegląda listę transakcji z filtrami po typie, lokalizacji i assecie        | S-01          | FR-011                                               | proposed |
 | S-05 | deposit-historical-cost  | rejestruje istniejący asset (DEPOSIT) z historycznym kosztem nabycia         | S-01          | US-04, FR-005                                        | proposed |
 | S-06 | withdraw-cash-out        | wycofuje asset z trackingu (WITHDRAW) z realizacją P&L                       | S-01          | US-05, FR-006                                        | proposed |
@@ -114,7 +114,7 @@ Foundations poniżej zakładają że te warstwy są obecne i NIE budują ich od 
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Niski — agregacja danych już obliczanych przez silnik P&L z S-01.
-- **Status:** proposed
+- **Status:** done
 
 ### S-04: Lista transakcji z filtrami
 
@@ -184,7 +184,7 @@ Foundations poniżej zakładają że te warstwy są obecne i NIE budują ich od 
 | F-02       | transaction-schema-rls   | Utwórz schemat transakcji z RLS           | done                  | Implemented — `de6aed5`, `5577087`                  |
 | S-01       | core-trade-and-portfolio | Handel BUY/SELL/SWAP + portfolio z P&L    | done                  | Implemented — `bf767fc`..`f2705e3`                  |
 | S-02       | per-buy-pnl-breakdown    | Widok P&L per-buy breakdown               | yes                   | S-01 done. Run `/10x-plan per-buy-pnl-breakdown`   |
-| S-03       | summary-dashboard        | Dashboard z łącznymi P&L i opłatami       | yes                   | S-01 done. Run `/10x-plan summary-dashboard`        |
+| S-03       | summary-dashboard        | Dashboard z łącznymi P&L i opłatami       | done                  | Implemented — `f8f2a83`..`a6a1165`                  |
 | S-04       | transaction-list-filters | Lista transakcji z filtrami               | yes                   | S-01 done. Run `/10x-plan transaction-list-filters` |
 | S-05       | deposit-historical-cost  | DEPOSIT z historycznym kosztem nabycia    | yes                   | S-01 done. Run `/10x-plan deposit-historical-cost`  |
 | S-06       | withdraw-cash-out        | WITHDRAW z realizacją P&L                 | yes                   | S-01 done. Run `/10x-plan withdraw-cash-out`        |
