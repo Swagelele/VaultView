@@ -32,11 +32,15 @@ export interface UnpricedTransaction {
 export interface ComputeResult {
   positions: PositionMap;
   unpriced: UnpricedTransaction[];
+  // Realized P&L (USD) keyed by Transaction.id, captured at the disposal step. DEPOSIT and unpriced
+  // transactions are absent (callers surface them as `null`); a clamped over-sell records 0.
+  realizedByTx: Map<string, number>;
 }
 
 export function computePositions(transactions: Transaction[]): ComputeResult {
   const positions: PositionMap = new Map();
   const unpriced: UnpricedTransaction[] = [];
+  const realizedByTx = new Map<string, number>();
 
   // Sort by transaction_date, then by created_at as a deterministic tiebreaker. Without the
   // tiebreaker, same-minute ties (datetime inputs are minute-precision) order nondeterministically;
@@ -69,6 +73,11 @@ export function computePositions(transactions: Transaction[]): ComputeResult {
       sourcePos.realized_pnl += realizedPnl;
       sourcePos.quantity -= tx.source_quantity;
       sourcePos.total_cost_usd -= tx.source_quantity * avgCost;
+      realizedByTx.set(tx.id, realizedPnl);
+    } else {
+      // Over-sell against an empty/closed position: the clamp skips the disposal, so no P&L is
+      // realized for this transaction. Record 0 (not null) — the trade is priced, just not funded.
+      realizedByTx.set(tx.id, 0);
     }
 
     if (tx.target_asset && tx.target_quantity) {
@@ -79,7 +88,7 @@ export function computePositions(transactions: Transaction[]): ComputeResult {
     }
   }
 
-  return { positions, unpriced };
+  return { positions, unpriced, realizedByTx };
 }
 
 export interface AssetSummary {

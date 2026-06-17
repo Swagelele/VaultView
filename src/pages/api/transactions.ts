@@ -3,7 +3,7 @@ export const prerender = false;
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
 import { jsonResponse, errorResponse, unauthorizedResponse } from "@/lib/api-helpers";
-import { createTransaction, getTransactions } from "@/lib/transaction-service";
+import { createTransaction, getTransactionsWithPnl } from "@/lib/transaction-service";
 
 export const POST: APIRoute = async (context) => {
   if (!context.locals.user) {
@@ -41,6 +41,6 @@ export const GET: APIRoute = async (context) => {
     return errorResponse("Supabase is not configured", 500);
   }
 
-  const transactions = await getTransactions(supabase, context.locals.user.id);
+  const transactions = await getTransactionsWithPnl(supabase, context.locals.user.id);
   return jsonResponse({ data: transactions });
 };

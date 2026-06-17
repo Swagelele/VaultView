@@ -1,7 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Transaction } from "@/types";
+import type { Transaction, TransactionWithPnl } from "@/types";
 import { createTransactionSchema, createSellAllGlobalSchema, isUsdStablecoin } from "@/lib/schemas";
 import { getPriceForDate } from "@/lib/coinpaprika";
+import { computePositions } from "@/lib/pnl-engine";
 
 interface ServiceResult<T> {
   data?: T;
@@ -228,6 +229,16 @@ export async function getTransactions(supabase: SupabaseClient, userId: string):
     .order("created_at", { ascending: true });
 
   return (data ?? []) as Transaction[];
+}
+
+export async function getTransactionsWithPnl(supabase: SupabaseClient, userId: string): Promise<TransactionWithPnl[]> {
+  const transactions = await getTransactions(supabase, userId);
+  const { realizedByTx } = computePositions(transactions);
+
+  return transactions.map((tx) => ({
+    ...tx,
+    realized_pnl_usd: realizedByTx.get(tx.id) ?? null,
+  }));
 }
 
 export async function getDistinctLocations(supabase: SupabaseClient, userId: string): Promise<string[]> {

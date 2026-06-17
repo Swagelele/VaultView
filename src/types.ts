@@ -24,6 +24,11 @@ export type TransactionInsert = Omit<
   fee?: Transaction["fee"];
 };
 
+/** A transaction enriched with its per-transaction realized P&L (USD); null for DEPOSIT and unpriced rows. */
+export type TransactionWithPnl = Transaction & {
+  realized_pnl_usd: number | null;
+};
+
 export interface Position {
   asset: string;
   location: string;
