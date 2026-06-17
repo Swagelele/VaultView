@@ -4,9 +4,9 @@
 
 ## Always verify cost basis matches form price
 
-- **Context**: Portfolio P&L display — any phase where cost basis is compared against live prices
-- **Problem**: After buying an asset, instant unrealized P&L appeared even though the trade was just submitted. The root cause is not yet diagnosed — it could be price suggestion drift, rounding, or a cost basis resolution issue. The symptom is that cost basis doesn't match what the user expected to pay.
-- **Rule**: Always verify that the cost basis stored from a transaction matches the price the user saw in the form at submission time. When implementing or testing P&L features, compare the recorded `avg_cost_usd` against the price entered in the form to catch drift.
+- **Context**: Portfolio P&L display — any phase where cost basis is compared against live prices. Includes per-transaction unrealized P&L on the `/transactions` list (`transaction-service.ts` `getTransactionsWithPnl`, where `unrealized = target_qty × live_price − source_qty × price_usd`).
+- **Problem**: After buying an asset, instant unrealized P&L appeared even though the trade was just submitted. The root cause is not yet diagnosed — it could be price suggestion drift, rounding, or a cost basis resolution issue. The symptom is that cost basis doesn't match what the user expected to pay. **Note (S-04 transaction-list-filters):** some instant non-zero unrealized P&L is *expected by design* — live mark-to-market compares the recorded cost basis against the current ticker, which differs from the executed price by spread/drift even seconds after a buy. The per-row transaction view surfaces this far more visibly than the aggregated dashboard, so it is easy to mistake the benign live-mark drift for a real cost-basis bug.
+- **Rule**: Always verify that the cost basis stored from a transaction matches the price the user saw in the form at submission time. When implementing or testing P&L features, compare the recorded `avg_cost_usd` (and the per-tx `price_usd`) against the price entered in the form to catch drift. When a *per-row* unrealized value is shown, first rule out expected live-mark drift before treating a non-zero fresh-buy figure as a defect; if the live-mark behavior is intended, explain it (tooltip/legend) or snapshot the entry mark so a brand-new purchase reads ~0.
 - **Applies to**: plan, implement
 
 ## Order P&L transactions deterministically — transaction_date ties cause phantom positions
