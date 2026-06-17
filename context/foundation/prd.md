@@ -1,6 +1,6 @@
 ---
 project: "VaultView"
-version: 1
+version: 2
 status: draft
 created: 2026-05-29
 context_type: greenfield
@@ -135,6 +135,8 @@ Personal crypto investor who actively manages positions across multiple exchange
   > Socrates: Counter-argument considered: "flat numbers without time dimension could be misleading." Resolution: kept flat totals for MVP. Time-series P&L charts are a v2 feature.
 - FR-011: User can view a list of all transactions with filtering by type, location, and asset. Priority: must-have
   > Socrates: Counter-argument considered: "three filters is over-engineered for MVP." Resolution: kept all three filters — transaction lists grow fast in crypto, filtering from day one prevents the list from becoming unusable.
+- FR-014: User can view asset allocation as a pie/donut chart showing each asset's share of total current portfolio value. This is a current-state snapshot (no time dimension) computed from holdings × current price — consistent with the "flat totals, no time-series charts" MVP stance. Priority: should-have
+  > Note: Current-state allocation only — distinct from the v2 time-series balance chart (see Non-Goals). All inputs already exist in the portfolio response (per-asset quantity × current price), so this is additive UI with no new data model.
 
 ### Location Management
 

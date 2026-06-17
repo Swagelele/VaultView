@@ -1,10 +1,10 @@
 ---
 project: "VaultView"
-version: 1
+version: 2
 status: draft
 created: 2026-06-12
 updated: 2026-06-17
-prd_version: 1
+prd_version: 2
 main_goal: speed
 top_blocker: time
 ---
@@ -38,6 +38,7 @@ Portfele kryptowalutowe są rozproszone po wielu giełdach i portfelach — brak
 | S-06 | withdraw-cash-out        | wycofuje asset z trackingu (WITHDRAW) z realizacją P&L                       | S-01          | US-05, FR-006                                        | proposed |
 | S-07 | sell-all-single-location | sprzedaje całą pozycję w jednej lokalizacji jednym kliknięciem               | S-01          | US-03, FR-004                                        | done     |
 | S-08 | sell-all-global          | sprzedaje asset we wszystkich lokalizacjach z per-lokalizacyjną konfiguracją | S-07          | FR-004                                               | done     |
+| S-09 | asset-allocation-pie     | widzi alokację portfela jako wykres kołowy (udział każdego assetu)           | S-01          | FR-014                                               | proposed |
 
 ## Streams
 
@@ -46,7 +47,7 @@ Pomoc nawigacyjna — grupuje pozycje o wspólnym łańcuchu zależności. Kanon
 | Stream | Theme              | Chain                    | Note                                                           |
 | ------ | ------------------ | ------------------------ | -------------------------------------------------------------- |
 | A      | Rdzeń handlu       | `F-02` → `S-01`          | Gwiazda przewodnia; cała reszta zależy od S-01.                |
-| B      | Widoki portfolio   | `S-02` / `S-03` / `S-04` | Równoległe po S-01; kompletują experience przeglądania danych. |
+| B      | Widoki portfolio   | `S-02` / `S-03` / `S-04` / `S-09` | Równoległe po S-01; kompletują experience przeglądania danych. |
 | C      | Dodatkowe operacje | `S-05` / `S-06`          | Po S-01; rozszerzają model o DEPOSIT i WITHDRAW.               |
 | D      | Sell-all           | `S-07` → `S-08`          | Po S-01; sell-all w lokalizacji → sell-all globalny.           |
 
@@ -177,6 +178,19 @@ Foundations poniżej zakładają że te warstwy są obecne i NIE budują ich od 
 - **Risk:** Najbardziej złożony UX w roadmapie — wielolokalizacyjna konfiguracja w jednym formularzu. Sekwencjonowany jako ostatni ponieważ jest rozszerzeniem S-07 i odpowiada wtórnemu kryterium sukcesu PRD.
 - **Status:** done
 
+### S-09: Wykres kołowy alokacji assetów
+
+- **Outcome:** użytkownik widzi alokację portfela jako wykres kołowy (pie/donut) — udział każdego assetu w łącznej bieżącej wartości portfela. Stan bieżący (snapshot), bez wymiaru czasowego.
+- **Change ID:** asset-allocation-pie
+- **PRD refs:** FR-014
+- **Prerequisites:** S-01
+- **Parallel with:** S-02, S-04, S-05, S-06
+- **Blockers:** —
+- **Unknowns:**
+  - Wybór biblioteki wykresów (np. recharts) vs. lekki własny SVG — do rozstrzygnięcia w `/10x-plan`.
+- **Risk:** Niski — wszystkie dane (ilość × cena bieżąca per asset) są już w odpowiedzi `/api/portfolio` z S-01; dodanie to czysty UI bez zmian w modelu danych. Główna decyzja to zależność od biblioteki wykresów.
+- **Status:** proposed
+
 ## Backlog Handoff
 
 | Roadmap ID | Change ID                | Suggested issue title                     | Ready for `/10x-plan` | Notes                                               |
@@ -190,6 +204,7 @@ Foundations poniżej zakładają że te warstwy są obecne i NIE budują ich od 
 | S-06       | withdraw-cash-out        | WITHDRAW z realizacją P&L                 | yes                   | S-01 done. Run `/10x-plan withdraw-cash-out`        |
 | S-07       | sell-all-single-location | Sell-all w pojedynczej lokalizacji        | done                  | Implemented — `ac06f82`..`0123bf3`                  |
 | S-08       | sell-all-global          | Sell-all globalny (wszystkie lokalizacje) | done                  | Implemented — `6d5d344`..`ee8c2f0`                  |
+| S-09       | asset-allocation-pie     | Wykres kołowy alokacji assetów            | yes                   | S-01 done. Run `/10x-plan asset-allocation-pie`     |
 
 ## Open Roadmap Questions
 
@@ -204,6 +219,7 @@ Foundations poniżej zakładają że te warstwy są obecne i NIE budują ich od 
 - **Layout mobilny** — Why parked: PRD §Non-Goals. Desktop only w MVP.
 - **Panel administracyjny** — Why parked: PRD §Non-Goals. Zarządzanie użytkownikami i statystyki odroczone do v2.
 - **Auth email/password** — Why parked: PRD §Non-Goals. Google OAuth jedyną metodą w MVP.
+- **Wykres bilansu w czasie (total balance over time, później per lokalizacja)** — Why parked: PRD §Non-Goals (wykresy czasowe = v2). Wymaga danych historycznych: albo rekonstrukcji wartości portfela per dzień (replay transakcji × historyczne ceny CoinPaprika, jak w S-05), albo tabeli snapshotów bilansu. Promote do slice (np. S-1x) po dostarczeniu MVP — wtedy decyzja rekonstrukcja vs snapshot trafia do `/10x-plan`.
 
 ## Done
 
