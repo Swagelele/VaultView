@@ -1,10 +1,10 @@
 ---
 change_id: summary-dashboard
 title: Summary dashboard
-status: impl_reviewed
+status: archived
 created: 2026-06-16
 updated: 2026-06-17
-archived_at: null
+archived_at: 2026-06-17T09:39:47Z
 ---
 
 ## Notes
