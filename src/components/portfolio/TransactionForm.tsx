@@ -204,7 +204,9 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
       ? `Total cost: $${(Number(amount) * Number(price)).toLocaleString()} ${sourceSymbol}`
       : type === "SELL" && amount && price
         ? `Proceeds: $${(Number(amount) * Number(price)).toLocaleString()} ${targetSymbol}`
-        : null;
+        : type === "WITHDRAW" && amount && price
+          ? `Withdrawn value: $${(Number(amount) * Number(price)).toLocaleString()}`
+          : null;
 
   return (
     <form onSubmit={handleSubmit} className="grid gap-4">
@@ -580,11 +582,13 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
               {insufficientBalance && " — insufficient balance"}
             </p>
           )}
+          {computedTotal && <p className="text-muted-foreground text-sm">{computedTotal}</p>}
           <div className="grid gap-1.5">
             <Label>Date & Time</Label>
             <Input
               type="datetime-local"
               value={transactionDate}
+              max={maxDate}
               onChange={(e) => {
                 setTransactionDate(e.target.value);
               }}
