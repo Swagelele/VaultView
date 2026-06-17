@@ -121,7 +121,9 @@ Build the `/transactions` page and its `TransactionList` island: filter controls
 
 **Intent**: Fetch the enriched transactions once, render them newest-first in a table, and provide three AND-combined `Select` filters whose Location/Asset options come from the data.
 
-**Contract**: Default-exported (or named) React component, no props; fetches `GET /api/transactions` on mount (`useEffect`), stores `TransactionWithPnl[]`. Derives filter option lists from the loaded data: Type = the fixed `TransactionType` set actually present; Location = distinct `location` values; Asset = distinct `source_asset` ∪ `target_asset` IDs, displayed via `symbolFromId`. Three `Select` controls (shadcn `ui/select`) each defaulting to an "All" sentinel. Filtering is AND across the three; the Asset filter matches when the selected ID equals `source_asset` **or** `target_asset`. Rows sorted newest-first (reverse of the chronological fetch — sort by `transaction_date` desc, `created_at` desc). Columns: Date, Type (badge), Source (symbol + qty), Target (symbol + qty or `—`), Price, Fee, Location, Realized P&L. Use `formatUsd` for price/fee/P&L, `pnlColor` for the P&L cell, `symbolFromId` for assets; reuse `formatQty` (lift from `PortfolioTable` into `format.ts` if shared, otherwise local). Loading and "no matching transactions" empty states. No polling.
+**Contract**: Default-exported (or named) React component, no props; fetches `GET /api/transactions` on mount (`useEffect`), stores `TransactionWithPnl[]`. Derives filter option lists from the loaded data: Type = the fixed `TransactionType` set actually present; Location = distinct `location` values; Asset = distinct `source_asset` ∪ `target_asset` IDs, displayed via `symbolFromId`. Three `Select` controls (shadcn `ui/select`) each defaulting to an "All" sentinel. Filtering is AND across the three; the Asset filter matches when the selected ID equals `source_asset` **or** `target_asset`. Rows sorted newest-first (reverse of the chronological fetch — sort by `transaction_date` desc, `created_at` desc). Columns: Date, Type (badge), Source (symbol + qty), Target (symbol + qty or `—`), Price, Fee, Location, Unrealized P&L, Realized P&L. Use `formatUsd` for price/fee/P&L, `pnlColor` for the P&L cells, `symbolFromId` for assets; reuse `formatQty` (lift from `PortfolioTable` into `format.ts` if shared, otherwise local). Loading and "no matching transactions" empty states. No polling.
+
+**Revision (post-implementation) — per-purchase unrealized P&L**: A second `unrealized_pnl_usd` column was added so a held purchase shows its live paper gain/loss. Semantics = **per-purchase mark-to-market** (chosen by user): for a priced, non-stablecoin acquisition (the target side of a BUY/SWAP), `unrealized_pnl_usd = target_quantity * current_price − source_quantity * price_usd` (cost basis matches the engine's `costBasis`). Null for disposals (SELL — they carry realized P&L instead), DEPOSIT, stablecoin/unpriced acquisitions, and assets with no live price. Computed in `getTransactionsWithPnl` (`transaction-service.ts`), which now calls `getMultiplePrices()` for the distinct acquired assets — so `GET /api/transactions` makes one live-price lookup (same source the dashboard uses). `TransactionWithPnl` in `src/types.ts` gains `unrealized_pnl_usd: number | null`. Known limitation: counts the full acquired quantity even if part was later sold (acceptable for the buy-and-hold view; the dashboard remains the source of truth for position-level unrealized P&L).
 
 **Contract (formatQty reuse)**: If `formatQty` is shared, move it to `src/lib/format.ts` and update `PortfolioTable.tsx:15` import; otherwise define a local copy. Implementer's choice — prefer extraction to avoid duplication.
 
@@ -202,28 +204,28 @@ No schema or data migration. The `realized_pnl_usd` field is computed at request
 
 #### Automated
 
-- [x] 1.1 Type checking passes (`npm run build` / `npx astro check`)
-- [x] 1.2 Linting passes (`npm run lint`)
-- [x] 1.3 `computePositions().realizedByTx` matches aggregate realized P&L for the same inputs
+- [x] 1.1 Type checking passes (`npm run build` / `npx astro check`) — 850edd3
+- [x] 1.2 Linting passes (`npm run lint`) — 850edd3
+- [x] 1.3 `computePositions().realizedByTx` matches aggregate realized P&L for the same inputs — 850edd3
 
 #### Manual
 
-- [x] 1.4 `GET /api/transactions` rows include `realized_pnl_usd`; a known SELL matches a hand-computed figure
-- [x] 1.5 DEPOSIT and unpriced rows return `realized_pnl_usd: null`
-- [x] 1.6 Dashboard portfolio aggregate P&L unchanged (no regression)
+- [x] 1.4 `GET /api/transactions` rows include `realized_pnl_usd`; a known SELL matches a hand-computed figure — 850edd3
+- [x] 1.5 DEPOSIT and unpriced rows return `realized_pnl_usd: null` — 850edd3
+- [x] 1.6 Dashboard portfolio aggregate P&L unchanged (no regression) — 850edd3
 
 ### Phase 2: Transaction list page + filters
 
 #### Automated
 
-- [ ] 2.1 Type checking passes (`npm run build` / `npx astro check`)
-- [ ] 2.2 Linting passes (`npm run lint`)
+- [x] 2.1 Type checking passes (`npm run build` / `npx astro check`) — bd507f0
+- [x] 2.2 Linting passes (`npm run lint`) — bd507f0
 
 #### Manual
 
-- [ ] 2.3 `/transactions` loads when authenticated; unauthenticated redirects to sign-in
-- [ ] 2.4 Rows render newest-first with correct values; assets show as symbols; DEPOSIT/WITHDRAW target shows `—`
-- [ ] 2.5 Filters combine with AND; Asset matches source OR target; "All" resets
-- [ ] 2.6 Location/Asset options derived from data, default "All"
-- [ ] 2.7 Over-restrictive filter shows empty-state message
-- [ ] 2.8 Dashboard header link round-trips to `/transactions`
+- [x] 2.3 `/transactions` loads when authenticated; unauthenticated redirects to sign-in — bd507f0
+- [x] 2.4 Rows render newest-first with correct values; assets show as symbols; DEPOSIT/WITHDRAW target shows `—` — bd507f0
+- [x] 2.5 Filters combine with AND; Asset matches source OR target; "All" resets — bd507f0
+- [x] 2.6 Location/Asset options derived from data, default "All" — bd507f0
+- [x] 2.7 Over-restrictive filter shows empty-state message — bd507f0
+- [x] 2.8 Dashboard header link round-trips to `/transactions` — bd507f0
