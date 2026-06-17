@@ -218,15 +218,15 @@ None — no data or schema changes.
 
 #### Automated
 
-- [x] 2.1 Type checking passes: `npm run build` / `npx astro check`
-- [x] 2.2 Linting passes: `npm run lint`
-- [x] 2.3 Existing unit tests still pass: `npm test`
+- [x] 2.1 Type checking passes: `npm run build` / `npx astro check` — 88378a8
+- [x] 2.2 Linting passes: `npm run lint` — 88378a8
+- [x] 2.3 Existing unit tests still pass: `npm test` — 88378a8
 
 #### Manual
 
-- [x] 2.4 Multi-asset: donut + legend render, percentages sum to 100%, center total matches table
-- [x] 2.5 Single-asset: full ring at 100%
-- [x] 2.6 Unpriced asset excluded from donut/legend with note shown
-- [x] 2.7 Empty / all-unpriced: friendly empty message, no SVG errors
-- [x] 2.8 Chart updates live on the 20s price refresh
-- [x] 2.9 Layout matches dark theme, aligns with cards/table, no console errors
+- [x] 2.4 Multi-asset: donut + legend render, percentages sum to 100%, center total matches table — 88378a8
+- [x] 2.5 Single-asset: full ring at 100% — 88378a8
+- [x] 2.6 Unpriced asset excluded from donut/legend with note shown — 88378a8
+- [x] 2.7 Empty / all-unpriced: friendly empty message, no SVG errors — 88378a8
+- [x] 2.8 Chart updates live on the 20s price refresh — 88378a8
+- [x] 2.9 Layout matches dark theme, aligns with cards/table, no console errors — 88378a8

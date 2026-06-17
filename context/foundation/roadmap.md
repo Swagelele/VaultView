@@ -38,7 +38,7 @@ Portfele kryptowalutowe są rozproszone po wielu giełdach i portfelach — brak
 | S-06 | withdraw-cash-out        | wycofuje asset z trackingu (WITHDRAW) z realizacją P&L                       | S-01          | US-05, FR-006                                        | proposed |
 | S-07 | sell-all-single-location | sprzedaje całą pozycję w jednej lokalizacji jednym kliknięciem               | S-01          | US-03, FR-004                                        | done     |
 | S-08 | sell-all-global          | sprzedaje asset we wszystkich lokalizacjach z per-lokalizacyjną konfiguracją | S-07          | FR-004                                               | done     |
-| S-09 | asset-allocation-pie     | widzi alokację portfela jako wykres kołowy (udział każdego assetu)           | S-01          | FR-014                                               | proposed |
+| S-09 | asset-allocation-pie     | widzi alokację portfela jako wykres kołowy (udział każdego assetu)           | S-01          | FR-014                                               | done     |
 
 ## Streams
 
@@ -189,7 +189,7 @@ Foundations poniżej zakładają że te warstwy są obecne i NIE budują ich od 
 - **Unknowns:**
   - Wybór biblioteki wykresów (np. recharts) vs. lekki własny SVG — do rozstrzygnięcia w `/10x-plan`.
 - **Risk:** Niski — wszystkie dane (ilość × cena bieżąca per asset) są już w odpowiedzi `/api/portfolio` z S-01; dodanie to czysty UI bez zmian w modelu danych. Główna decyzja to zależność od biblioteki wykresów.
-- **Status:** proposed
+- **Status:** done
 
 ## Backlog Handoff
 
@@ -204,7 +204,7 @@ Foundations poniżej zakładają że te warstwy są obecne i NIE budują ich od 
 | S-06       | withdraw-cash-out        | WITHDRAW z realizacją P&L                 | yes                   | S-01 done. Run `/10x-plan withdraw-cash-out`        |
 | S-07       | sell-all-single-location | Sell-all w pojedynczej lokalizacji        | done                  | Implemented — `ac06f82`..`0123bf3`                  |
 | S-08       | sell-all-global          | Sell-all globalny (wszystkie lokalizacje) | done                  | Implemented — `6d5d344`..`ee8c2f0`                  |
-| S-09       | asset-allocation-pie     | Wykres kołowy alokacji assetów            | yes                   | S-01 done. Run `/10x-plan asset-allocation-pie`     |
+| S-09       | asset-allocation-pie     | Wykres kołowy alokacji assetów            | done                  | Implemented — `c99d350`..`88378a8`                  |
 
 ## Open Roadmap Questions
 

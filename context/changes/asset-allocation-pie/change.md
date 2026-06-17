@@ -1,7 +1,7 @@
 ---
 change_id: asset-allocation-pie
 title: Asset allocation pie/donut chart
-status: implementing
+status: implemented
 created: 2026-06-17
 updated: 2026-06-17
 archived_at: null
