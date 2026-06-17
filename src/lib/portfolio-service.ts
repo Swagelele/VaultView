@@ -8,14 +8,19 @@ export interface PortfolioResponse {
   data: PortfolioAsset[];
   stale: boolean;
   updated_at: string | null;
+  total_fees_usd: number;
 }
 
 export async function getPortfolio(supabase: SupabaseClient, userId: string): Promise<PortfolioResponse> {
   const transactions = await getTransactions(supabase, userId);
 
   if (transactions.length === 0) {
-    return { data: [], stale: false, updated_at: null };
+    return { data: [], stale: false, updated_at: null, total_fees_usd: 0 };
   }
+
+  // Fees are summed as USD (PRD FR-010). The form never captured a fee currency, so a raw sum
+  // is the honest MVP total. `fee` is non-null (defaults to 0 in the schema).
+  const totalFeesUsd = transactions.reduce((sum, tx) => sum + tx.fee, 0);
 
   const { positions } = computePositions(transactions);
   const summaries = aggregateByAsset(positions);
@@ -56,5 +61,6 @@ export async function getPortfolio(supabase: SupabaseClient, userId: string): Pr
     data,
     stale: priceData.stale,
     updated_at: priceData.updated_at,
+    total_fees_usd: totalFeesUsd,
   };
 }
