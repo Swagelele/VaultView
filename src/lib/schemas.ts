@@ -21,11 +21,13 @@ const baseSchema = z.object({
 
 export const createTransactionSchema = baseSchema.superRefine((data, ctx) => {
   if (data.type === "DEPOSIT") {
-    if (!isUsdStablecoin(data.source_asset)) {
+    // S-05: DEPOSIT accepts any asset; cost basis is derived from the historical price at the
+    // purchase date (or a manual override). A purchase can't have happened in the future.
+    if (new Date(data.transaction_date).getTime() > Date.now()) {
       ctx.addIssue({
         code: "custom",
-        message: "S-01 DEPOSIT is limited to USD stablecoins (usdt-tether, usdc-usd-coin). Use S-05 for other assets.",
-        path: ["source_asset"],
+        message: "Deposit date cannot be in the future",
+        path: ["transaction_date"],
       });
     }
     if (data.target_asset) {

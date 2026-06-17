@@ -41,7 +41,7 @@ export async function getHoldingAtLocation(
   return quantity;
 }
 
-async function resolvePriceUsd(
+export async function resolvePriceUsd(
   type: string,
   sourceAsset: string,
   targetAsset: string | null | undefined,
@@ -50,9 +50,16 @@ async function resolvePriceUsd(
   transactionDate: string,
   override?: number,
 ): Promise<number | null> {
+  // Override-first: a manual cost basis always wins — including for deposits older than the
+  // CoinPaprika historical window, where no suggestion is available (S-05).
   if (override) return override;
 
-  if (type === "DEPOSIT") return 1;
+  if (type === "DEPOSIT") {
+    // Stablecoin "cash" side is worth $1 — skip the API (avoids ticker noise + a wasted call).
+    if (isUsdStablecoin(sourceAsset)) return 1;
+    // Otherwise derive cost basis from the historical price at the purchase date; null → caller 400s.
+    return getPriceForDate(sourceAsset, transactionDate.slice(0, 10));
+  }
 
   if (isUsdStablecoin(sourceAsset)) return 1;
 
@@ -118,7 +125,7 @@ export async function createTransaction(
 
   const price =
     input.type === "DEPOSIT"
-      ? 1
+      ? priceUsd
       : (input.price ??
         (input.target_quantity && input.source_quantity ? input.target_quantity / input.source_quantity : 1));
 

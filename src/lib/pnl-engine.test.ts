@@ -36,6 +36,18 @@ describe("computePositions", () => {
     expect(pos!.realized_pnl).toBe(0);
   });
 
+  it("DEPOSIT with non-$1 cost basis carries quantity × price_usd (S-05)", () => {
+    const { positions } = computePositions([
+      tx({ type: "DEPOSIT", source_asset: "btc-bitcoin", source_quantity: 2, price_usd: 42000 }),
+    ]);
+
+    const pos = positions.get("btc-bitcoin::Binance");
+    expect(pos).toBeDefined();
+    expect(pos!.quantity).toBe(2);
+    expect(pos!.total_cost_usd).toBe(84000);
+    expect(pos!.realized_pnl).toBe(0);
+  });
+
   it("BUY after DEPOSIT reduces source and creates target cost basis", () => {
     const { positions } = computePositions([
       tx({

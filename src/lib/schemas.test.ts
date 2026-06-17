@@ -13,13 +13,24 @@ describe("createTransactionSchema", () => {
     expect(result.success).toBe(true);
   });
 
-  it("rejects non-stablecoin DEPOSIT in S-01", () => {
+  it("accepts non-stablecoin DEPOSIT (S-05)", () => {
     const result = createTransactionSchema.safeParse({
       type: "DEPOSIT",
       source_asset: "btc-bitcoin",
       source_quantity: 1,
       location: "Binance",
       transaction_date: "2026-06-15T10:00:00Z",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects a future-dated DEPOSIT (S-05)", () => {
+    const result = createTransactionSchema.safeParse({
+      type: "DEPOSIT",
+      source_asset: "btc-bitcoin",
+      source_quantity: 1,
+      location: "Binance",
+      transaction_date: "2099-01-01T00:00:00Z",
     });
     expect(result.success).toBe(false);
   });
