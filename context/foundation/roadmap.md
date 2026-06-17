@@ -225,3 +225,4 @@ Foundations poniżej zakładają że te warstwy są obecne i NIE budują ich od 
 
 - **S-08: sprzedaje asset we wszystkich lokalizacjach z per-lokalizacyjną konfiguracją** — Archived 2026-06-16 → `context/archive/2026-06-16-sell-all-global/`. Lesson: —.
 - **S-03: widzi dashboard: łączny realized P&L, unrealized P&L, opłaty** — Archived 2026-06-17 → `context/archive/2026-06-16-summary-dashboard/`. Lesson: —.
+- **S-09: widzi alokację portfela jako wykres kołowy (udział każdego assetu)** — Archived 2026-06-17 → `context/archive/2026-06-17-asset-allocation-pie/`. Lesson: —.
