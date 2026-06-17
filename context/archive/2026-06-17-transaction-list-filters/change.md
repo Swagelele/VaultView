@@ -2,9 +2,10 @@
 change_id: transaction-list-filters
 roadmap_id: S-04
 title: Lista transakcji z filtrami
-status: impl_reviewed
+status: archived
 created: 2026-06-17
 updated: 2026-06-17
+archived_at: 2026-06-17T12:47:09Z
 prd_refs: [FR-011]
 ---
 
