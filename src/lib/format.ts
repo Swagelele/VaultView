@@ -4,6 +4,13 @@ export function formatUsd(value: number | null): string {
   return `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
+/** Format a crypto quantity, using exponential notation for dust amounts (< 0.0001). */
+export function formatQty(value: number): string {
+  if (value === 0) return "0";
+  if (value < 0.0001) return value.toExponential(4);
+  return value.toLocaleString(undefined, { maximumFractionDigits: 8 });
+}
+
 /** Tailwind text color for a P&L value: green for gains, red for losses, neutral for null/zero. */
 export function pnlColor(value: number | null): string {
   if (value === null || value === 0) return "";

@@ -9,14 +9,22 @@ import { PortfolioView } from "@/components/portfolio/PortfolioView";
     <div class="mx-auto max-w-5xl">
       <div class="mb-6 flex items-center justify-between">
         <h1 class="text-2xl font-bold">Portfolio</h1>
-        <form method="POST" action="/api/auth/signout">
-          <button
-            type="submit"
+        <div class="flex items-center gap-2">
+          <a
+            href="/transactions"
             class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
           >
-            Sign out
-          </button>
-        </form>
+            Transactions
+          </a>
+          <form method="POST" action="/api/auth/signout">
+            <button
+              type="submit"
+              class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+            >
+              Sign out
+            </button>
+          </form>
+        </div>
       </div>
       <PortfolioView client:load />
     </div>

@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Transaction, TransactionWithPnl } from "@/types";
 import { createTransactionSchema, createSellAllGlobalSchema, isUsdStablecoin } from "@/lib/schemas";
-import { getPriceForDate } from "@/lib/coinpaprika";
+import { getPriceForDate, getMultiplePrices } from "@/lib/coinpaprika";
 import { computePositions } from "@/lib/pnl-engine";
 
 interface ServiceResult<T> {
@@ -231,14 +231,50 @@ export async function getTransactions(supabase: SupabaseClient, userId: string):
   return (data ?? []) as Transaction[];
 }
 
+/**
+ * A trade marks-to-market when it acquired a non-stablecoin asset with a known USD cost — i.e. the
+ * target side of a priced BUY/SWAP. SELL proceeds (stablecoin target) and unpriced rows are excluded.
+ */
+function isMarkableAcquisition(
+  tx: Transaction,
+): tx is Transaction & { target_asset: string; target_quantity: number; price_usd: number } {
+  return (
+    tx.target_asset !== null &&
+    tx.target_quantity !== null &&
+    tx.target_quantity > 0 &&
+    tx.price_usd !== null &&
+    !isUsdStablecoin(tx.target_asset)
+  );
+}
+
 export async function getTransactionsWithPnl(supabase: SupabaseClient, userId: string): Promise<TransactionWithPnl[]> {
   const transactions = await getTransactions(supabase, userId);
   const { realizedByTx } = computePositions(transactions);
 
-  return transactions.map((tx) => ({
-    ...tx,
-    realized_pnl_usd: realizedByTx.get(tx.id) ?? null,
-  }));
+  // Live prices for every non-stablecoin asset acquired by a BUY/SWAP, so each purchase can show its
+  // current unrealized (paper) P&L. getMultiplePrices handles the empty case and its own caching.
+  const acquiredAssets = [...new Set(transactions.filter(isMarkableAcquisition).map((tx) => tx.target_asset))];
+  const { prices } = await getMultiplePrices(acquiredAssets);
+
+  return transactions.map((tx) => {
+    let unrealizedPnl: number | null = null;
+    if (isMarkableAcquisition(tx)) {
+      const currentPrice = tx.target_asset in prices ? prices[tx.target_asset] : null;
+      if (currentPrice !== null) {
+        // Cost basis of the acquired lot = USD spent on the source side (matches the engine's
+        // costBasis), valued now at the live price. Buy-and-hold view: counts the full acquired
+        // quantity even if some was later sold.
+        const costUsd = tx.source_quantity * tx.price_usd;
+        unrealizedPnl = tx.target_quantity * currentPrice - costUsd;
+      }
+    }
+
+    return {
+      ...tx,
+      realized_pnl_usd: realizedByTx.get(tx.id) ?? null,
+      unrealized_pnl_usd: unrealizedPnl,
+    };
+  });
 }
 
 export async function getDistinctLocations(supabase: SupabaseClient, userId: string): Promise<string[]> {

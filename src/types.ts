@@ -24,9 +24,16 @@ export type TransactionInsert = Omit<
   fee?: Transaction["fee"];
 };
 
-/** A transaction enriched with its per-transaction realized P&L (USD); null for DEPOSIT and unpriced rows. */
+/**
+ * A transaction enriched with per-transaction P&L (USD).
+ * - `realized_pnl_usd`: gain/loss locked in at disposal; null for DEPOSIT and unpriced rows.
+ * - `unrealized_pnl_usd`: live mark-to-market of the lot acquired by this trade (BUY/SWAP target side)
+ *   vs the current price — `target_quantity * current_price - source_quantity * price_usd`. Null for
+ *   disposals (SELL), stablecoin/unpriced acquisitions, and assets with no current price.
+ */
 export type TransactionWithPnl = Transaction & {
   realized_pnl_usd: number | null;
+  unrealized_pnl_usd: number | null;
 };
 
 export interface Position {

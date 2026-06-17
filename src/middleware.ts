@@ -1,7 +1,7 @@
 import { defineMiddleware } from "astro:middleware";
 import { createClient } from "@/lib/supabase";
 
-const PROTECTED_PAGES = ["/dashboard"];
+const PROTECTED_PAGES = ["/dashboard", "/transactions"];
 
 const PROTECTED_API_ROUTES = [
   "/api/transactions",

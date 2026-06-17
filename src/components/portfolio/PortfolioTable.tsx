@@ -2,7 +2,7 @@ import { Fragment, useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ChevronRightIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { formatUsd, pnlColor } from "@/lib/format";
+import { formatQty, formatUsd, pnlColor } from "@/lib/format";
 import { SellAllDialog } from "@/components/portfolio/SellAllDialog";
 import type { PortfolioAsset } from "@/types";
 
@@ -10,12 +10,6 @@ interface PortfolioTableProps {
   assets: PortfolioAsset[];
   showClosed: boolean;
   onSellAllSuccess: () => void;
-}
-
-function formatQty(value: number): string {
-  if (value === 0) return "0";
-  if (value < 0.0001) return value.toExponential(4);
-  return value.toLocaleString(undefined, { maximumFractionDigits: 8 });
 }
 
 export function PortfolioTable({ assets, showClosed, onSellAllSuccess }: PortfolioTableProps) {
