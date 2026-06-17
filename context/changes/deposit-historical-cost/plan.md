@@ -243,13 +243,13 @@ No migration. Existing stablecoin deposits already have `price_usd = 1`, which r
 
 #### Automated
 
-- [x] 2.1 Type checking passes (`npm run build` / `npx astro check`)
-- [x] 2.2 Linting passes (`npm run lint`)
+- [x] 2.1 Type checking passes (`npm run build` / `npx astro check`) — e599545
+- [x] 2.2 Linting passes (`npm run lint`) — e599545
 
 #### Manual
 
-- [x] 2.3 Deposit tab lets you pick any asset (not just stablecoins)
-- [x] 2.4 Non-stablecoin + past date shows suggested cost basis; override works; portfolio shows correct unrealized P&L
-- [x] 2.5 Stablecoin deposit shows no price field and records at $1
-- [x] 2.6 Date picker blocks future dates; submit disabled for non-stablecoin deposit with no cost basis
-- [x] 2.7 No regression to BUY / SELL entry
+- [x] 2.3 Deposit tab lets you pick any asset (not just stablecoins) — e599545
+- [x] 2.4 Non-stablecoin + past date shows suggested cost basis; override works; portfolio shows correct unrealized P&L — e599545
+- [x] 2.5 Stablecoin deposit shows no price field and records at $1 — e599545
+- [x] 2.6 Date picker blocks future dates; submit disabled for non-stablecoin deposit with no cost basis — e599545
+- [x] 2.7 No regression to BUY / SELL entry — e599545
