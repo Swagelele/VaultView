@@ -206,27 +206,27 @@ None — no data or schema changes.
 
 #### Automated
 
-- [x] 1.1 Unit tests pass: `npm test`
-- [x] 1.2 Type checking passes: `npm run build` / `npx astro check`
-- [x] 1.3 Linting passes: `npm run lint`
+- [x] 1.1 Unit tests pass: `npm test` — c99d350
+- [x] 1.2 Type checking passes: `npm run build` / `npx astro check` — c99d350
+- [x] 1.3 Linting passes: `npm run lint` — c99d350
 
 #### Manual
 
-- [x] 1.4 Sample portfolio fractions sum to ~1.0 and `totalValue` matches manual `Σ quantity×price`
+- [x] 1.4 Sample portfolio fractions sum to ~1.0 and `totalValue` matches manual `Σ quantity×price` — c99d350
 
 ### Phase 2: AssetAllocationChart component + mount
 
 #### Automated
 
-- [ ] 2.1 Type checking passes: `npm run build` / `npx astro check`
-- [ ] 2.2 Linting passes: `npm run lint`
-- [ ] 2.3 Existing unit tests still pass: `npm test`
+- [x] 2.1 Type checking passes: `npm run build` / `npx astro check`
+- [x] 2.2 Linting passes: `npm run lint`
+- [x] 2.3 Existing unit tests still pass: `npm test`
 
 #### Manual
 
-- [ ] 2.4 Multi-asset: donut + legend render, percentages sum to 100%, center total matches table
-- [ ] 2.5 Single-asset: full ring at 100%
-- [ ] 2.6 Unpriced asset excluded from donut/legend with note shown
-- [ ] 2.7 Empty / all-unpriced: friendly empty message, no SVG errors
-- [ ] 2.8 Chart updates live on the 20s price refresh
-- [ ] 2.9 Layout matches dark theme, aligns with cards/table, no console errors
+- [x] 2.4 Multi-asset: donut + legend render, percentages sum to 100%, center total matches table
+- [x] 2.5 Single-asset: full ring at 100%
+- [x] 2.6 Unpriced asset excluded from donut/legend with note shown
+- [x] 2.7 Empty / all-unpriced: friendly empty message, no SVG errors
+- [x] 2.8 Chart updates live on the 20s price refresh
+- [x] 2.9 Layout matches dark theme, aligns with cards/table, no console errors

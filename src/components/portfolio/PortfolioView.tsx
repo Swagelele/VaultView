@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { AddTransactionDialog } from "@/components/portfolio/AddTransactionDialog";
+import { AssetAllocationChart } from "@/components/portfolio/AssetAllocationChart";
 import { PortfolioTable } from "@/components/portfolio/PortfolioTable";
 import { SummaryCards } from "@/components/portfolio/SummaryCards";
 import type { PortfolioAsset } from "@/types";
@@ -149,6 +150,7 @@ export function PortfolioView() {
   return (
     <div className="space-y-4">
       <SummaryCards assets={assets} totalFeesUsd={totalFees} />
+      {assets.length > 0 && <AssetAllocationChart assets={assets} />}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <label className="flex items-center gap-2 text-sm">
