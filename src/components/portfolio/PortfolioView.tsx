@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { AddTransactionDialog } from "@/components/portfolio/AddTransactionDialog";
 import { PortfolioTable } from "@/components/portfolio/PortfolioTable";
+import { SummaryCards } from "@/components/portfolio/SummaryCards";
 import type { PortfolioAsset } from "@/types";
 
 const REFRESH_INTERVAL_MS = 20_000;
@@ -9,6 +10,7 @@ interface PortfolioApiResponse {
   data: PortfolioAsset[];
   stale: boolean;
   updated_at: string | null;
+  total_fees_usd: number;
 }
 
 function fetchPortfolioData(): Promise<PortfolioApiResponse | null> {
@@ -27,6 +29,7 @@ export function PortfolioView() {
   const [assets, setAssets] = useState<PortfolioAsset[]>([]);
   const [stale, setStale] = useState(false);
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
+  const [totalFees, setTotalFees] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showClosed, setShowClosed] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval>>(null);
@@ -43,6 +46,7 @@ export function PortfolioView() {
       setAssets(data.data);
       setStale(data.stale);
       setUpdatedAt(data.updated_at);
+      setTotalFees(data.total_fees_usd);
       setLoading(false);
     });
     return () => {
@@ -120,6 +124,7 @@ export function PortfolioView() {
         setAssets(data.data);
         setStale(data.stale);
         setUpdatedAt(data.updated_at);
+        setTotalFees(data.total_fees_usd);
       }
       setLoading(false);
     });
@@ -143,6 +148,7 @@ export function PortfolioView() {
 
   return (
     <div className="space-y-4">
+      <SummaryCards assets={assets} totalFeesUsd={totalFees} />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <label className="flex items-center gap-2 text-sm">

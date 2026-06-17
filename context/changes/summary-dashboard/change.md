@@ -3,7 +3,7 @@ change_id: summary-dashboard
 title: Summary dashboard
 status: implementing
 created: 2026-06-16
-updated: 2026-06-16
+updated: 2026-06-17
 archived_at: null
 ---
 

@@ -199,22 +199,22 @@ None. No schema or data migration; `fee` already exists on `transactions`.
 
 #### Automated
 
-- [x] 1.1 Unit tests pass: `npm test`
-- [x] 1.2 Type checking passes: `npx astro sync && npm run build`
-- [x] 1.3 Linting passes: `npm run lint`
+- [x] 1.1 Unit tests pass: `npm test` — f8f2a83
+- [x] 1.2 Type checking passes: `npx astro sync && npm run build` — f8f2a83
+- [x] 1.3 Linting passes: `npm run lint` — f8f2a83
 
 ### Phase 2: UI — summary cards on the dashboard
 
 #### Automated
 
-- [ ] 2.1 Type checking / build passes: `npx astro sync && npm run build`
-- [ ] 2.2 Linting passes: `npm run lint`
-- [ ] 2.3 Existing tests still pass: `npm test`
+- [x] 2.1 Type checking / build passes: `npx astro sync && npm run build`
+- [x] 2.2 Linting passes: `npm run lint`
+- [x] 2.3 Existing tests still pass: `npm test`
 
 #### Manual
 
-- [ ] 2.4 Four cards appear above the table; Realized/Unrealized/Net match the sum of table columns
-- [ ] 2.5 After one ~20s refresh, Unrealized and Net track the table (no drift)
-- [ ] 2.6 Fresh account (no transactions) shows `$0.00` on all cards, no errors
-- [ ] 2.7 Unpriced/stale asset → Unrealized and Net show `—`; Realized and Fees still show numbers
-- [ ] 2.8 "Show closed positions" toggle does not change any card total
+- [x] 2.4 Four cards appear above the table; Realized/Unrealized/Net match the sum of table columns
+- [x] 2.5 After one ~20s refresh, Unrealized and Net track the table (no drift)
+- [x] 2.6 Fresh account (no transactions) shows `$0.00` on all cards, no errors
+- [x] 2.7 Unpriced/stale asset → Unrealized and Net show `—`; Realized and Fees still show numbers
+- [x] 2.8 "Show closed positions" toggle does not change any card total
