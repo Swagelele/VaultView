@@ -66,6 +66,9 @@ export function computePositions(transactions: Transaction[]): ComputeResult {
       continue;
     }
 
+    // SELL / SWAP / WITHDRAW all dispose of the source asset and realize P&L against average cost.
+    // WITHDRAW (S-06) has a null target, so the acquisition arm below is naturally skipped — a
+    // one-sided cash-out that only reduces the position. No type-specific branch is needed here.
     const sourcePos = getOrCreate(positions, tx.source_asset, tx.location);
     if (sourcePos.quantity > 0) {
       const avgCost = sourcePos.total_cost_usd / sourcePos.quantity;

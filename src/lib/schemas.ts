@@ -7,7 +7,7 @@ export function isUsdStablecoin(coinId: string): boolean {
 }
 
 const baseSchema = z.object({
-  type: z.enum(["DEPOSIT", "BUY", "SELL", "SWAP"]),
+  type: z.enum(["DEPOSIT", "BUY", "SELL", "SWAP", "WITHDRAW"]),
   source_asset: z.string().min(1, "Source asset is required"),
   source_quantity: z.number().positive("Source quantity must be positive"),
   target_asset: z.string().min(1).nullable().optional(),
@@ -20,10 +20,13 @@ const baseSchema = z.object({
 });
 
 export const createTransactionSchema = baseSchema.superRefine((data, ctx) => {
-  if (data.type === "DEPOSIT") {
+  // DEPOSIT and WITHDRAW are one-sided ops — no target side. (S-06: WITHDRAW is a cash-out that
+  // realizes P&L on the source against average cost; it shares DEPOSIT's shape but SELL's accounting.)
+  if (data.type === "DEPOSIT" || data.type === "WITHDRAW") {
     // S-05: DEPOSIT accepts any asset; cost basis is derived from the historical price at the
     // purchase date (or a manual override). A purchase can't have happened in the future.
-    if (new Date(data.transaction_date).getTime() > Date.now()) {
+    // (WITHDRAW prices at current market, so the future-date guard stays DEPOSIT-only.)
+    if (data.type === "DEPOSIT" && new Date(data.transaction_date).getTime() > Date.now()) {
       ctx.addIssue({
         code: "custom",
         message: "Deposit date cannot be in the future",
@@ -33,14 +36,14 @@ export const createTransactionSchema = baseSchema.superRefine((data, ctx) => {
     if (data.target_asset) {
       ctx.addIssue({
         code: "custom",
-        message: "DEPOSIT must not have a target asset",
+        message: `${data.type} must not have a target asset`,
         path: ["target_asset"],
       });
     }
     if (data.target_quantity) {
       ctx.addIssue({
         code: "custom",
-        message: "DEPOSIT must not have a target quantity",
+        message: `${data.type} must not have a target quantity`,
         path: ["target_quantity"],
       });
     }

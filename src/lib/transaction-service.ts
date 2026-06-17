@@ -30,7 +30,11 @@ export async function getHoldingAtLocation(
     if (tx.type === "DEPOSIT" && tx.source_asset === asset) {
       quantity += Number(tx.source_quantity);
     }
-    if ((tx.type === "BUY" || tx.type === "SELL" || tx.type === "SWAP") && tx.source_asset === asset) {
+    if (
+      (tx.type === "BUY" || tx.type === "SELL" || tx.type === "SWAP" || tx.type === "WITHDRAW") &&
+      tx.source_asset === asset
+    ) {
+      // WITHDRAW is a one-sided disposal — it subtracts the source like a SELL but has no target arm.
       quantity -= Number(tx.source_quantity);
     }
     if ((tx.type === "BUY" || tx.type === "SELL" || tx.type === "SWAP") && tx.target_asset === asset) {
@@ -54,10 +58,13 @@ export async function resolvePriceUsd(
   // CoinPaprika historical window, where no suggestion is available (S-05).
   if (override) return override;
 
-  if (type === "DEPOSIT") {
+  // One-sided ops (DEPOSIT, WITHDRAW) are priced off the source asset alone. DEPOSIT derives a
+  // historical cost basis at the purchase date; WITHDRAW realizes P&L at current market price — and
+  // since its date is "now", getPriceForDate returns the current price (PRD Open Question default).
+  if (type === "DEPOSIT" || type === "WITHDRAW") {
     // Stablecoin "cash" side is worth $1 — skip the API (avoids ticker noise + a wasted call).
     if (isUsdStablecoin(sourceAsset)) return 1;
-    // Otherwise derive cost basis from the historical price at the purchase date; null → caller 400s.
+    // Otherwise resolve the source price at the transaction date; null → caller 400s.
     return getPriceForDate(sourceAsset, transactionDate.slice(0, 10));
   }
 
@@ -123,19 +130,21 @@ export async function createTransaction(
     };
   }
 
-  const price =
-    input.type === "DEPOSIT"
-      ? priceUsd
-      : (input.price ??
-        (input.target_quantity && input.source_quantity ? input.target_quantity / input.source_quantity : 1));
+  // One-sided ops (DEPOSIT, WITHDRAW) have no exchange rate — the `price` column carries the USD
+  // valuation directly. Two-sided trades store the source→target rate.
+  const isOneSided = input.type === "DEPOSIT" || input.type === "WITHDRAW";
+  const price = isOneSided
+    ? priceUsd
+    : (input.price ??
+      (input.target_quantity && input.source_quantity ? input.target_quantity / input.source_quantity : 1));
 
   const row = {
     user_id: userId,
     type: input.type,
     source_asset: input.source_asset,
     source_quantity: input.source_quantity,
-    target_asset: input.type === "DEPOSIT" ? null : (input.target_asset ?? null),
-    target_quantity: input.type === "DEPOSIT" ? null : (input.target_quantity ?? null),
+    target_asset: isOneSided ? null : (input.target_asset ?? null),
+    target_quantity: isOneSided ? null : (input.target_quantity ?? null),
     price,
     price_usd: priceUsd,
     fee: input.fee,

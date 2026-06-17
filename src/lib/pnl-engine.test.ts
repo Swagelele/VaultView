@@ -221,6 +221,63 @@ describe("computePositions", () => {
     expect(btc!.realized_pnl).toBe(5000);
   });
 
+  it("WITHDRAW realizes P&L on the source and creates no target position (S-06)", () => {
+    const { positions, realizedByTx } = computePositions([
+      tx({
+        type: "DEPOSIT",
+        source_asset: "btc-bitcoin",
+        source_quantity: 2,
+        price_usd: 60000,
+        transaction_date: "2026-06-15T10:00:00Z",
+      }),
+      tx({
+        id: "wd-1",
+        type: "WITHDRAW",
+        source_asset: "btc-bitcoin",
+        source_quantity: 1,
+        target_asset: null,
+        target_quantity: null,
+        price_usd: 70000,
+        transaction_date: "2026-06-16T10:00:00Z",
+      }),
+    ]);
+
+    const btc = positions.get("btc-bitcoin::Binance");
+    expect(btc!.quantity).toBe(1);
+    // avg cost was 60000; withdrawing 1 at 70000 realizes 1 × (70000 − 60000)
+    expect(btc!.realized_pnl).toBe(10000);
+    expect(realizedByTx.get("wd-1")).toBe(10000);
+    // cost basis drops by 1 × avgCost (60000), leaving the remaining unit at cost
+    expect(btc!.total_cost_usd).toBe(60000);
+    // one-sided: no target position is created
+    expect(positions.size).toBe(1);
+  });
+
+  it("full WITHDRAW closes the position", () => {
+    const { positions } = computePositions([
+      tx({
+        type: "DEPOSIT",
+        source_asset: "eth-ethereum",
+        source_quantity: 10,
+        price_usd: 3000,
+        transaction_date: "2026-06-15T10:00:00Z",
+      }),
+      tx({
+        type: "WITHDRAW",
+        source_asset: "eth-ethereum",
+        source_quantity: 10,
+        target_asset: null,
+        target_quantity: null,
+        price_usd: 3500,
+        transaction_date: "2026-06-16T10:00:00Z",
+      }),
+    ]);
+
+    const eth = positions.get("eth-ethereum::Binance");
+    expect(eth!.quantity).toBe(0);
+    expect(eth!.realized_pnl).toBe(10 * (3500 - 3000));
+  });
+
   it("transactions with price_usd === null are flagged as unpriced", () => {
     const { unpriced } = computePositions([tx({ type: "BUY", price_usd: null })]);
 

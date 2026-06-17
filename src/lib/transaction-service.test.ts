@@ -47,3 +47,40 @@ describe("resolvePriceUsd — DEPOSIT cost basis (S-05)", () => {
     expect(price).toBeNull();
   });
 });
+
+describe("resolvePriceUsd — WITHDRAW realized price (S-06)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("override wins over everything, even for a non-stablecoin withdraw", async () => {
+    const price = await resolvePriceUsd("WITHDRAW", "btc-bitcoin", null, null, 1, "2026-06-17T00:00:00Z", 70000);
+
+    expect(price).toBe(70000);
+    expect(mockedGetPriceForDate).not.toHaveBeenCalled();
+  });
+
+  it("stablecoin withdraw returns $1 without an API call (realized P&L ≈ 0)", async () => {
+    const price = await resolvePriceUsd("WITHDRAW", "usdt-tether", null, null, 100, "2026-06-17T00:00:00Z");
+
+    expect(price).toBe(1);
+    expect(mockedGetPriceForDate).not.toHaveBeenCalled();
+  });
+
+  it("non-stablecoin withdraw resolves the current market price via getPriceForDate", async () => {
+    mockedGetPriceForDate.mockResolvedValue(70000);
+
+    const price = await resolvePriceUsd("WITHDRAW", "btc-bitcoin", null, null, 1, "2026-06-17T12:30:00Z");
+
+    expect(price).toBe(70000);
+    expect(mockedGetPriceForDate).toHaveBeenCalledWith("btc-bitcoin", "2026-06-17");
+  });
+
+  it("returns null when no price is available (caller surfaces a 400)", async () => {
+    mockedGetPriceForDate.mockResolvedValue(null);
+
+    const price = await resolvePriceUsd("WITHDRAW", "btc-bitcoin", null, null, 1, "2026-06-17T00:00:00Z");
+
+    expect(price).toBeNull();
+  });
+});
