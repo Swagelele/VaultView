@@ -228,3 +228,4 @@ Foundations poniżej zakładają że te warstwy są obecne i NIE budują ich od 
 - **S-03: widzi dashboard: łączny realized P&L, unrealized P&L, opłaty** — Archived 2026-06-17 → `context/archive/2026-06-16-summary-dashboard/`. Lesson: —.
 - **S-09: widzi alokację portfela jako wykres kołowy (udział każdego assetu)** — Archived 2026-06-17 → `context/archive/2026-06-17-asset-allocation-pie/`. Lesson: —.
 - **S-04: użytkownik przegląda listę wszystkich transakcji z możliwością filtrowania po typie (BUY/SELL/SWAP/DEPOSIT/WITHDRAW), lokalizacji i assecie.** — Archived 2026-06-17 → `context/archive/2026-06-17-transaction-list-filters/`. Lesson: —.
+- **S-05: użytkownik rejestruje istniejący asset (kupiony wcześniej poza trackerem) podając datę zakupu; aplikacja pobiera historyczną cenę z API cenowego jako cost basis, a portfolio pokazuje unrealized P&L dla zdeponowanego assetu.** — Archived 2026-06-17 → `context/archive/2026-06-17-deposit-historical-cost/`. Lesson: —.
