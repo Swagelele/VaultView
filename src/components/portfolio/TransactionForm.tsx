@@ -57,8 +57,9 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
   }, []);
 
   useEffect(() => {
+    // DEPOSIT and SELL price the source asset; BUY prices the target. Stablecoins skip (worth $1).
     const assetForPrice = type === "BUY" ? targetAsset : sourceAsset;
-    if (!assetForPrice || type === "DEPOSIT") return;
+    if (!assetForPrice) return;
     if (USD_STABLECOINS.includes(assetForPrice)) return;
 
     let cancelled = false;
@@ -84,6 +85,13 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
 
   const sourceAmount = type === "BUY" && amount && price ? Number(amount) * Number(price) : amount ? Number(amount) : 0;
   const insufficientBalance = type !== "DEPOSIT" && availableBalance !== null && sourceAmount > availableBalance;
+  // S-05: a deposited stablecoin is worth $1 (no price field); any other deposited asset needs a
+  // cost basis (suggested historical price or manual override) before it can be submitted.
+  const isStablecoinDeposit = type === "DEPOSIT" && USD_STABLECOINS.includes(sourceAsset);
+  const depositNeedsCostBasis =
+    type === "DEPOSIT" && !isStablecoinDeposit && !!sourceAsset && (!price || Number(price) <= 0);
+  // A purchase can't have happened in the future; mirror the server-side guard in the picker.
+  const maxDate = new Date().toISOString().slice(0, 16);
 
   function resetForm() {
     setSourceAsset("");
@@ -112,7 +120,17 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
     };
 
     if (type === "DEPOSIT") {
-      return { ...base, source_asset: sourceAsset, source_quantity: Number(amount) };
+      const deposit: Record<string, unknown> = {
+        ...base,
+        source_asset: sourceAsset,
+        source_quantity: Number(amount),
+      };
+      // Non-stablecoin deposits carry a cost basis (suggested historical price or manual override);
+      // stablecoins omit it and the server applies $1.
+      if (!USD_STABLECOINS.includes(sourceAsset) && price && Number(price) > 0) {
+        deposit.source_price_usd_override = Number(price);
+      }
+      return deposit;
     }
 
     if (type === "BUY") {
@@ -200,15 +218,32 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
             />
           </div>
           <AssetAutocomplete
-            label="Stablecoin"
+            label="Asset"
             value={sourceSymbol}
             onChange={(id, sym) => {
               setSourceAsset(id);
               setSourceSymbol(sym);
             }}
-            filterIds={USD_STABLECOINS}
-            placeholder="Search stablecoin..."
+            placeholder="Search asset..."
           />
+          {!isStablecoinDeposit && sourceAsset && (
+            <div className="grid gap-1.5">
+              <Label>
+                Cost basis price per unit (USD)
+                {suggestedPrice !== null && <span className="text-muted-foreground ml-1">(suggested)</span>}
+              </Label>
+              <Input
+                type="number"
+                step="any"
+                min="0"
+                value={price}
+                onChange={(e) => {
+                  setPrice(e.target.value);
+                }}
+                required
+              />
+            </div>
+          )}
         </>
       )}
 
@@ -474,6 +509,7 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
           <Input
             type="datetime-local"
             value={transactionDate}
+            max={maxDate}
             onChange={(e) => {
               setTransactionDate(e.target.value);
             }}
@@ -484,7 +520,7 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
 
       {error && <p className="text-sm text-red-500">{error}</p>}
 
-      <Button type="submit" disabled={submitting || insufficientBalance}>
+      <Button type="submit" disabled={submitting || insufficientBalance || depositNeedsCostBasis}>
         {submitting ? "Saving..." : "Save Transaction"}
       </Button>
     </form>

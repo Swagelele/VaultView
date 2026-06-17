@@ -227,29 +227,29 @@ No migration. Existing stablecoin deposits already have `price_usd = 1`, which r
 
 #### Automated
 
-- [x] 1.1 Type checking passes (`npm run build` / `npx astro check`)
-- [x] 1.2 Linting passes (`npm run lint`)
-- [x] 1.3 Unit tests pass (`npx vitest run`)
-- [x] 1.4 `resolvePriceUsd` tests cover override / stablecoin / historical / null paths
-- [x] 1.5 Engine test asserts a non-$1 deposit cost basis
+- [x] 1.1 Type checking passes (`npm run build` / `npx astro check`) — 6dc57f2
+- [x] 1.2 Linting passes (`npm run lint`) — 6dc57f2
+- [x] 1.3 Unit tests pass (`npx vitest run`) — 6dc57f2
+- [x] 1.4 `resolvePriceUsd` tests cover override / stablecoin / historical / null paths — 6dc57f2
+- [x] 1.5 Engine test asserts a non-$1 deposit cost basis — 6dc57f2
 
 #### Manual
 
-- [x] 1.6 Non-stablecoin DEPOSIT (past date) returns 201 with `price_usd` = historical price
-- [x] 1.7 Future-dated DEPOSIT returns 400 with a clear date message
-- [x] 1.8 Stablecoin DEPOSIT still stores `price_usd = 1`
+- [x] 1.6 Non-stablecoin DEPOSIT (past date) returns 201 with `price_usd` = historical price — 6dc57f2
+- [x] 1.7 Future-dated DEPOSIT returns 400 with a clear date message — 6dc57f2
+- [x] 1.8 Stablecoin DEPOSIT still stores `price_usd = 1` — 6dc57f2
 
 ### Phase 2: DEPOSIT form — any-asset + cost-basis suggestion/override (frontend)
 
 #### Automated
 
-- [ ] 2.1 Type checking passes (`npm run build` / `npx astro check`)
-- [ ] 2.2 Linting passes (`npm run lint`)
+- [x] 2.1 Type checking passes (`npm run build` / `npx astro check`)
+- [x] 2.2 Linting passes (`npm run lint`)
 
 #### Manual
 
-- [ ] 2.3 Deposit tab lets you pick any asset (not just stablecoins)
-- [ ] 2.4 Non-stablecoin + past date shows suggested cost basis; override works; portfolio shows correct unrealized P&L
-- [ ] 2.5 Stablecoin deposit shows no price field and records at $1
-- [ ] 2.6 Date picker blocks future dates; submit disabled for non-stablecoin deposit with no cost basis
-- [ ] 2.7 No regression to BUY / SELL entry
+- [x] 2.3 Deposit tab lets you pick any asset (not just stablecoins)
+- [x] 2.4 Non-stablecoin + past date shows suggested cost basis; override works; portfolio shows correct unrealized P&L
+- [x] 2.5 Stablecoin deposit shows no price field and records at $1
+- [x] 2.6 Date picker blocks future dates; submit disabled for non-stablecoin deposit with no cost basis
+- [x] 2.7 No regression to BUY / SELL entry
