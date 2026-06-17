@@ -247,16 +247,27 @@ function isMarkableAcquisition(
   );
 }
 
-export async function getTransactionsWithPnl(supabase: SupabaseClient, userId: string): Promise<TransactionWithPnl[]> {
+export interface TransactionsWithPnlResult {
+  data: TransactionWithPnl[];
+  // True when any unrealized P&L was computed from stale/last-known prices (mirrors PortfolioResponse,
+  // so the transactions UI can flag staleness the same way the dashboard does).
+  stale: boolean;
+  updated_at: string | null;
+}
+
+export async function getTransactionsWithPnl(
+  supabase: SupabaseClient,
+  userId: string,
+): Promise<TransactionsWithPnlResult> {
   const transactions = await getTransactions(supabase, userId);
   const { realizedByTx } = computePositions(transactions);
 
   // Live prices for every non-stablecoin asset acquired by a BUY/SWAP, so each purchase can show its
   // current unrealized (paper) P&L. getMultiplePrices handles the empty case and its own caching.
   const acquiredAssets = [...new Set(transactions.filter(isMarkableAcquisition).map((tx) => tx.target_asset))];
-  const { prices } = await getMultiplePrices(acquiredAssets);
+  const { prices, stale, updated_at } = await getMultiplePrices(acquiredAssets);
 
-  return transactions.map((tx) => {
+  const data = transactions.map((tx) => {
     let unrealizedPnl: number | null = null;
     if (isMarkableAcquisition(tx)) {
       const currentPrice = tx.target_asset in prices ? prices[tx.target_asset] : null;
@@ -275,6 +286,8 @@ export async function getTransactionsWithPnl(supabase: SupabaseClient, userId: s
       unrealized_pnl_usd: unrealizedPnl,
     };
   });
+
+  return { data, stale, updated_at };
 }
 
 export async function getDistinctLocations(supabase: SupabaseClient, userId: string): Promise<string[]> {

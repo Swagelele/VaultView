@@ -41,6 +41,6 @@ export const GET: APIRoute = async (context) => {
     return errorResponse("Supabase is not configured", 500);
   }
 
-  const transactions = await getTransactionsWithPnl(supabase, context.locals.user.id);
-  return jsonResponse({ data: transactions });
+  const result = await getTransactionsWithPnl(supabase, context.locals.user.id);
+  return jsonResponse(result);
 };

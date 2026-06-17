@@ -3,6 +3,7 @@ import type { PortfolioAsset } from "@/types";
 import { getTransactions } from "@/lib/transaction-service";
 import { computePositions, aggregateByAsset } from "@/lib/pnl-engine";
 import { getMultiplePrices } from "@/lib/coinpaprika";
+import { symbolFromId } from "@/lib/format";
 
 export interface PortfolioResponse {
   data: PortfolioAsset[];
@@ -34,7 +35,7 @@ export async function getPortfolio(supabase: SupabaseClient, userId: string): Pr
 
   const data: PortfolioAsset[] = summaries.map((s) => {
     const currentPrice: number | null = s.asset in priceData.prices ? priceData.prices[s.asset] : null;
-    const symbol = s.asset.split("-")[0]?.toUpperCase() ?? s.asset;
+    const symbol = symbolFromId(s.asset);
 
     return {
       asset: s.asset,

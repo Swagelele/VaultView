@@ -22,6 +22,8 @@ const TYPE_STYLES: Record<TransactionType, string> = {
 
 interface TransactionsApiResponse {
   data: TransactionWithPnl[];
+  stale: boolean;
+  updated_at: string | null;
 }
 
 function fetchTransactions(): Promise<TransactionsApiResponse | null> {
@@ -49,21 +51,31 @@ function formatDate(value: string): string {
 export function TransactionList() {
   const [transactions, setTransactions] = useState<TransactionWithPnl[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [stale, setStale] = useState(false);
   const [typeFilter, setTypeFilter] = useState<string>(ALL);
   const [locationFilter, setLocationFilter] = useState<string>(ALL);
   const [assetFilter, setAssetFilter] = useState<string>(ALL);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
     void fetchTransactions().then((res) => {
-      if (cancelled || !res) return;
+      if (cancelled) return;
+      if (!res) {
+        // Distinguish a fetch failure from a genuinely empty account (401 already redirected).
+        setError(true);
+        setLoading(false);
+        return;
+      }
       setTransactions(res.data);
+      setStale(res.stale);
       setLoading(false);
     });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [reloadKey]);
 
   // Filter option lists derived from the loaded data (FR-011): no dead options.
   const typeOptions = useMemo(() => {
@@ -110,6 +122,25 @@ export function TransactionList() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="space-y-3 py-12 text-center">
+        <p className="text-red-400">Couldn’t load transactions. Please try again.</p>
+        <button
+          type="button"
+          onClick={() => {
+            setError(false);
+            setLoading(true);
+            setReloadKey((k) => k + 1);
+          }}
+          className="cursor-pointer rounded border border-white/15 bg-white/5 px-3 py-1.5 text-sm text-white hover:bg-white/10"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
@@ -132,6 +163,12 @@ export function TransactionList() {
           options={assetOptions.map((id) => ({ value: id, label: symbolFromId(id) }))}
         />
       </div>
+
+      {stale && (
+        <p className="text-xs text-amber-400/80">
+          Prices may be stale — unrealized P&amp;L reflects last-known prices.
+        </p>
+      )}
 
       {visible.length === 0 ? (
         <p className="text-muted-foreground py-12 text-center">
