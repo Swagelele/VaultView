@@ -1,7 +1,7 @@
 ---
 change_id: withdraw-cash-out
 title: Withdraw cash out
-status: implementing
+status: implemented
 created: 2026-06-17
 updated: 2026-06-17
 archived_at: null

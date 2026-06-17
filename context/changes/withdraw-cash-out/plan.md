@@ -221,13 +221,13 @@ No data migration. The `transaction_type` enum and nullable target columns alrea
 
 #### Automated
 
-- [x] 2.1 Type checking passes: `npm run build`
-- [x] 2.2 Linting passes: `npm run lint`
-- [x] 2.3 Existing unit tests still pass: `npm test`
+- [x] 2.1 Type checking passes: `npm run build` — 4108f5b
+- [x] 2.2 Linting passes: `npm run lint` — 4108f5b
+- [x] 2.3 Existing unit tests still pass: `npm test` — 4108f5b
 
 #### Manual
 
-- [x] 2.4 Withdraw tab shows available balance + suggested price; Max fills full holding and closes position
-- [x] 2.5 Partial withdraw shows a WITHDRAW row with realized P&L ≈ qty × (current − avg cost), unrealized blank
-- [x] 2.6 Over-balance quantity disables submit; bypass yields 409
-- [x] 2.7 Stablecoin withdraw records realized P&L ≈ 0
+- [x] 2.4 Withdraw tab shows available balance + suggested price; Max fills full holding and closes position — 4108f5b
+- [x] 2.5 Partial withdraw shows a WITHDRAW row with realized P&L ≈ qty × (current − avg cost), unrealized blank — 4108f5b
+- [x] 2.6 Over-balance quantity disables submit; bypass yields 409 — 4108f5b
+- [x] 2.7 Stablecoin withdraw records realized P&L ≈ 0 — 4108f5b

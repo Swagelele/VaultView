@@ -35,7 +35,7 @@ Portfele kryptowalutowe są rozproszone po wielu giełdach i portfelach — brak
 | S-03 | summary-dashboard        | widzi dashboard: łączny realized P&L, unrealized P&L, opłaty                 | S-01          | FR-010                                               | done     |
 | S-04 | transaction-list-filters | przegląda listę transakcji z filtrami po typie, lokalizacji i assecie        | S-01          | FR-011                                               | done     |
 | S-05 | deposit-historical-cost  | rejestruje istniejący asset (DEPOSIT) z historycznym kosztem nabycia         | S-01          | US-04, FR-005                                        | done     |
-| S-06 | withdraw-cash-out        | wycofuje asset z trackingu (WITHDRAW) z realizacją P&L                       | S-01          | US-05, FR-006                                        | proposed |
+| S-06 | withdraw-cash-out        | wycofuje asset z trackingu (WITHDRAW) z realizacją P&L                       | S-01          | US-05, FR-006                                        | done     |
 | S-07 | sell-all-single-location | sprzedaje całą pozycję w jednej lokalizacji jednym kliknięciem               | S-01          | US-03, FR-004                                        | done     |
 | S-08 | sell-all-global          | sprzedaje asset we wszystkich lokalizacjach z per-lokalizacyjną konfiguracją | S-07          | FR-004                                               | done     |
 | S-09 | asset-allocation-pie     | widzi alokację portfela jako wykres kołowy (udział każdego assetu)           | S-01          | FR-014                                               | done     |
@@ -151,9 +151,9 @@ Foundations poniżej zakładają że te warstwy są obecne i NIE budują ich od 
 - **Parallel with:** S-02, S-03, S-04, S-05, S-07
 - **Blockers:** —
 - **Unknowns:**
-  - Mechanizm wyceny WITHDRAW — po jakiej cenie realizować P&L? Bieżąca cena rynkowa czy podana przez użytkownika? — Owner: user. Block: no (domyślnie: cena rynkowa z API cenowego w momencie WITHDRAW).
+  - Mechanizm wyceny WITHDRAW — po jakiej cenie realizować P&L? Bieżąca cena rynkowa czy podana przez użytkownika? — Owner: user. Block: no (domyślnie: cena rynkowa z API cenowego w momencie WITHDRAW). **Rozstrzygnięte:** bieżąca cena rynkowa z możliwością nadpisania (FR-007).
 - **Risk:** Open Question z PRD (mechanizm wyceny) jest nieblokujący — domyślna implementacja (cena rynkowa) jest rozsądna i może być zmieniona bez przebudowy.
-- **Status:** proposed
+- **Status:** done
 
 ### S-07: Sell-all w pojedynczej lokalizacji
 
@@ -202,7 +202,7 @@ Foundations poniżej zakładają że te warstwy są obecne i NIE budują ich od 
 | S-03       | summary-dashboard        | Dashboard z łącznymi P&L i opłatami       | done                  | Implemented — `f8f2a83`..`a6a1165`                  |
 | S-04       | transaction-list-filters | Lista transakcji z filtrami               | done                  | Implemented — `850edd3`..`bd507f0`                  |
 | S-05       | deposit-historical-cost  | DEPOSIT z historycznym kosztem nabycia    | done                  | Implemented — `6dc57f2`..`e599545`                  |
-| S-06       | withdraw-cash-out        | WITHDRAW z realizacją P&L                 | yes                   | S-01 done. Run `/10x-plan withdraw-cash-out`        |
+| S-06       | withdraw-cash-out        | WITHDRAW z realizacją P&L                 | done                  | Implemented — `b1155fb`..`4108f5b`                  |
 | S-07       | sell-all-single-location | Sell-all w pojedynczej lokalizacji        | done                  | Implemented — `ac06f82`..`0123bf3`                  |
 | S-08       | sell-all-global          | Sell-all globalny (wszystkie lokalizacje) | done                  | Implemented — `6d5d344`..`ee8c2f0`                  |
 | S-09       | asset-allocation-pie     | Wykres kołowy alokacji assetów            | done                  | Implemented — `c99d350`..`88378a8`                  |
