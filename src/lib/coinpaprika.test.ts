@@ -77,14 +77,15 @@ describe("coinpaprika boundary — getMultiplePrices stale degradation (Risk #5)
   it("retains stale cached prices and flags stale when a refetch fails", async () => {
     vi.useFakeTimers();
     const fetchMock = stubFetch(() => httpError(429));
-    const { getCurrentPrice, getMultiplePrices } = await import("./coinpaprika");
+    const { getCurrentPrice, getMultiplePrices, CURRENT_PRICE_TTL_MS } = await import("./coinpaprika");
 
     // 1) prime the cache with a successful fetch
     fetchMock.mockResolvedValueOnce(okJson({ quotes: { USD: { price: 60000 } } }));
     expect(await getCurrentPrice("btc-bitcoin")).toBe(60000);
 
-    // 2) advance past the 120s TTL so the cached entry is stale
-    vi.advanceTimersByTime(120_001);
+    // 2) advance past the current-price TTL so the cached entry is stale (derive from the
+    //    source constant so this boundary stays correct if the TTL ever changes)
+    vi.advanceTimersByTime(CURRENT_PRICE_TTL_MS + 1);
 
     // 3) the refetch now fails (429) → stale price retained, flagged stale, updated_at null
     const result = await getMultiplePrices(["btc-bitcoin"]);

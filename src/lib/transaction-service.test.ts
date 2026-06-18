@@ -14,6 +14,26 @@ vi.mock("@/lib/coinpaprika", () => ({
 
 const mockedGetPriceForDate = vi.mocked(getPriceForDate);
 
+function tx(overrides: Partial<Transaction>): Transaction {
+  return {
+    id: crypto.randomUUID(),
+    user_id: "user-1",
+    type: "BUY",
+    source_asset: "usdt-tether",
+    source_quantity: 0,
+    target_asset: null,
+    target_quantity: null,
+    price: 1,
+    price_usd: 1,
+    fee: 0,
+    location: "Binance",
+    transaction_date: "2026-06-15T10:00:00Z",
+    created_at: "2026-06-15T10:00:00Z",
+    updated_at: "2026-06-15T10:00:00Z",
+    ...overrides,
+  };
+}
+
 describe("resolvePriceUsd — DEPOSIT cost basis (S-05)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -95,26 +115,6 @@ describe("resolvePriceUsd — crypto-to-crypto derivation (Risk #2)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
-
-  function tx(overrides: Partial<Transaction>): Transaction {
-    return {
-      id: crypto.randomUUID(),
-      user_id: "user-1",
-      type: "BUY",
-      source_asset: "usdt-tether",
-      source_quantity: 0,
-      target_asset: null,
-      target_quantity: null,
-      price: 1,
-      price_usd: 1,
-      fee: 0,
-      location: "Binance",
-      transaction_date: "2026-06-15T10:00:00Z",
-      created_at: "2026-06-15T10:00:00Z",
-      updated_at: "2026-06-15T10:00:00Z",
-      ...overrides,
-    };
-  }
 
   it("derives source USD from the target side: (targetQty × targetUsdPrice) / sourceQty", async () => {
     // Sell 2 BTC, receive 40 ETH, with ETH @ $3,000 → trade value 40 × 3000 = $120,000.

@@ -2,7 +2,7 @@ import type { CoinSearchResult, PriceLookupResult } from "@/types";
 
 const BASE_URL = "https://api.coinpaprika.com/v1";
 
-const CURRENT_PRICE_TTL_MS = 120_000;
+export const CURRENT_PRICE_TTL_MS = 120_000;
 
 interface CacheEntry {
   price: number;

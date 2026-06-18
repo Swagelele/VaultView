@@ -1,7 +1,7 @@
 ---
 change_id: testing-pnl-trade-math
 title: Testing pnl trade math
-status: implemented
+status: impl_reviewed
 created: 2026-06-18
 updated: 2026-06-18
 archived_at: null
