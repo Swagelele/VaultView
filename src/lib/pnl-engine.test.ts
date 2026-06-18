@@ -284,6 +284,93 @@ describe("computePositions", () => {
     expect(unpriced).toHaveLength(1);
     expect(unpriced[0].type).toBe("BUY");
   });
+
+  it("excludes fee from P&L math — quantity, cost basis, and realized P&L ignore the fee", () => {
+    // PRD FR-003 + FR-010: P&L is gross of fees; fees are reported only as a separate total.
+    // Two identical histories differing ONLY in `fee` must produce identical engine output.
+    const build = (fee: number) =>
+      computePositions([
+        tx({
+          type: "DEPOSIT",
+          source_asset: "usdt-tether",
+          source_quantity: 100000,
+          price_usd: 1,
+          fee,
+          transaction_date: "2026-06-15T10:00:00Z",
+        }),
+        tx({
+          type: "BUY",
+          source_asset: "usdt-tether",
+          source_quantity: 60000,
+          target_asset: "btc-bitcoin",
+          target_quantity: 1,
+          price_usd: 1,
+          fee,
+          transaction_date: "2026-06-15T10:01:00Z",
+        }),
+        tx({
+          type: "SELL",
+          source_asset: "btc-bitcoin",
+          source_quantity: 1,
+          target_asset: "usdt-tether",
+          target_quantity: 65000,
+          price_usd: 65000,
+          fee,
+          transaction_date: "2026-06-15T10:02:00Z",
+        }),
+      ]);
+
+    const noFee = build(0).positions.get("btc-bitcoin::Binance")!;
+    const bigFee = build(999).positions.get("btc-bitcoin::Binance")!;
+    expect(bigFee.quantity).toBe(noFee.quantity);
+    expect(bigFee.total_cost_usd).toBe(noFee.total_cost_usd);
+    expect(bigFee.realized_pnl).toBe(noFee.realized_pnl);
+    // sanity: there *was* realized P&L to compare (1 × (65000 − 60000))
+    expect(noFee.realized_pnl).toBe(5000);
+  });
+
+  it("treats price_usd === 0 as a real price, not as unpriced", () => {
+    // 0 passes the `=== null` unpriced guard, so a DEPOSIT at price 0 adds quantity at zero cost.
+    const { positions, unpriced } = computePositions([
+      tx({
+        type: "DEPOSIT",
+        source_asset: "doge-dogecoin",
+        source_quantity: 1000,
+        price_usd: 0,
+        transaction_date: "2026-06-15T10:00:00Z",
+      }),
+    ]);
+
+    expect(unpriced).toHaveLength(0);
+    const doge = positions.get("doge-dogecoin::Binance")!;
+    expect(doge.quantity).toBe(1000);
+    expect(doge.total_cost_usd).toBe(0);
+  });
+
+  it("realizes a full loss when disposing at price_usd === 0", () => {
+    // Hold 2 BTC at avg cost 60000; selling 1 at a real price of 0 realizes 1 × (0 − 60000).
+    const { positions } = computePositions([
+      tx({
+        type: "DEPOSIT",
+        source_asset: "btc-bitcoin",
+        source_quantity: 2,
+        price_usd: 60000,
+        transaction_date: "2026-06-15T10:00:00Z",
+      }),
+      tx({
+        type: "SELL",
+        source_asset: "btc-bitcoin",
+        source_quantity: 1,
+        target_asset: "usdt-tether",
+        target_quantity: 0,
+        price_usd: 0,
+        transaction_date: "2026-06-15T10:01:00Z",
+      }),
+    ]);
+
+    const btc = positions.get("btc-bitcoin::Binance")!;
+    expect(btc.realized_pnl).toBe(-60000);
+  });
 });
 
 describe("aggregateByAsset", () => {
@@ -314,6 +401,36 @@ describe("aggregateByAsset", () => {
     expect(usdt!.locations).toHaveLength(2);
   });
 
+  it("blends average cost across locations and preserves per-location avg cost", () => {
+    // Binance: 1 BTC @ $60,000 (cost 60000); MetaMask: 1 BTC @ $64,000 (cost 64000).
+    // Consolidated avg cost = (60000 + 64000) / (1 + 1) = 62000; each location keeps its own avg.
+    const { positions } = computePositions([
+      tx({
+        type: "DEPOSIT",
+        source_asset: "btc-bitcoin",
+        source_quantity: 1,
+        price_usd: 60000,
+        location: "Binance",
+        transaction_date: "2026-06-15T10:00:00Z",
+      }),
+      tx({
+        type: "DEPOSIT",
+        source_asset: "btc-bitcoin",
+        source_quantity: 1,
+        price_usd: 64000,
+        location: "MetaMask",
+        transaction_date: "2026-06-15T10:00:00Z",
+      }),
+    ]);
+
+    const summaries = aggregateByAsset(positions);
+    const btc = summaries.find((s) => s.asset === "btc-bitcoin")!;
+    expect(btc.total_quantity).toBe(2);
+    expect(btc.avg_cost_usd).toBe(62000);
+    expect(btc.locations.find((l) => l.location === "Binance")!.avg_cost_usd).toBe(60000);
+    expect(btc.locations.find((l) => l.location === "MetaMask")!.avg_cost_usd).toBe(64000);
+  });
+
   it("marks zero-balance assets as closed", () => {
     const { positions } = computePositions([
       tx({
@@ -338,6 +455,69 @@ describe("aggregateByAsset", () => {
     const usdt = summaries.find((s) => s.asset === "usdt-tether");
     expect(usdt!.is_closed).toBe(true);
 
+    const btc = summaries.find((s) => s.asset === "btc-bitcoin");
+    expect(btc!.is_closed).toBe(false);
+  });
+
+  it("treats a fully-disposed position with float residue as closed", () => {
+    // 0.1 + 0.2 === 0.30000000000000004 in IEEE-754. Withdrawing 0.3 leaves a residue
+    // of ~5.5e-17 quantity, which strict `=== 0` would wrongly report as still open.
+    // Relative to gross acquired (0.30000000000000004), the threshold is ~3e-10, so the
+    // residue is below it and the position is closed.
+    const { positions } = computePositions([
+      tx({
+        type: "DEPOSIT",
+        source_asset: "btc-bitcoin",
+        source_quantity: 0.1,
+        price_usd: 50000,
+        transaction_date: "2026-06-15T10:00:00Z",
+      }),
+      tx({
+        type: "DEPOSIT",
+        source_asset: "btc-bitcoin",
+        source_quantity: 0.2,
+        price_usd: 50000,
+        transaction_date: "2026-06-15T10:01:00Z",
+      }),
+      tx({
+        type: "WITHDRAW",
+        source_asset: "btc-bitcoin",
+        source_quantity: 0.3,
+        target_asset: null,
+        target_quantity: null,
+        price_usd: 60000,
+        transaction_date: "2026-06-16T10:00:00Z",
+      }),
+    ]);
+
+    const summaries = aggregateByAsset(positions);
+    const btc = summaries.find((s) => s.asset === "btc-bitcoin");
+    expect(btc!.is_closed).toBe(true);
+  });
+
+  it("keeps a genuine dust holding open (residue above the relative threshold)", () => {
+    // Acquire 1 BTC, withdraw 0.999999 → 0.000001 BTC genuinely remains. That is far above
+    // the relative threshold (1 × 1e-9 = 1e-9), so it must NOT be reported as closed.
+    const { positions } = computePositions([
+      tx({
+        type: "DEPOSIT",
+        source_asset: "btc-bitcoin",
+        source_quantity: 1,
+        price_usd: 60000,
+        transaction_date: "2026-06-15T10:00:00Z",
+      }),
+      tx({
+        type: "WITHDRAW",
+        source_asset: "btc-bitcoin",
+        source_quantity: 0.999999,
+        target_asset: null,
+        target_quantity: null,
+        price_usd: 65000,
+        transaction_date: "2026-06-16T10:00:00Z",
+      }),
+    ]);
+
+    const summaries = aggregateByAsset(positions);
     const btc = summaries.find((s) => s.asset === "btc-bitcoin");
     expect(btc!.is_closed).toBe(false);
   });
