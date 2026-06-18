@@ -491,10 +491,10 @@ zero remain valid (`Math.abs(0) < x` holds).
 
 #### Automated
 
-- [x] 4.1 Full suite still green: `npm test`
-- [x] 4.2 Linting passes: `npm run lint`
-- [x] 4.3 §6.1/§6.5 contain no `TBD`; §3 Phase 1 Status reads `complete`
+- [x] 4.1 Full suite still green: `npm test` — 21c4c4a
+- [x] 4.2 Linting passes: `npm run lint` — 21c4c4a
+- [x] 4.3 §6.1/§6.5 contain no `TBD`; §3 Phase 1 Status reads `complete` — 21c4c4a
 
 #### Manual
 
-- [x] 4.4 §6.1/§6.5 read as actionable instructions a new contributor could follow
+- [x] 4.4 §6.1/§6.5 read as actionable instructions a new contributor could follow — 21c4c4a
