@@ -177,3 +177,28 @@ describe("resolvePriceUsd — crypto-to-crypto derivation (Risk #2)", () => {
     expect(mockedGetPriceForDate).not.toHaveBeenCalled();
   });
 });
+
+describe("resolvePriceUsd — price-API failure degradation (Risk #5)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns null when the price API yields nothing (caller maps null → HTTP 400)", async () => {
+    // A crypto-to-crypto trade with the API down: target price null, source fallback null → null.
+    // createTransaction turns this null into a 400 pointing at the manual-override path.
+    mockedGetPriceForDate.mockResolvedValue(null);
+
+    const price = await resolvePriceUsd("SELL", "btc-bitcoin", "eth-ethereum", 40, 2, "2026-06-15T10:00:00Z");
+
+    expect(price).toBeNull();
+  });
+
+  it("a manual override short-circuits the API entirely, even with the API down", async () => {
+    mockedGetPriceForDate.mockResolvedValue(null);
+
+    const price = await resolvePriceUsd("SELL", "btc-bitcoin", "eth-ethereum", 40, 2, "2026-06-15T10:00:00Z", 60000);
+
+    expect(price).toBe(60000);
+    expect(mockedGetPriceForDate).not.toHaveBeenCalled();
+  });
+});

@@ -465,27 +465,27 @@ zero remain valid (`Math.abs(0) < x` holds).
 
 #### Automated
 
-- [x] 2.1 Unit tests pass: `npm test`
-- [x] 2.2 Type checking passes: `npx astro check`
-- [x] 2.3 Linting passes: `npm run lint`
-- [x] 2.4 Phantom-position test is red if the `created_at` tiebreaker is dropped
+- [x] 2.1 Unit tests pass: `npm test` — 14941b8
+- [x] 2.2 Type checking passes: `npx astro check` — 14941b8
+- [x] 2.3 Linting passes: `npm run lint` — 14941b8
+- [x] 2.4 Phantom-position test is red if the `created_at` tiebreaker is dropped — 14941b8
 
 #### Manual
 
-- [x] 2.5 Reconciliation expected values are hand-derived from a worked crypto-to-crypto example
+- [x] 2.5 Reconciliation expected values are hand-derived from a worked crypto-to-crypto example — 14941b8
 
 ### Phase 3: Price-API boundary degradation (Risk #5)
 
 #### Automated
 
-- [ ] 3.1 Unit tests pass: `npm test`
-- [ ] 3.2 Type checking passes: `npx astro check`
-- [ ] 3.3 Linting passes: `npm run lint`
-- [ ] 3.4 No test makes a real network call (fetch stub asserted-called)
+- [x] 3.1 Unit tests pass: `npm test`
+- [x] 3.2 Type checking passes: `npx astro check`
+- [x] 3.3 Linting passes: `npm run lint`
+- [x] 3.4 No test makes a real network call (fetch stub asserted-called)
 
 #### Manual
 
-- [ ] 3.5 Simulated outage still allows manual-override submission with no NaN P&L
+- [x] 3.5 Simulated outage still allows manual-override submission with no NaN P&L
 
 ### Phase 4: Cookbook & closeout
 
