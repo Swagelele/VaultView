@@ -371,6 +371,94 @@ describe("computePositions", () => {
     const btc = positions.get("btc-bitcoin::Binance")!;
     expect(btc.realized_pnl).toBe(-60000);
   });
+
+  it("realizes a same-minute SELL regardless of array order (no phantom position) — Risk #2", () => {
+    // A funding BUY and its SELL share the same minute-precision transaction_date. created_at
+    // encodes causal order (BUY created before SELL). Even passed in reverse array order, the
+    // (transaction_date, created_at) sort must run the BUY first so the SELL disposes a funded
+    // position — realizing P&L instead of being clamped, and leaving no phantom quantity.
+    const buy = tx({
+      id: "buy-1",
+      type: "BUY",
+      source_asset: "usdt-tether",
+      source_quantity: 60000,
+      target_asset: "btc-bitcoin",
+      target_quantity: 1,
+      price_usd: 1,
+      transaction_date: "2026-06-15T10:00:00Z",
+      created_at: "2026-06-15T10:00:00.100Z",
+    });
+    const sell = tx({
+      id: "sell-1",
+      type: "SELL",
+      source_asset: "btc-bitcoin",
+      source_quantity: 1,
+      target_asset: "usdt-tether",
+      target_quantity: 65000,
+      price_usd: 65000,
+      transaction_date: "2026-06-15T10:00:00Z",
+      created_at: "2026-06-15T10:00:00.200Z",
+    });
+
+    const { positions, realizedByTx } = computePositions([sell, buy]); // reverse array order
+
+    expect(realizedByTx.get("sell-1")).toBe(5000); // 1 × (65000 − 60000), not dropped to 0
+    expect(positions.get("btc-bitcoin::Binance")!.quantity).toBe(0); // no phantom unit left
+  });
+
+  it("documents the failure the created_at tiebreaker prevents (inverted causal order)", () => {
+    // If created_at itself were inverted (SELL created before its funding BUY — which cannot happen
+    // causally), the SELL sorts first, hits the over-sell clamp, drops its realized P&L to 0, and
+    // leaves a phantom BTC unit. This shows created_at is the load-bearing tiebreaker.
+    const buy = tx({
+      id: "buy-1",
+      type: "BUY",
+      source_asset: "usdt-tether",
+      source_quantity: 60000,
+      target_asset: "btc-bitcoin",
+      target_quantity: 1,
+      price_usd: 1,
+      transaction_date: "2026-06-15T10:00:00Z",
+      created_at: "2026-06-15T10:00:00.200Z",
+    });
+    const sell = tx({
+      id: "sell-1",
+      type: "SELL",
+      source_asset: "btc-bitcoin",
+      source_quantity: 1,
+      target_asset: "usdt-tether",
+      target_quantity: 65000,
+      price_usd: 65000,
+      transaction_date: "2026-06-15T10:00:00Z",
+      created_at: "2026-06-15T10:00:00.100Z",
+    });
+
+    const { positions, realizedByTx } = computePositions([buy, sell]);
+
+    expect(realizedByTx.get("sell-1")).toBe(0); // clamped — disposal skipped
+    expect(positions.get("btc-bitcoin::Binance")!.quantity).toBe(1); // phantom unit
+  });
+
+  it("clamps an over-sell to realized 0 without driving quantity negative — Risk #2", () => {
+    // SELL against a position that was never funded: the clamp skips the disposal, records 0 (not
+    // null, not negative quantity), but the acquisition arm still credits the target asset.
+    const { positions, realizedByTx } = computePositions([
+      tx({
+        id: "oversell-1",
+        type: "SELL",
+        source_asset: "btc-bitcoin",
+        source_quantity: 1,
+        target_asset: "usdt-tether",
+        target_quantity: 65000,
+        price_usd: 65000,
+        transaction_date: "2026-06-15T10:00:00Z",
+      }),
+    ]);
+
+    expect(realizedByTx.get("oversell-1")).toBe(0);
+    expect(positions.get("btc-bitcoin::Binance")!.quantity).toBe(0); // not negative
+    expect(positions.get("usdt-tether::Binance")!.quantity).toBe(65000); // acquisition still ran
+  });
 });
 
 describe("aggregateByAsset", () => {

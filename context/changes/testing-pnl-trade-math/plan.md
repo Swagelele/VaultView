@@ -451,28 +451,28 @@ zero remain valid (`Math.abs(0) < x` holds).
 
 #### Automated
 
-- [x] 1.1 Unit tests pass: `npm test`
-- [x] 1.2 Type checking passes: `npx astro check`
-- [x] 1.3 Linting passes: `npm run lint`
-- [x] 1.4 is_closed residue test is red against the pre-fix strict `=== 0`
+- [x] 1.1 Unit tests pass: `npm test` — ee505a5
+- [x] 1.2 Type checking passes: `npx astro check` — ee505a5
+- [x] 1.3 Linting passes: `npm run lint` — ee505a5
+- [x] 1.4 is_closed residue test is red against the pre-fix strict `=== 0` — ee505a5
 
 #### Manual
 
-- [x] 1.5 Each new math assertion derives its expected value from the Average-Cost requirement
-- [x] 1.6 A sold-out position with float residue shows as closed in the portfolio UI
+- [x] 1.5 Each new math assertion derives its expected value from the Average-Cost requirement — ee505a5
+- [x] 1.6 A sold-out position with float residue shows as closed in the portfolio UI — ee505a5
 
 ### Phase 2: Crypto-to-crypto quantity & ordering regressions (Risk #2)
 
 #### Automated
 
-- [ ] 2.1 Unit tests pass: `npm test`
-- [ ] 2.2 Type checking passes: `npx astro check`
-- [ ] 2.3 Linting passes: `npm run lint`
-- [ ] 2.4 Phantom-position test is red if the `created_at` tiebreaker is dropped
+- [x] 2.1 Unit tests pass: `npm test`
+- [x] 2.2 Type checking passes: `npx astro check`
+- [x] 2.3 Linting passes: `npm run lint`
+- [x] 2.4 Phantom-position test is red if the `created_at` tiebreaker is dropped
 
 #### Manual
 
-- [ ] 2.5 Reconciliation expected values are hand-derived from a worked crypto-to-crypto example
+- [x] 2.5 Reconciliation expected values are hand-derived from a worked crypto-to-crypto example
 
 ### Phase 3: Price-API boundary degradation (Risk #5)
 
