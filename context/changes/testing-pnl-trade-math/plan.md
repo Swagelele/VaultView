@@ -478,23 +478,23 @@ zero remain valid (`Math.abs(0) < x` holds).
 
 #### Automated
 
-- [x] 3.1 Unit tests pass: `npm test`
-- [x] 3.2 Type checking passes: `npx astro check`
-- [x] 3.3 Linting passes: `npm run lint`
-- [x] 3.4 No test makes a real network call (fetch stub asserted-called)
+- [x] 3.1 Unit tests pass: `npm test` — 7d9a24a
+- [x] 3.2 Type checking passes: `npx astro check` — 7d9a24a
+- [x] 3.3 Linting passes: `npm run lint` — 7d9a24a
+- [x] 3.4 No test makes a real network call (fetch stub asserted-called) — 7d9a24a
 
 #### Manual
 
-- [x] 3.5 Simulated outage still allows manual-override submission with no NaN P&L
+- [x] 3.5 Simulated outage still allows manual-override submission with no NaN P&L — 7d9a24a
 
 ### Phase 4: Cookbook & closeout
 
 #### Automated
 
-- [ ] 4.1 Full suite still green: `npm test`
-- [ ] 4.2 Linting passes: `npm run lint`
-- [ ] 4.3 §6.1/§6.5 contain no `TBD`; §3 Phase 1 Status reads `complete`
+- [x] 4.1 Full suite still green: `npm test`
+- [x] 4.2 Linting passes: `npm run lint`
+- [x] 4.3 §6.1/§6.5 contain no `TBD`; §3 Phase 1 Status reads `complete`
 
 #### Manual
 
-- [ ] 4.4 §6.1/§6.5 read as actionable instructions a new contributor could follow
+- [x] 4.4 §6.1/§6.5 read as actionable instructions a new contributor could follow
