@@ -1,10 +1,10 @@
 ---
 change_id: testing-persistence-data-isolation
 title: Persistence and data isolation tests (Risks #3, #4)
-status: impl_reviewed
+status: archived
 created: 2026-06-18
 updated: 2026-06-22
-archived_at: null
+archived_at: 2026-06-22T14:39:35Z
 ---
 
 ## Notes
