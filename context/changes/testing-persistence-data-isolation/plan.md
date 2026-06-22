@@ -399,13 +399,13 @@ already-reset local DB.
 
 #### Automated
 
-- [x] 3.1 Isolation suite passes: `npm run test:integration`
-- [x] 3.2 Full integration suite (smoke + persistence + isolation) green together
-- [x] 3.3 Unit suite still green: `npm test`
-- [x] 3.4 Lint/type-check pass: `npm run lint`
+- [x] 3.1 Isolation suite passes: `npm run test:integration` — 76e3154
+- [x] 3.2 Full integration suite (smoke + persistence + isolation) green together — 76e3154
+- [x] 3.3 Unit suite still green: `npm test` — 76e3154
+- [x] 3.4 Lint/type-check pass: `npm run lint` — 76e3154
 
 #### Manual
 
-- [x] 3.5 Cross-user assertions made through user B's RLS-scoped client (no service-role for denials)
-- [x] 3.6 §6.2/§6.4 read as actionable patterns a future contributor can follow
-- [x] 3.7 Test-plan Phase-2 status reflects the landed suite
+- [x] 3.5 Cross-user assertions made through user B's RLS-scoped client (no service-role for denials) — 76e3154
+- [x] 3.6 §6.2/§6.4 read as actionable patterns a future contributor can follow — 76e3154
+- [x] 3.7 Test-plan Phase-2 status reflects the landed suite — 76e3154

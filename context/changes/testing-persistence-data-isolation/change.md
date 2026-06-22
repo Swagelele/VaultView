@@ -1,7 +1,7 @@
 ---
 change_id: testing-persistence-data-isolation
 title: Persistence and data isolation tests (Risks #3, #4)
-status: implementing
+status: implemented
 created: 2026-06-18
 updated: 2026-06-22
 archived_at: null
