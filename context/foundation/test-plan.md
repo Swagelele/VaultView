@@ -84,7 +84,7 @@ orchestrator updates Status as artifacts appear on disk.
 | # | Phase name | Goal (one line) | Risks covered | Test types | Status | Change folder |
 |---|------------|-----------------|----------------|------------|--------|----------------|
 | 1 | P&L and trade-math correctness | Defend Risk #1, #2, #5 at the cheapest (unit) layer, extending the existing `src/lib` suite with requirement-derived edge cases | #1, #2, #5 | unit | complete | context/changes/testing-pnl-trade-math/ |
-| 2 | Persistence and data isolation | Prove transaction saves persist consistent state and one user cannot reach another's data | #3, #4 | integration | not started | — |
+| 2 | Persistence and data isolation | Prove transaction saves persist consistent state and one user cannot reach another's data | #3, #4 | integration | complete | context/changes/testing-persistence-data-isolation/ |
 | 3 | Quality-gate wiring | Lock the floor: per-edit lint/typecheck and a scoped test trigger on risk areas, enforced at commit | cross-cutting | gates / hooks | not started | — |
 | 4 | Critical-path E2E | Cover one genuinely cross-boundary user path (trade entry → persists → visible in both portfolio views after reload) | cross-cutting | e2e | not started | — |
 
@@ -158,8 +158,32 @@ relevant rollout phase ships; before that, the sub-section reads "TBD."
 
 ### 6.2 Adding an integration test
 
-- TBD — see §3 Phase 2 (local Supabase; mock only at the network edge,
-  never internal modules; fresh account/session per test).
+- **Location & naming**: `tests/integration/<name>.integration.test.ts`. The
+  `.integration.test.ts` suffix is what the separate config globs; the default
+  `npm test` excludes `tests/integration/**`, so DB tests never run in the unit pass.
+- **Runner**: `npm run test:integration` (Vitest via `vitest.integration.config.ts`,
+  `fileParallelism: false`). Requires a local Supabase stack (`npx supabase start`); if
+  it's down the suite **skips** with a hint — `tests/integration/db.ts` probes once and
+  suites guard with `describe.skipIf(!dbAvailable)`.
+- **Two clients (the core distinction)**: `serviceClient()` bypasses RLS — use it ONLY to
+  seed fixtures and read ground truth. `userClient(accessToken)` carries a real user JWT so
+  `auth.uid()` resolves and RLS is enforced — assert ownership/isolation through it, never
+  through the service-role client.
+- **Per-test users**: `createTestUser(svc)` makes a confirmed user and signs in for a JWT;
+  push the id and `deleteTestUser` in `afterEach` — `ON DELETE CASCADE` removes their rows,
+  so re-runs leave nothing behind. Unique emails (`vault-it-<ts>-<n>@example.test`) keep
+  parallel runs and re-runs collision-free.
+- **Never import `@/lib/supabase.ts`** (or anything pulling `astro:env/server`) — it throws
+  under Node/Vitest. Clients are built directly from `@supabase/supabase-js` in
+  `tests/integration/clients.ts`.
+- **Keep the price API out**: use a stablecoin on one side or `source_price_usd_override` so
+  `resolvePriceUsd` short-circuits; assert raw rows via `selectTransactions`, never
+  `getTransactionsWithPnl` (which calls CoinPaprika).
+- **Keys**: `tests/integration/config.ts` resolves URL / anon / service-role from env,
+  falling back to the public local-default JWTs — zero setup for the standard stack; override
+  via `npx supabase status -o env`.
+- **Reference tests**: `tests/integration/persistence.integration.test.ts`,
+  `tests/integration/isolation.integration.test.ts`.
 
 ### 6.3 Adding an e2e test
 
@@ -167,9 +191,20 @@ relevant rollout phase ships; before that, the sub-section reads "TBD."
 
 ### 6.4 Adding a test for a new API endpoint
 
-- TBD — see §3 Phase 2 (persistence + isolation pattern: assert the
-  persisted side-effect and the ownership boundary, not just the response
-  shape).
+- The persistence/ownership logic lives in the service layer
+  (`src/lib/transaction-service.ts`), not the thin `src/pages/api/*` handlers — test the
+  service function directly with the integration harness rather than booting the
+  Astro/workerd server.
+- **Assert the persisted side-effect, not the return value**: after calling the service
+  function with the service-role client, re-`SELECT` the row(s) and assert the columns match
+  the operation. For a failure (e.g. a 409 holding-check), assert `status` AND that a
+  follow-up count is 0 — a failed save persists nothing.
+- **Exercise the ownership boundary** for any endpoint that reads or mutates user-scoped data:
+  seed user A's rows with the service-role client, then prove user B's `userClient` cannot read
+  them (`select` returns 0) or write as A (RLS `WITH CHECK` rejects an insert with
+  `user_id: A`), plus a positive control that A sees only A's rows.
+- See §6.2 for harness mechanics. Reference:
+  `tests/integration/isolation.integration.test.ts`.
 
 ### 6.5 Adding a test for the price-API boundary
 
@@ -199,6 +234,16 @@ here capturing anything surprising the phase taught.)
   `TransactionForm.tsx`, *outside* the unit layer — guarded here only at the `resolvePriceUsd`
   mirror; the form site remains an uncovered gap for a later component/e2e phase. One small
   production fix landed: `is_closed` now uses a relative epsilon (float-residue close).
+- **Phase 2 (persistence & isolation, change `testing-persistence-data-isolation`)**: two
+  things bit. (1) `@supabase/supabase-js` types `.insert()` as `never[]` unless the `Database`
+  generic *exactly* satisfies `GenericSchema` — TS interfaces are not assignable to the
+  `Record<string, unknown>` row/insert constraint, so `Row`/`Insert` need an `Indexed<>`
+  mapped-type wrapper, and the client type must be `ReturnType<typeof createClient<DB>>` (not
+  `SupabaseClient<DB>`, whose own generic defaults collapse `Schema` to `never`). Runtime was
+  always fine; this was purely compile-time. (2) The default `vitest run` was collecting the
+  Playwright `e2e/*.spec.ts` and would have swept in the DB tests — `vitest.config.ts` now
+  excludes both `tests/integration/**` and `e2e/**` to keep the unit pass DB-free and green.
+  No production code changed — tests only.
 
 ## 7. What We Deliberately Don't Test
 

@@ -385,27 +385,27 @@ already-reset local DB.
 
 #### Automated
 
-- [x] 2.1 Persistence suite passes: `npm run test:integration`
-- [x] 2.2 Unit suite still green: `npm test`
-- [x] 2.3 Lint/type-check pass: `npm run lint`
-- [x] 2.4 No CoinPaprika network call occurs (stablecoin/override inputs by construction)
+- [x] 2.1 Persistence suite passes: `npm run test:integration` — ddb99e2
+- [x] 2.2 Unit suite still green: `npm test` — ddb99e2
+- [x] 2.3 Lint/type-check pass: `npm run lint` — ddb99e2
+- [x] 2.4 No CoinPaprika network call occurs (stablecoin/override inputs by construction) — ddb99e2
 
 #### Manual
 
-- [x] 2.5 Each oracle is requirement-derived (arithmetic comment), not copied from implementation output
-- [x] 2.6 No leftover test users/rows after the suite runs
+- [x] 2.5 Each oracle is requirement-derived (arithmetic comment), not copied from implementation output — ddb99e2
+- [x] 2.6 No leftover test users/rows after the suite runs — ddb99e2
 
 ### Phase 3: Isolation tests (Risk #4) + doc closeout
 
 #### Automated
 
-- [ ] 3.1 Isolation suite passes: `npm run test:integration`
-- [ ] 3.2 Full integration suite (smoke + persistence + isolation) green together
-- [ ] 3.3 Unit suite still green: `npm test`
-- [ ] 3.4 Lint/type-check pass: `npm run lint`
+- [x] 3.1 Isolation suite passes: `npm run test:integration`
+- [x] 3.2 Full integration suite (smoke + persistence + isolation) green together
+- [x] 3.3 Unit suite still green: `npm test`
+- [x] 3.4 Lint/type-check pass: `npm run lint`
 
 #### Manual
 
-- [ ] 3.5 Cross-user assertions made through user B's RLS-scoped client (no service-role for denials)
-- [ ] 3.6 §6.2/§6.4 read as actionable patterns a future contributor can follow
-- [ ] 3.7 Test-plan Phase-2 status reflects the landed suite
+- [x] 3.5 Cross-user assertions made through user B's RLS-scoped client (no service-role for denials)
+- [x] 3.6 §6.2/§6.4 read as actionable patterns a future contributor can follow
+- [x] 3.7 Test-plan Phase-2 status reflects the landed suite
