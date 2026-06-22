@@ -6,7 +6,7 @@
 >
 > Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
 >
-> Last updated: 2026-06-18
+> Last updated: 2026-06-22
 
 ## 1. Strategy
 
@@ -84,9 +84,9 @@ orchestrator updates Status as artifacts appear on disk.
 | # | Phase name | Goal (one line) | Risks covered | Test types | Status | Change folder |
 |---|------------|-----------------|----------------|------------|--------|----------------|
 | 1 | P&L and trade-math correctness | Defend Risk #1, #2, #5 at the cheapest (unit) layer, extending the existing `src/lib` suite with requirement-derived edge cases | #1, #2, #5 | unit | complete | context/changes/testing-pnl-trade-math/ |
-| 2 | Persistence and data isolation | Prove transaction saves persist consistent state and one user cannot reach another's data | #3, #4 | integration | complete | context/changes/testing-persistence-data-isolation/ |
-| 3 | Quality-gate wiring | Lock the floor: per-edit lint/typecheck and a scoped test trigger on risk areas, enforced at commit | cross-cutting | gates / hooks | not started | — |
-| 4 | Critical-path E2E | Cover one genuinely cross-boundary user path (trade entry → persists → visible in both portfolio views after reload) | cross-cutting | e2e | not started | — |
+| 2 | Persistence and data isolation | Prove transaction saves persist consistent state and one user cannot reach another's data | #3, #4 | integration | complete | context/archive/2026-06-18-testing-persistence-data-isolation/ |
+| 3 | Quality-gate wiring | Lock the floor: per-edit lint/typecheck and a scoped test trigger on risk areas, enforced at commit | cross-cutting | gates / hooks | complete | standalone — commit `c08f506` |
+| 4 | Critical-path E2E | Cover one genuinely cross-boundary user path (trade entry → persists → visible in both portfolio views after reload) | cross-cutting | e2e | complete | standalone — commits `a9e1b37`..`b03cc70` |
 
 **Status vocabulary** (fixed — parser literals):
 
@@ -261,6 +261,7 @@ contributors should respect these unless the underlying assumption changes.
 - Strategy (§1–§5) last reviewed: 2026-06-18
 - Stack versions last verified: 2026-06-18
 - AI-native tool references last verified: 2026-06-18
+- Rollout status (§3) last reconciled: 2026-06-22 — all 4 phases complete (Phases 3 & 4 were built standalone in earlier sessions; statuses synced to their commits)
 
 Refresh (`/10x-test-plan --refresh`) when:
 
