@@ -18,8 +18,9 @@ setup("authenticate", async ({ page }) => {
   await page.goto("/auth/signin");
 
   // FormField associates <label htmlFor> with its input, so getByLabel resolves.
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill(password);
+  // exact: true so "Password" doesn't also match the "Show password" toggle button.
+  await page.getByLabel("Email", { exact: true }).fill(email);
+  await page.getByLabel("Password", { exact: true }).fill(password);
   await page.getByRole("button", { name: "Sign in" }).click();
 
   // Wait for state, not time: the middleware redirects away from /auth/signin on success.

@@ -37,11 +37,13 @@ test("deposited holding persists after page reload", async ({ page }) => {
   await page.getByRole("tab", { name: "Deposit" }).click();
   await page.getByLabel("Amount").fill(amount);
 
-  const assetSearch = page.getByPlaceholder("Search asset...");
-  await assetSearch.fill("USDT");
+  // AssetAutocomplete is a popover: open it, type in the command input, pick the option.
+  await page.getByRole("button", { name: "Search asset..." }).click();
+  await page.getByPlaceholder("Search asset...").fill("USDT");
   await page.getByRole("option", { name: /USDT/i }).first().click();
 
-  await page.getByLabel("Location").fill(location);
+  // exact: true so "Location" doesn't substring-match "Asset allocation by value" (the chart).
+  await page.getByLabel("Location", { exact: true }).fill(location);
   await page.getByRole("button", { name: "Save Transaction" }).click();
 
   // Wait for state, not time: the dialog closes once the save succeeds.

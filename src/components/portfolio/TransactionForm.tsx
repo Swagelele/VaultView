@@ -295,8 +295,9 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
       {type === "DEPOSIT" && (
         <>
           <div className="grid gap-1.5">
-            <Label>Amount</Label>
+            <Label htmlFor="deposit-amount">Amount</Label>
             <Input
+              id="deposit-amount"
               type="number"
               step="any"
               min="0"
@@ -707,8 +708,9 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
 
       {type === "DEPOSIT" && (
         <div className="grid gap-1.5">
-          <Label>Location</Label>
+          <Label htmlFor="deposit-location">Location</Label>
           <Input
+            id="deposit-location"
             type="text"
             value={location}
             onChange={(e) => {
