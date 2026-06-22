@@ -15,7 +15,8 @@ export interface TestUser {
  * (`Date.now()` is fine here — it is only forbidden inside workflow scripts.)
  */
 export async function createTestUser(svc: IntegrationClient, index = 0): Promise<TestUser> {
-  const stamp = `${Date.now()}-${index}`;
+  // Random suffix keeps emails collision-safe regardless of Vitest's fileParallelism setting.
+  const stamp = `${Date.now()}-${index}-${crypto.randomUUID().slice(0, 8)}`;
   const email = `vault-it-${stamp}@example.test`;
   const password = `Pw-${stamp}-Aa1!`;
 
@@ -38,5 +39,9 @@ export async function createTestUser(svc: IntegrationClient, index = 0): Promise
 
 /** Delete a test user; `ON DELETE CASCADE` removes all of their transactions. Idempotent enough for teardown. */
 export async function deleteTestUser(svc: IntegrationClient, id: string): Promise<void> {
-  await svc.auth.admin.deleteUser(id);
+  const { error } = await svc.auth.admin.deleteUser(id);
+  if (error) {
+    // eslint-disable-next-line no-console -- surface teardown failures instead of leaking users silently
+    console.warn(`deleteTestUser: failed to delete ${id}: ${error.message}`);
+  }
 }
