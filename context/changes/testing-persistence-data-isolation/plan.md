@@ -371,29 +371,29 @@ already-reset local DB.
 
 #### Automated
 
-- [x] 1.1 Unit suite still green and DB-free: `npm test`
-- [x] 1.2 Integration smoke passes against the running stack: `npm run test:integration`
-- [x] 1.3 Type checking / lint passes: `npx astro sync && npm run lint`
-- [x] 1.4 New harness files compile under the integration config (no `astro:env` import error)
+- [x] 1.1 Unit suite still green and DB-free: `npm test` — 5ab4b88
+- [x] 1.2 Integration smoke passes against the running stack: `npm run test:integration` — 5ab4b88
+- [x] 1.3 Type checking / lint passes: `npx astro sync && npm run lint` — 5ab4b88
+- [x] 1.4 New harness files compile under the integration config (no `astro:env` import error) — 5ab4b88
 
 #### Manual
 
-- [x] 1.5 With the stack stopped, `npm run test:integration` skips with the hint message rather than erroring
-- [x] 1.6 Re-running the smoke test twice leaves no leftover users/rows (teardown works)
+- [x] 1.5 With the stack stopped, `npm run test:integration` skips with the hint message rather than erroring — 5ab4b88
+- [x] 1.6 Re-running the smoke test twice leaves no leftover users/rows (teardown works) — 5ab4b88
 
 ### Phase 2: Persistence tests (Risk #3)
 
 #### Automated
 
-- [ ] 2.1 Persistence suite passes: `npm run test:integration`
-- [ ] 2.2 Unit suite still green: `npm test`
-- [ ] 2.3 Lint/type-check pass: `npm run lint`
-- [ ] 2.4 No CoinPaprika network call occurs (stablecoin/override inputs by construction)
+- [x] 2.1 Persistence suite passes: `npm run test:integration`
+- [x] 2.2 Unit suite still green: `npm test`
+- [x] 2.3 Lint/type-check pass: `npm run lint`
+- [x] 2.4 No CoinPaprika network call occurs (stablecoin/override inputs by construction)
 
 #### Manual
 
-- [ ] 2.5 Each oracle is requirement-derived (arithmetic comment), not copied from implementation output
-- [ ] 2.6 No leftover test users/rows after the suite runs
+- [x] 2.5 Each oracle is requirement-derived (arithmetic comment), not copied from implementation output
+- [x] 2.6 No leftover test users/rows after the suite runs
 
 ### Phase 3: Isolation tests (Risk #4) + doc closeout
 
