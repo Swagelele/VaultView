@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { resolvePriceUsd } from "./transaction-service";
+import { resolvePriceUsd, getTransactions, getHoldingAtLocation, getDistinctLocations } from "./transaction-service";
 import { computePositions } from "@/lib/pnl-engine";
 import type { Transaction } from "@/types";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { getPriceForDate } from "@/lib/coinpaprika";
 
 // CoinPaprika is mocked — no network in unit tests. getMultiplePrices is unused here but must be
@@ -200,5 +201,52 @@ describe("resolvePriceUsd — price-API failure degradation (Risk #5)", () => {
 
     expect(price).toBe(60000);
     expect(mockedGetPriceForDate).not.toHaveBeenCalled();
+  });
+});
+
+// A minimal chainable + thenable stand-in for the Supabase query builder. Every chain method
+// (from/select/eq/order) returns the same builder; awaiting the chain resolves to { data, error }.
+// The SupabaseClient is the injected boundary here, not an internal module — driving its { error }
+// branch this way is a seam, not over-mocking, and is the cheapest test that proves the swallow.
+function fakeSupabase(result: { data: unknown; error: unknown }): SupabaseClient {
+  const builder: Record<string, unknown> = {
+    then: (resolve: (v: unknown) => unknown) => resolve(result),
+  };
+  for (const method of ["from", "select", "eq", "order"]) {
+    builder[method] = () => builder;
+  }
+  return builder as unknown as SupabaseClient;
+}
+
+describe("DB-read error propagation — swallowed-error guard (M3L5)", () => {
+  // Oracle is requirement-derived, NOT implementation-pinned: the PRD guardrail "wrong numbers are
+  // worse than no numbers" + the swallowed-error anti-pattern (OWASP A10:2025) demand that a failed
+  // DB read SURFACE, never be silently reported as an empty/zero result behind a 200 OK. Before the
+  // fix, these three readers returned []/0 on { error }, masking a DB failure as "no data".
+  const dbError = { message: "connection terminated unexpectedly" };
+
+  it("getTransactions throws on a DB error instead of returning an empty list", async () => {
+    const supabase = fakeSupabase({ data: null, error: dbError });
+    await expect(getTransactions(supabase, "user-1")).rejects.toThrow(/connection terminated/);
+  });
+
+  it("getHoldingAtLocation throws on a DB error instead of reporting zero holdings", async () => {
+    const supabase = fakeSupabase({ data: null, error: dbError });
+    await expect(getHoldingAtLocation(supabase, "user-1", "btc-bitcoin", "Binance")).rejects.toThrow(
+      /connection terminated/,
+    );
+  });
+
+  it("getDistinctLocations throws on a DB error instead of returning no locations", async () => {
+    const supabase = fakeSupabase({ data: null, error: dbError });
+    await expect(getDistinctLocations(supabase, "user-1")).rejects.toThrow(/connection terminated/);
+  });
+
+  it("a legitimately empty result (no error) is still returned as empty, not an error", async () => {
+    // Distinguishes "0 rows" (fine) from "query failed" (throw) — the boundary the fix must respect.
+    const supabase = fakeSupabase({ data: [], error: null });
+    await expect(getTransactions(supabase, "user-1")).resolves.toEqual([]);
+    await expect(getDistinctLocations(supabase, "user-1")).resolves.toEqual([]);
+    await expect(getHoldingAtLocation(supabase, "user-1", "btc-bitcoin", "Binance")).resolves.toBe(0);
   });
 });

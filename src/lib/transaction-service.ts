@@ -16,14 +16,16 @@ export async function getHoldingAtLocation(
   asset: string,
   location: string,
 ): Promise<number> {
-  const { data: transactions } = await supabase
+  const { data: transactions, error } = await supabase
     .from("transactions")
     .select("type, source_asset, source_quantity, target_asset, target_quantity, location")
     .eq("user_id", userId)
     .eq("location", location)
     .order("transaction_date", { ascending: true });
 
-  if (!transactions) return 0;
+  // Surface a DB failure instead of swallowing it as "0 holdings" — a silent 0 would misreport a
+  // real position as empty, blocking legitimate trades with a misleading 409 (swallowed error, M3L5).
+  if (error) throw new Error(`Failed to read holdings for ${asset} at ${location}: ${error.message}`);
 
   let quantity = 0;
   for (const tx of transactions) {
@@ -237,14 +239,17 @@ export async function createSellAllGlobal(
 }
 
 export async function getTransactions(supabase: SupabaseClient, userId: string): Promise<Transaction[]> {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("transactions")
     .select("*")
     .eq("user_id", userId)
     .order("transaction_date", { ascending: true })
     .order("created_at", { ascending: true });
 
-  return (data ?? []) as Transaction[];
+  // Propagate a DB failure rather than returning [] — a silent empty list would render the user's
+  // entire portfolio and P&L as empty behind a 200 OK (swallowed error, M3L5).
+  if (error) throw new Error(`Failed to read transactions: ${error.message}`);
+  return data as Transaction[];
 }
 
 /**
@@ -307,13 +312,14 @@ export async function getTransactionsWithPnl(
 }
 
 export async function getDistinctLocations(supabase: SupabaseClient, userId: string): Promise<string[]> {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("transactions")
     .select("location")
     .eq("user_id", userId)
     .order("location", { ascending: true });
 
-  if (!data) return [];
+  // Surface a DB failure instead of swallowing it as "no locations" (swallowed error, M3L5).
+  if (error) throw new Error(`Failed to read locations: ${error.message}`);
 
   const unique = [...new Set(data.map((r: { location: string }) => r.location))];
   return unique;
