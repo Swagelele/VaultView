@@ -73,6 +73,57 @@ describe("coinpaprika boundary — search & historical degradation (Risk #5)", (
   });
 });
 
+describe("coinpaprika boundary — getHistoricalPriceSeries (range fetch)", () => {
+  const tick = (timestamp: string, price: number) => ({ timestamp, price });
+
+  it("parses a daily series into a YYYY-MM-DD → price map", async () => {
+    stubFetch(() =>
+      okJson([
+        tick("2026-01-01T00:00:00Z", 40000),
+        tick("2026-01-02T00:00:00Z", 41000),
+        tick("2026-01-03T00:00:00Z", 42000),
+      ]),
+    );
+    const { getHistoricalPriceSeries } = await import("./coinpaprika");
+
+    const series = await getHistoricalPriceSeries("btc-bitcoin", "2026-01-01", 365);
+    expect(series.size).toBe(3);
+    expect(series.get("2026-01-01")).toBe(40000);
+    expect(series.get("2026-01-03")).toBe(42000);
+  });
+
+  it("returns an empty map on fetch failure (caller treats absent dates as 0)", async () => {
+    stubFetch(() => httpError(429));
+    const { getHistoricalPriceSeries } = await import("./coinpaprika");
+
+    const series = await getHistoricalPriceSeries("btc-bitcoin", "2026-01-01", 365);
+    expect(series.size).toBe(0);
+  });
+
+  it("skips ticks with a non-number price — no NaN entries", async () => {
+    stubFetch(() =>
+      okJson([tick("2026-01-01T00:00:00Z", 40000), { timestamp: "2026-01-02T00:00:00Z", price: "oops" }]),
+    );
+    const { getHistoricalPriceSeries } = await import("./coinpaprika");
+
+    const series = await getHistoricalPriceSeries("btc-bitcoin", "2026-01-01", 365);
+    expect(series.size).toBe(1);
+    expect(series.has("2026-01-02")).toBe(false);
+  });
+
+  it("back-fills the per-day cache: a later getHistoricalPrice for an in-range date hits cache (no new fetch)", async () => {
+    const fetchMock = stubFetch(() => okJson([tick("2026-01-01T00:00:00Z", 40000)]));
+    const { getHistoricalPriceSeries, getHistoricalPrice } = await import("./coinpaprika");
+
+    await getHistoricalPriceSeries("btc-bitcoin", "2026-01-01", 365);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    // The cached date resolves without issuing a second request.
+    expect(await getHistoricalPrice("btc-bitcoin", "2026-01-01")).toBe(40000);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe("coinpaprika boundary — getMultiplePrices stale degradation (Risk #5)", () => {
   it("retains stale cached prices and flags stale when a refetch fails", async () => {
     vi.useFakeTimers();

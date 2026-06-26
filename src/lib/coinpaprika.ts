@@ -150,6 +150,36 @@ export async function getHistoricalPrice(coinId: string, date: string): Promise<
   return price;
 }
 
+export async function getHistoricalPriceSeries(
+  coinId: string,
+  startDate: string,
+  days: number,
+): Promise<Map<string, number>> {
+  interface HistoricalTick {
+    timestamp?: string;
+    price?: number;
+  }
+
+  const start = startDate.slice(0, 10);
+  const data = await safeFetch<HistoricalTick[]>(
+    `${BASE_URL}/tickers/${encodeURIComponent(coinId)}/historical?start=${encodeURIComponent(start)}&interval=1d&limit=${days}`,
+  );
+
+  const series = new Map<string, number>();
+  if (!data) return series;
+
+  for (const tick of data) {
+    const date = tick.timestamp?.slice(0, 10);
+    const price = tick.price;
+    if (!date || typeof price !== "number") continue;
+    series.set(date, price);
+    // Back-fill the per-day cache so single-date lookups stay warm (historical prices are immutable).
+    historicalPriceCache.set(`${coinId}:${date}`, price);
+  }
+
+  return series;
+}
+
 export async function getPriceForDate(coinId: string, date: string): Promise<number | null> {
   const today = new Date().toISOString().slice(0, 10);
   const targetDate = date.slice(0, 10);
