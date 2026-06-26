@@ -272,27 +272,27 @@ None — no schema change. Reconstruct-on-read derives everything from existing 
 
 #### Automated
 
-- [x] 2.1 Unit tests pass: `npm run test`
-- [x] 2.2 Type checking + lint pass: `npx astro sync && npm run lint`
-- [x] 2.3 Fixture test reproduces hand-computed value + realized + unrealized + total (DEPOSIT/SELL/WITHDRAW)
-- [x] 2.4 Edge tests: missing price → 0 (no NaN), same-day BUY→SELL, closed-position flatness
+- [x] 2.1 Unit tests pass: `npm run test` — b15b4fc
+- [x] 2.2 Type checking + lint pass: `npx astro sync && npm run lint` — b15b4fc
+- [x] 2.3 Fixture test reproduces hand-computed value + realized + unrealized + total (DEPOSIT/SELL/WITHDRAW) — b15b4fc
+- [x] 2.4 Edge tests: missing price → 0 (no NaN), same-day BUY→SELL, closed-position flatness — b15b4fc
 
 #### Manual
 
-- [ ] 2.5 Series final-day total P&L spot-checks against the dashboard net P&L (within drift)
+- [x] 2.5 Series final-day total P&L spot-checks against the dashboard net P&L (within drift)
 
 ### Phase 3: Service + API endpoint
 
 #### Automated
 
-- [ ] 3.1 Unit/integration tests pass: `npm run test`
-- [ ] 3.2 Type checking + lint pass: `npx astro sync && npm run lint`
-- [ ] 3.3 Service test: empty-history → empty data; seeded ledger → window-length series, last point matches engine
+- [x] 3.1 Unit/integration tests pass: `npm run test`
+- [x] 3.2 Type checking + lint pass: `npx astro sync && npm run lint`
+- [x] 3.3 Service test: empty-history → empty data; seeded ledger → window-length series, last point matches engine
 
 #### Manual
 
-- [ ] 3.4 `GET /api/portfolio/history` returns a series when authed; 401 when not
-- [ ] 3.5 One page load issues ~N CoinPaprika calls (observed via `wrangler tail`)
+- [x] 3.4 `GET /api/portfolio/history` returns a series when authed; 401 when not
+- [x] 3.5 One page load issues ~N CoinPaprika calls (observed via `wrangler tail`)
 
 ### Phase 4: Chart UI
 
