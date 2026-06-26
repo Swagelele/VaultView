@@ -47,59 +47,82 @@ export interface ComputeResult {
   realizedByTx: Map<string, number>;
 }
 
+// Sort by transaction_date, then by created_at as a deterministic tiebreaker. Without the
+// tiebreaker, same-minute ties (datetime inputs are minute-precision) order nondeterministically;
+// if a SELL sorts before the BUY that funds it, the `quantity > 0` clamp below silently skips the
+// SELL while the BUY still adds — producing a phantom position and dropping the SELL's realized
+// P&L. created_at reflects causal insertion order (a funding BUY is always created before its SELL).
+export function sortByDateThenCreated(transactions: Transaction[]): Transaction[] {
+  return [...transactions].sort((a, b) => {
+    const byDate = new Date(a.transaction_date).getTime() - new Date(b.transaction_date).getTime();
+    if (byDate !== 0) return byDate;
+    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+  });
+}
+
+// Outcome of applying one transaction to a running PositionMap.
+// - `realized: null` → DEPOSIT (acquisition only) or an unpriced row (skipped); no disposal P&L.
+// - `realized: <number>` → a priced disposal; the value is the realized P&L (0 for a clamped over-sell).
+// - `unpriced: true` → price_usd was null; the transaction was skipped entirely.
+export interface ApplyResult {
+  realized: number | null;
+  unpriced: boolean;
+}
+
+// Apply a single transaction to `positions` in place, using the same average-cost arithmetic the
+// portfolio history engine replays day-by-day. Extracted so both the present-tense `computePositions`
+// and the temporal reconstruction share one definition of the math (no fork). Callers are responsible
+// for feeding transactions in (transaction_date, created_at) order — see `sortByDateThenCreated`.
+export function applyTransaction(positions: PositionMap, tx: Transaction): ApplyResult {
+  if (tx.price_usd === null) {
+    return { realized: null, unpriced: true };
+  }
+
+  if (tx.type === "DEPOSIT") {
+    const pos = getOrCreate(positions, tx.source_asset, tx.location);
+    pos.quantity += tx.source_quantity;
+    pos.total_cost_usd += tx.source_quantity * tx.price_usd;
+    pos.acquired_quantity += tx.source_quantity;
+    return { realized: null, unpriced: false };
+  }
+
+  // SELL / SWAP / WITHDRAW all dispose of the source asset and realize P&L against average cost.
+  // WITHDRAW (S-06) has a null target, so the acquisition arm below is naturally skipped — a
+  // one-sided cash-out that only reduces the position. No type-specific branch is needed here.
+  const sourcePos = getOrCreate(positions, tx.source_asset, tx.location);
+  let realized = 0;
+  if (sourcePos.quantity > 0) {
+    const avgCost = sourcePos.total_cost_usd / sourcePos.quantity;
+    realized = tx.source_quantity * (tx.price_usd - avgCost);
+    sourcePos.realized_pnl += realized;
+    sourcePos.quantity -= tx.source_quantity;
+    sourcePos.total_cost_usd -= tx.source_quantity * avgCost;
+  }
+  // else: over-sell against an empty/closed position — the clamp skips the disposal, so no P&L is
+  // realized. `realized` stays 0 (not null) — the trade is priced, just not funded.
+
+  if (tx.target_asset && tx.target_quantity) {
+    const targetPos = getOrCreate(positions, tx.target_asset, tx.location);
+    const costBasis = tx.source_quantity * tx.price_usd;
+    targetPos.quantity += tx.target_quantity;
+    targetPos.total_cost_usd += costBasis;
+    targetPos.acquired_quantity += tx.target_quantity;
+  }
+
+  return { realized, unpriced: false };
+}
+
 export function computePositions(transactions: Transaction[]): ComputeResult {
   const positions: PositionMap = new Map();
   const unpriced: UnpricedTransaction[] = [];
   const realizedByTx = new Map<string, number>();
 
-  // Sort by transaction_date, then by created_at as a deterministic tiebreaker. Without the
-  // tiebreaker, same-minute ties (datetime inputs are minute-precision) order nondeterministically;
-  // if a SELL sorts before the BUY that funds it, the `quantity > 0` clamp below silently skips the
-  // SELL while the BUY still adds — producing a phantom position and dropping the SELL's realized
-  // P&L. created_at reflects causal insertion order (a funding BUY is always created before its SELL).
-  const sorted = [...transactions].sort((a, b) => {
-    const byDate = new Date(a.transaction_date).getTime() - new Date(b.transaction_date).getTime();
-    if (byDate !== 0) return byDate;
-    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-  });
-
-  for (const tx of sorted) {
-    if (tx.price_usd === null) {
+  for (const tx of sortByDateThenCreated(transactions)) {
+    const { realized, unpriced: isUnpriced } = applyTransaction(positions, tx);
+    if (isUnpriced) {
       unpriced.push({ id: tx.id, type: tx.type });
-      continue;
-    }
-
-    if (tx.type === "DEPOSIT") {
-      const pos = getOrCreate(positions, tx.source_asset, tx.location);
-      pos.quantity += tx.source_quantity;
-      pos.total_cost_usd += tx.source_quantity * tx.price_usd;
-      pos.acquired_quantity += tx.source_quantity;
-      continue;
-    }
-
-    // SELL / SWAP / WITHDRAW all dispose of the source asset and realize P&L against average cost.
-    // WITHDRAW (S-06) has a null target, so the acquisition arm below is naturally skipped — a
-    // one-sided cash-out that only reduces the position. No type-specific branch is needed here.
-    const sourcePos = getOrCreate(positions, tx.source_asset, tx.location);
-    if (sourcePos.quantity > 0) {
-      const avgCost = sourcePos.total_cost_usd / sourcePos.quantity;
-      const realizedPnl = tx.source_quantity * (tx.price_usd - avgCost);
-      sourcePos.realized_pnl += realizedPnl;
-      sourcePos.quantity -= tx.source_quantity;
-      sourcePos.total_cost_usd -= tx.source_quantity * avgCost;
-      realizedByTx.set(tx.id, realizedPnl);
-    } else {
-      // Over-sell against an empty/closed position: the clamp skips the disposal, so no P&L is
-      // realized for this transaction. Record 0 (not null) — the trade is priced, just not funded.
-      realizedByTx.set(tx.id, 0);
-    }
-
-    if (tx.target_asset && tx.target_quantity) {
-      const targetPos = getOrCreate(positions, tx.target_asset, tx.location);
-      const costBasis = tx.source_quantity * tx.price_usd;
-      targetPos.quantity += tx.target_quantity;
-      targetPos.total_cost_usd += costBasis;
-      targetPos.acquired_quantity += tx.target_quantity;
+    } else if (realized !== null) {
+      realizedByTx.set(tx.id, realized);
     }
   }
 

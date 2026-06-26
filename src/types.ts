@@ -65,6 +65,33 @@ export interface PortfolioAsset {
   locations: PortfolioAssetLocation[];
 }
 
+/**
+ * One day in the reconstructed portfolio time-series.
+ * - `value_usd`: Σ over held assets of quantity × that day's price (missing price → 0).
+ * - `realized_pnl_usd`: cumulative realized P&L from all disposals up to and including this day.
+ * - `unrealized_pnl_usd`: Σ over held assets of quantity × (price − avg cost) (missing price → 0).
+ * - `total_pnl_usd`: realized + unrealized — the "total earned P&L" curve.
+ */
+export interface PortfolioHistoryPoint {
+  date: string;
+  value_usd: number;
+  realized_pnl_usd: number;
+  unrealized_pnl_usd: number;
+  total_pnl_usd: number;
+}
+
+/**
+ * API response wrapper for the portfolio history series.
+ * - `excluded_price_days`: count of held asset-days that fell back to 0 because no historical
+ *   price was available — surfaced as an honest "N assets had no price on some days" note.
+ */
+export interface PortfolioHistoryResponse {
+  data: PortfolioHistoryPoint[];
+  start_date: string;
+  end_date: string;
+  excluded_price_days: number;
+}
+
 export interface CoinSearchResult {
   id: string;
   name: string;

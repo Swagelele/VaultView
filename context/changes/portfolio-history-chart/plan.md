@@ -260,22 +260,22 @@ None — no schema change. Reconstruct-on-read derives everything from existing 
 
 #### Automated
 
-- [x] 1.1 Unit tests pass: `npm run test`
-- [x] 1.2 Type checking + lint pass: `npx astro sync && npm run lint`
-- [x] 1.3 Tests cover series parse, fetch-failure → empty map, and cache back-fill
+- [x] 1.1 Unit tests pass: `npm run test` — 32d3df4
+- [x] 1.2 Type checking + lint pass: `npx astro sync && npm run lint` — 32d3df4
+- [x] 1.3 Tests cover series parse, fetch-failure → empty map, and cache back-fill — 32d3df4
 
 #### Manual
 
-- [x] 1.4 Scratch call for a real coin returns ~365 dated prices in one request
+- [x] 1.4 Scratch call for a real coin returns ~365 dated prices in one request — 32d3df4
 
 ### Phase 2: Reconstruction engine
 
 #### Automated
 
-- [ ] 2.1 Unit tests pass: `npm run test`
-- [ ] 2.2 Type checking + lint pass: `npx astro sync && npm run lint`
-- [ ] 2.3 Fixture test reproduces hand-computed value + realized + unrealized + total (DEPOSIT/SELL/WITHDRAW)
-- [ ] 2.4 Edge tests: missing price → 0 (no NaN), same-day BUY→SELL, closed-position flatness
+- [x] 2.1 Unit tests pass: `npm run test`
+- [x] 2.2 Type checking + lint pass: `npx astro sync && npm run lint`
+- [x] 2.3 Fixture test reproduces hand-computed value + realized + unrealized + total (DEPOSIT/SELL/WITHDRAW)
+- [x] 2.4 Edge tests: missing price → 0 (no NaN), same-day BUY→SELL, closed-position flatness
 
 #### Manual
 
