@@ -279,34 +279,34 @@ None — no schema change. Reconstruct-on-read derives everything from existing 
 
 #### Manual
 
-- [x] 2.5 Series final-day total P&L spot-checks against the dashboard net P&L (within drift)
+- [x] 2.5 Series final-day total P&L spot-checks against the dashboard net P&L (within drift) — 2518d32
 
 ### Phase 3: Service + API endpoint
 
 #### Automated
 
-- [x] 3.1 Unit/integration tests pass: `npm run test`
-- [x] 3.2 Type checking + lint pass: `npx astro sync && npm run lint`
-- [x] 3.3 Service test: empty-history → empty data; seeded ledger → window-length series, last point matches engine
+- [x] 3.1 Unit/integration tests pass: `npm run test` — 2518d32
+- [x] 3.2 Type checking + lint pass: `npx astro sync && npm run lint` — 2518d32
+- [x] 3.3 Service test: empty-history → empty data; seeded ledger → window-length series, last point matches engine — 2518d32
 
 #### Manual
 
-- [x] 3.4 `GET /api/portfolio/history` returns a series when authed; 401 when not
-- [x] 3.5 One page load issues ~N CoinPaprika calls (observed via `wrangler tail`)
+- [x] 3.4 `GET /api/portfolio/history` returns a series when authed; 401 when not — 2518d32
+- [x] 3.5 One page load issues ~N CoinPaprika calls (observed via `wrangler tail`) — 2518d32
 
 ### Phase 4: Chart UI
 
 #### Automated
 
-- [ ] 4.1 Unit tests pass: `npm run test` (geometry helpers)
-- [ ] 4.2 Type checking + lint pass: `npx astro sync && npm run lint`
-- [ ] 4.3 Build passes: `npm run build`
+- [x] 4.1 Unit tests pass: `npm run test` (geometry helpers)
+- [x] 4.2 Type checking + lint pass: `npx astro sync && npm run lint`
+- [x] 4.3 Build passes: `npm run build`
 
 #### Manual
 
-- [ ] 4.4 Chart renders above the portfolio; metric toggle changes the curve
-- [ ] 4.5 Range buttons zoom 1d/15d/30d/180d/365d with no network calls
-- [ ] 4.6 Final point updates within ~20s as live prices refresh
-- [ ] 4.7 Adding a transaction re-fetches and reshapes the curve
-- [ ] 4.8 Asset lacking history shows the excluded-days note and a 0-dip, not NaN/blank
-- [ ] 4.9 No regressions in portfolio table, allocation chart, or summary cards
+- [x] 4.4 Chart renders above the portfolio; metric toggle changes the curve
+- [x] 4.5 Range buttons zoom 15d/30d/180d/365d with no network calls (1d dropped per user — daily-only series)
+- [x] 4.6 Final point updates within ~20s as live prices refresh
+- [x] 4.7 Adding a transaction re-fetches and reshapes the curve
+- [x] 4.8 Asset lacking history shows the excluded-days note and a 0-dip, not NaN/blank (unreproducible on live data — covered by engine missing-price→0 unit test)
+- [x] 4.9 No regressions in portfolio table, allocation chart, or summary cards

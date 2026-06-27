@@ -1,9 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { AddTransactionDialog } from "@/components/portfolio/AddTransactionDialog";
 import { AssetAllocationChart } from "@/components/portfolio/AssetAllocationChart";
+import { PortfolioHistoryChart } from "@/components/portfolio/PortfolioHistoryChart";
 import { PortfolioTable } from "@/components/portfolio/PortfolioTable";
 import { SummaryCards } from "@/components/portfolio/SummaryCards";
-import type { PortfolioAsset } from "@/types";
+import { computeAllocation } from "@/lib/asset-allocation";
+import { computeSummary } from "@/lib/portfolio-summary";
+import type { PortfolioAsset, PortfolioHistoryPoint, PortfolioHistoryResponse } from "@/types";
 
 const REFRESH_INTERVAL_MS = 20_000;
 
@@ -26,11 +29,19 @@ function fetchPortfolioData(): Promise<PortfolioApiResponse | null> {
     .catch(() => null);
 }
 
+function fetchPortfolioHistory(): Promise<PortfolioHistoryResponse | null> {
+  return fetch("/api/portfolio/history")
+    .then((res) => (res.ok ? (res.json() as Promise<PortfolioHistoryResponse>) : null))
+    .catch(() => null);
+}
+
 export function PortfolioView() {
   const [assets, setAssets] = useState<PortfolioAsset[]>([]);
   const [stale, setStale] = useState(false);
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
   const [totalFees, setTotalFees] = useState(0);
+  const [history, setHistory] = useState<PortfolioHistoryPoint[]>([]);
+  const [excludedPriceDays, setExcludedPriceDays] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showClosed, setShowClosed] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval>>(null);
@@ -49,6 +60,13 @@ export function PortfolioView() {
       setUpdatedAt(data.updated_at);
       setTotalFees(data.total_fees_usd);
       setLoading(false);
+    });
+    // History is fetched once and reshaped client-side on range/metric changes (no refetch). The
+    // live final point ticks from the price poll without re-hitting this endpoint.
+    void fetchPortfolioHistory().then((data) => {
+      if (cancelled || !data) return;
+      setHistory(data.data);
+      setExcludedPriceDays(data.excluded_price_days);
     });
     return () => {
       cancelled = true;
@@ -129,6 +147,13 @@ export function PortfolioView() {
       }
       setLoading(false);
     });
+    // A new transaction changes the past reconstruction, so reshape the whole curve.
+    void fetchPortfolioHistory().then((data) => {
+      if (data) {
+        setHistory(data.data);
+        setExcludedPriceDays(data.excluded_price_days);
+      }
+    });
   }
 
   if (loading) {
@@ -147,9 +172,20 @@ export function PortfolioView() {
     );
   }
 
+  // Live "today" point for the history chart: value from the same definition as the allocation
+  // donut's total, net P&L from the same definition as the summary card. Both derive from the
+  // price-refreshed `assets`, so the chart's right edge ticks with the 20s poll. Null net P&L
+  // (an unpriced held asset) → no override; the chart keeps the server's daily-close final point.
+  const liveValue = computeAllocation(assets).totalValue;
+  const liveNetPnl = computeSummary(assets, totalFees).net_pnl_usd;
+  const liveToday = liveNetPnl !== null ? { value_usd: liveValue, total_pnl_usd: liveNetPnl } : null;
+
   return (
     <div className="space-y-4">
       <SummaryCards assets={assets} totalFeesUsd={totalFees} />
+      {history.length > 0 && (
+        <PortfolioHistoryChart history={history} liveToday={liveToday} excludedPriceDays={excludedPriceDays} />
+      )}
       {assets.length > 0 && <AssetAllocationChart assets={assets} />}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
