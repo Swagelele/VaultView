@@ -26,6 +26,9 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
   const [locationSuggestions, setLocationSuggestions] = useState<string[]>([]);
   const [transactionDate, setTransactionDate] = useState(new Date().toISOString().slice(0, 16));
   const [suggestedPrice, setSuggestedPrice] = useState<number | null>(null);
+  // True when a price suggestion was expected (non-stablecoin priced asset) but the provider call
+  // failed or returned nothing — surfaces a "enter manually" hint instead of a silently empty field.
+  const [priceUnavailable, setPriceUnavailable] = useState(false);
   // Async-fetched USD price of a non-stablecoin "counter" asset (the side whose quantity we derive
   // from the trade's USD value). The effective price (incl. the $1 stablecoin case) is derived below.
   const [fetchedCounterPrice, setFetchedCounterPrice] = useState<number | null>(null);
@@ -75,14 +78,20 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
         if (p) {
           setSuggestedPrice(p);
           setPrice(String(Math.round(p * 100) / 100));
+          setPriceUnavailable(false);
+        } else {
+          setPriceUnavailable(true);
         }
       })
-      .catch(() => undefined);
+      .catch(() => {
+        if (!cancelled) setPriceUnavailable(true);
+      });
 
     return () => {
       cancelled = true;
       setSuggestedPrice(null);
       setPrice("");
+      setPriceUnavailable(false);
     };
   }, [sourceAsset, targetAsset, type, transactionDate]);
 
@@ -119,6 +128,15 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
   const counterPrice = counterIsStable ? 1 : fetchedCounterPrice;
   const tradeNeedsCounterPrice = !!counterAsset && !counterIsStable && (counterPrice === null || counterPrice <= 0);
 
+  // Marker shown beside a price label: "(suggested)" when the provider returned a price, or a
+  // "enter manually" hint when the suggestion call failed — never a silently empty field.
+  function priceHint() {
+    if (suggestedPrice !== null) return <span className="text-muted-foreground ml-1">(suggested)</span>;
+    if (priceUnavailable)
+      return <span className="ml-1 text-xs text-yellow-400">(price unavailable — enter manually)</span>;
+    return null;
+  }
+
   // Quantity of the *source* asset this trade consumes, in source units, for the balance check. For
   // BUY the user enters the bought (target) quantity and its USD price, so the source spent = USD cost
   // ÷ the paying asset's USD price (counterPrice). For SELL/WITHDRAW the entered amount already is the
@@ -149,6 +167,7 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
     setPrice("");
     setFee("");
     setSuggestedPrice(null);
+    setPriceUnavailable(false);
     setFetchedCounterPrice(null);
     setAvailableBalance(null);
     setError("");
@@ -321,7 +340,7 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
             <div className="grid gap-1.5">
               <Label>
                 Cost basis price per unit (USD)
-                {suggestedPrice !== null && <span className="text-muted-foreground ml-1">(suggested)</span>}
+                {priceHint()}
               </Label>
               <Input
                 type="number"
@@ -379,7 +398,7 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
           <div className="grid gap-1.5">
             <Label>
               Price per unit (USD)
-              {suggestedPrice !== null && <span className="text-muted-foreground ml-1">(suggested)</span>}
+              {priceHint()}
             </Label>
             <Input
               type="number"
@@ -539,7 +558,7 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
           <div className="grid gap-1.5">
             <Label>
               Price per unit (USD)
-              {suggestedPrice !== null && <span className="text-muted-foreground ml-1">(suggested)</span>}
+              {priceHint()}
             </Label>
             <Input
               type="number"
@@ -658,7 +677,7 @@ export function TransactionForm({ onSuccess }: TransactionFormProps) {
             <div className="grid gap-1.5">
               <Label>
                 Price per unit (USD)
-                {suggestedPrice !== null && <span className="text-muted-foreground ml-1">(suggested)</span>}
+                {priceHint()}
               </Label>
               <Input
                 type="number"

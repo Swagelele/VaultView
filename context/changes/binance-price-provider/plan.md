@@ -419,20 +419,20 @@ exist, a one-time `UPDATE transactions SET source_asset = <ticker(source_asset)>
 
 #### Automated
 
-- [x] 2.1 Type check + lint clean: `npx astro sync && npm run lint`
-- [x] 2.2 Full unit suite passes: `npx vitest run`
-- [x] 2.3 No remaining `coinpaprika` / `usdt-tether` / `btc-bitcoin` refs in `src/`
+- [x] 2.1 Type check + lint clean: `npx astro sync && npm run lint` — 02cf5e3
+- [x] 2.2 Full unit suite passes: `npx vitest run` — 02cf5e3
+- [x] 2.3 No remaining `coinpaprika` / `usdt-tether` / `btc-bitcoin` refs in `src/` — 02cf5e3
 
 #### Manual
 
-- [x] 2.4 `npm run dev` boots; dashboard + transactions load without errors
+- [x] 2.4 `npm run dev` boots; dashboard + transactions load without errors — 02cf5e3
 
 ### Phase 3: Visible error states
 
 #### Automated
 
-- [ ] 3.1 Lint + type check clean: `npm run lint`
-- [ ] 3.2 Existing component tests pass: `npx vitest run`
+- [x] 3.1 Lint + type check clean: `npm run lint`
+- [x] 3.2 Existing component tests pass: `npx vitest run`
 
 #### Manual
 

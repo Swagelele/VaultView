@@ -23,6 +23,9 @@ export function AssetAutocomplete({
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<CoinSearchResult[]>([]);
+  // Distinguishes a provider/network failure from a genuine no-match so the dropdown never blanks
+  // silently (the failure mode that made the app look broken under the old rate-limited provider).
+  const [loadError, setLoadError] = useState(false);
   const displayValue = value;
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(null);
 
@@ -33,6 +36,7 @@ export function AssetAutocomplete({
 
     if (q.length < 2) {
       setResults([]);
+      setLoadError(false);
       return;
     }
 
@@ -40,15 +44,19 @@ export function AssetAutocomplete({
       void (async () => {
         try {
           const res = await fetch(`/api/assets/search?q=${encodeURIComponent(q)}`);
-          if (!res.ok) return;
+          if (!res.ok) {
+            setLoadError(true);
+            return;
+          }
           const data = (await res.json()) as { data: CoinSearchResult[] };
           let filtered = data.data.filter((c) => c.is_active);
           if (filterIds) {
             filtered = filtered.filter((c) => filterIds.includes(c.id));
           }
           setResults(filtered);
+          setLoadError(false);
         } catch {
-          /* ignore */
+          setLoadError(true);
         }
       })();
     }, 300);
@@ -78,7 +86,13 @@ export function AssetAutocomplete({
           <Command shouldFilter={false}>
             <CommandInput placeholder={placeholder} value={query} onValueChange={handleSearch} />
             <CommandList>
-              <CommandEmpty>{query.length < 2 ? "Type to search..." : "No results found."}</CommandEmpty>
+              <CommandEmpty>
+                {query.length < 2
+                  ? "Type to search..."
+                  : loadError
+                    ? "Couldn't load assets — try again"
+                    : "No results found."}
+              </CommandEmpty>
               <CommandGroup>
                 {results.map((coin) => (
                   <CommandItem
