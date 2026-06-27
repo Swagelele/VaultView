@@ -57,7 +57,7 @@ export async function resolvePriceUsd(
   override?: number,
 ): Promise<number | null> {
   // Override-first: a manual cost basis always wins — including for deposits older than the
-  // CoinPaprika historical window, where no suggestion is available (S-05).
+  // provider's historical window, where no suggestion is available (S-05).
   if (override) return override;
 
   // One-sided ops (DEPOSIT, WITHDRAW) are priced off the source asset alone. DEPOSIT derives a

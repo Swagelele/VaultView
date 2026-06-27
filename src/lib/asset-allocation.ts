@@ -1,7 +1,7 @@
 import type { PortfolioAsset } from "@/types";
 
 export interface AllocationSlice {
-  /** Stable Coinpaprika id — used as the color/legend key. */
+  /** Stable asset id (uppercase ticker) — used as the color/legend key. */
   asset: string;
   symbol: string;
   /** Current value: total_quantity * current_price_usd. */

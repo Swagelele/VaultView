@@ -1,5 +1,6 @@
 import type { CoinSearchResult, PriceLookupResult } from "@/types";
 import { searchAssetList } from "@/lib/asset-list";
+import { isUsdStablecoin } from "@/lib/schemas";
 
 // Binance public market-data host. Read-only, no API key, per-minute weight budget (resilient to
 // shared-IP contention, unlike a monthly cap). `api.binance.com` is firewall-blocked in some
@@ -12,15 +13,10 @@ const FETCH_TIMEOUT_MS = 8_000;
 
 export const CURRENT_PRICE_TTL_MS = 120_000;
 
-// Stablecoins are priced at a constant $1: there is no `USDTUSDT` pair, and pinning USDC to $1 too
-// keeps it consistent with the P&L engine (which treats both as exactly $1) rather than showing a
-// market 1.001 in one view and 1.00 in another. Mirror of `schemas.USD_STABLECOINS` in ticker form.
-const USD_PEGGED = new Set(["USDT", "USDC"]);
-
-function isPegged(id: string): boolean {
-  return USD_PEGGED.has(id.toUpperCase());
-}
-
+// Stablecoins are priced at a constant $1: there is no `USDTUSDT` pair, and pinning the stablecoins
+// to $1 keeps the adapter consistent with the P&L engine (which treats them as exactly $1) rather
+// than showing a market 1.001 in one view and 1.00 in another. `isUsdStablecoin` (schemas.ts) is the
+// single source of truth for which assets are USD-pegged — do not duplicate the list here.
 function toSymbol(id: string): string {
   return `${id.toUpperCase()}USDT`;
 }
@@ -66,7 +62,8 @@ export function searchCoins(query: string): Promise<CoinSearchResult[]> {
 }
 
 export async function getCurrentPrice(coinId: string): Promise<number | null> {
-  if (isPegged(coinId)) return 1;
+  if (!coinId) return null;
+  if (isUsdStablecoin(coinId)) return 1;
 
   const cached = currentPriceCache.get(coinId);
   if (cached && isFresh(cached)) return cached.price;
@@ -125,7 +122,8 @@ export async function getMultiplePrices(coinIds: string[]): Promise<PriceLookupR
   const toFetch: string[] = [];
 
   for (const id of coinIds) {
-    if (isPegged(id)) {
+    if (!id) continue;
+    if (isUsdStablecoin(id)) {
       fresh[id] = 1;
       continue;
     }
@@ -166,7 +164,8 @@ export async function getMultiplePrices(coinIds: string[]): Promise<PriceLookupR
 }
 
 export async function getHistoricalPrice(coinId: string, date: string): Promise<number | null> {
-  if (isPegged(coinId)) return 1;
+  if (!coinId) return null;
+  if (isUsdStablecoin(coinId)) return 1;
 
   const day = date.slice(0, 10);
   const cacheKey = `${coinId}:${day}`;
@@ -197,8 +196,9 @@ export async function getHistoricalPriceSeries(
   days: number,
 ): Promise<Map<string, number>> {
   const series = new Map<string, number>();
+  if (!coinId) return series;
   // Stablecoins are priced at 1 inside the engine, so the series fetch is skipped entirely.
-  if (isPegged(coinId)) return series;
+  if (isUsdStablecoin(coinId)) return series;
 
   const start = startDate.slice(0, 10);
   const startTime = Date.parse(`${start}T00:00:00Z`);

@@ -63,7 +63,7 @@ Foundations poniżej zakładają że te warstwy są obecne i NIE budują ich od 
 - **Auth:** present — email/password auth w pełni zaimplementowane (signin/signup/signout API routes, cookie-based sessions via @supabase/ssr, middleware z protected routes, strony UI). FR-001 i FR-002 spełnione.
 - **Deploy / infra:** partial — Cloudflare adapter + wrangler deploy + GitHub Actions CI; wystarczające dla MVP
 - **Observability:** absent — brak logowania, error tracking, metryk; PRD nie wymaga tego w MVP
-- **API cenowe:** decided — **CoinPaprika** (oficjalne REST API, bez klucza, 20K calls/miesiąc free tier, ceny bieżące + historyczne + wyszukiwanie assetów). Wybrane zamiast CoinGecko (zablokowane w sieci) i Yahoo Finance (nieoficjalne endpointy).
+- **API cenowe:** decided — **Binance public market-data** (`data-api.binance.vision`, bez klucza, budżet per-minuta). Zastąpiło CoinPaprika 2026-06-27 po tym, jak free tier per-IP/miesiąc był trwale przekroczony ze współdzielonego IP Cloudflare Workers (HTTP 402). Zob. `context/changes/binance-price-provider/`.
 
 ## Foundations
 

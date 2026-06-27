@@ -25,17 +25,24 @@ Solo-built crypto portfolio tracker (VaultView) with Google OAuth auth on a 5-we
 
 ## Pricing API
 
-**CoinPaprika** — oficjalne REST API do cen kryptowalut (bieżące, historyczne, wyszukiwanie assetów). Wybrane 2026-06-12.
+**Binance public market-data API** — zastąpiło CoinPaprika 2026-06-27 (zob. `context/changes/binance-price-provider/`). CoinPaprika free tier (limit per-IP/miesiąc) był trwale przekroczony ze współdzielonego IP Cloudflare Workers → HTTP 402. Binance ma budżet per-minuta (reset co minutę), odporny na współdzielenie IP.
 
-- Endpoint: `https://api.coinpaprika.com/v1/`
-- Klucz API: nie wymagany (free tier)
-- Limity: 20 000 calls/miesiąc, wystarczające dla personal trackera z auto-refresh co 15-30s
-- Ceny historyczne: do 1 roku wstecz (daily OHLCV)
-- Wyszukiwanie assetów: `/search?q=bitcoin` — do autocomplete w formularzach transakcji
-- Docs: https://docs.coinpaprika.com/
+- Host: `https://data-api.binance.vision/api/v3` — publiczny market-data; `api.binance.com` bywa blokowany w sieci firmowej, ten host nie.
+- Klucz API: nie wymagany
+- Limity: 6000 weight/min per-IP, reset co minutę (~3000 wywołań ceny/min)
+- Ceny bieżące: `/ticker/price?symbol=BTCUSDT` (batch via `?symbols=[...]`)
+- Ceny historyczne: `/klines?symbol=...&interval=1d` (close = index [4]); wieloletnia historia
+- Lista assetów: `/exchangeInfo` → przefiltrowana do statycznej listy (`src/lib/asset-list.ts`); wyszukiwanie lokalne, bez wywołań sieciowych
+- Identyfikator assetu: ticker (BTC, USDT); symbol Binance = `${id}USDT`; stablecoiny (USDT/USDC) wyceniane na $1
+- Docs: https://developers.binance.com/docs/binance-spot-api-docs
+
+**Historia: CoinPaprika** (wybrane 2026-06-12, zastąpione 2026-06-27)
+
+- Endpoint: `https://api.coinpaprika.com/v1/`, bez klucza, 20K calls/miesiąc
+- Powód odejścia: limit per-IP/miesiąc przekraczany ze współdzielonego IP workerów → 402 (cisza w UI, bo błąd degradował do pustej odpowiedzi)
 
 **Odrzucone alternatywy:**
 
 - CoinGecko — `api.coingecko.com` zablokowane w sieci deweloperskiej; najlepsze docs i community, ale niedostępne
 - Yahoo Finance — nieoficjalne endpointy (`query1.finance.yahoo.com`), brak gwarancji stabilności; zachowane jako potencjalny fallback
-- CryptoCompare, CoinMarketCap — wymagają klucza API; brak przewagi nad CoinPaprika przy tym zakresie użycia
+- CryptoCompare, CoinMarketCap — wymagają klucza API
