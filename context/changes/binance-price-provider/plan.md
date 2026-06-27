@@ -431,23 +431,23 @@ exist, a one-time `UPDATE transactions SET source_asset = <ticker(source_asset)>
 
 #### Automated
 
-- [x] 3.1 Lint + type check clean: `npm run lint`
-- [x] 3.2 Existing component tests pass: `npx vitest run`
+- [x] 3.1 Lint + type check clean: `npm run lint` — ea48f13
+- [x] 3.2 Existing component tests pass: `npx vitest run` — ea48f13
 
 #### Manual
 
-- [ ] 3.3 Forced-failure check: search error, price hint, `(stale)` all show; nothing blanks
+- [x] 3.3 Forced-failure check: search error, price hint, `(stale)` all show; nothing blanks
 
 ### Phase 4: Deploy + production verification
 
 #### Automated
 
-- [ ] 4.1 Production build succeeds: `npm run build`
-- [ ] 4.2 Dry-run bundle check passes: `npm run deploy:dry-run`
+- [x] 4.1 Production build succeeds: `npm run build`
+- [x] 4.2 Dry-run bundle check passes: `npm run deploy:dry-run`
 
 #### Manual
 
-- [ ] 4.3 Deployed: autocomplete returns results
-- [ ] 4.4 Deployed: BUY saves with live price + unrealized P&L; history chart renders
-- [ ] 4.5 Deployed: DEPOSIT past-date resolves historical cost basis
-- [ ] 4.6 `wrangler tail` shows successful Binance calls from the Worker region
+- [x] 4.3 Deployed: autocomplete returns results
+- [x] 4.4 Deployed: BUY saves with live price + unrealized P&L; history chart renders
+- [x] 4.5 Deployed: DEPOSIT past-date resolves historical cost basis
+- [x] 4.6 `wrangler tail` shows successful Binance calls from the Worker region
