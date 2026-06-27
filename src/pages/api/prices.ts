@@ -1,7 +1,7 @@
 export const prerender = false;
 
 import type { APIRoute } from "astro";
-import { getMultiplePrices, getHistoricalPrice } from "@/lib/coinpaprika";
+import { getMultiplePrices, getHistoricalPrice } from "@/lib/prices";
 import { jsonResponse, errorResponse, unauthorizedResponse } from "@/lib/api-helpers";
 
 export const GET: APIRoute = async (context) => {

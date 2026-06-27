@@ -5,14 +5,14 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 // The reconstruction engine runs for real so the service's wiring (window derivation, asset set,
 // engine call) is exercised end-to-end.
 vi.mock("@/lib/transaction-service", () => ({ getTransactions: vi.fn() }));
-vi.mock("@/lib/coinpaprika", () => ({ getHistoricalPriceSeries: vi.fn() }));
+vi.mock("@/lib/prices", () => ({ getHistoricalPriceSeries: vi.fn() }));
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Transaction } from "@/types";
 import { getPortfolioHistory } from "./portfolio-history-service";
 import { computePortfolioHistory } from "./portfolio-history";
 import { getTransactions } from "@/lib/transaction-service";
-import { getHistoricalPriceSeries } from "@/lib/coinpaprika";
+import { getHistoricalPriceSeries } from "@/lib/prices";
 
 const getTransactionsMock = vi.mocked(getTransactions);
 const getHistoricalPriceSeriesMock = vi.mocked(getHistoricalPriceSeries);
@@ -28,7 +28,7 @@ function tx(overrides: Partial<Transaction>): Transaction {
     id: crypto.randomUUID(),
     user_id: "user-1",
     type: "BUY",
-    source_asset: "usdt-tether",
+    source_asset: "USDT",
     source_quantity: 0,
     target_asset: null,
     target_quantity: null,
@@ -77,7 +77,7 @@ describe("getPortfolioHistory", () => {
     getTransactionsMock.mockResolvedValue([
       tx({
         type: "DEPOSIT",
-        source_asset: "btc-bitcoin",
+        source_asset: "BTC",
         source_quantity: 1,
         price_usd: 50000,
         transaction_date: `${daysAgo(3)}T10:00:00Z`,
@@ -100,25 +100,25 @@ describe("getPortfolioHistory", () => {
     getTransactionsMock.mockResolvedValue([
       tx({
         type: "DEPOSIT",
-        source_asset: "usdt-tether",
+        source_asset: "USDT",
         source_quantity: 100000,
         price_usd: 1,
         transaction_date: `${daysAgo(2)}T10:00:00Z`,
       }),
       tx({
         type: "BUY",
-        source_asset: "usdt-tether",
+        source_asset: "USDT",
         source_quantity: 50000,
-        target_asset: "btc-bitcoin",
+        target_asset: "BTC",
         target_quantity: 1,
         price_usd: 1,
         transaction_date: `${daysAgo(2)}T10:01:00Z`,
       }),
       tx({
         type: "SWAP",
-        source_asset: "btc-bitcoin",
+        source_asset: "BTC",
         source_quantity: 0.5,
-        target_asset: "eth-ethereum",
+        target_asset: "ETH",
         target_quantity: 8,
         price_usd: 3000,
         transaction_date: `${daysAgo(1)}T10:00:00Z`,
@@ -128,17 +128,17 @@ describe("getPortfolioHistory", () => {
 
     await getPortfolioHistory(supabase, "user-1");
 
-    // btc-bitcoin + eth-ethereum → 2 fetches; usdt-tether (stablecoin) is not fetched.
+    // BTC + ETH → 2 fetches; USDT (stablecoin) is not fetched.
     expect(getHistoricalPriceSeriesMock).toHaveBeenCalledTimes(2);
     const fetchedAssets = getHistoricalPriceSeriesMock.mock.calls.map((c) => c[0]).sort();
-    expect(fetchedAssets).toEqual(["btc-bitcoin", "eth-ethereum"]);
+    expect(fetchedAssets).toEqual(["BTC", "ETH"]);
   });
 
   it("last point matches a direct engine call over the same window + series", async () => {
     const transactions = [
       tx({
         type: "DEPOSIT",
-        source_asset: "btc-bitcoin",
+        source_asset: "BTC",
         source_quantity: 2,
         price_usd: 50000,
         transaction_date: `${daysAgo(2)}T10:00:00Z`,
@@ -150,8 +150,8 @@ describe("getPortfolioHistory", () => {
     const result = await getPortfolioHistory(supabase, "user-1");
 
     // Rebuild the same per-asset series the service fed the engine, then compare the last point.
-    const series = await flatSeries(60000)("btc-bitcoin", result.start_date, result.data.length);
-    const direct = computePortfolioHistory(transactions, new Map([["btc-bitcoin", series]]), {
+    const series = await flatSeries(60000)("BTC", result.start_date, result.data.length);
+    const direct = computePortfolioHistory(transactions, new Map([["BTC", series]]), {
       startDate: result.start_date,
       endDate: result.end_date,
     });

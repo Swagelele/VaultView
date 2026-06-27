@@ -8,7 +8,7 @@ function tx(overrides: Partial<Transaction>): Transaction {
     id: crypto.randomUUID(),
     user_id: "user-1",
     type: "BUY",
-    source_asset: "usdt-tether",
+    source_asset: "USDT",
     source_quantity: 0,
     target_asset: null,
     target_quantity: null,
@@ -26,10 +26,10 @@ function tx(overrides: Partial<Transaction>): Transaction {
 describe("computePositions", () => {
   it("DEPOSIT creates opening position at $1 cost basis", () => {
     const { positions } = computePositions([
-      tx({ type: "DEPOSIT", source_asset: "usdt-tether", source_quantity: 100000, price_usd: 1 }),
+      tx({ type: "DEPOSIT", source_asset: "USDT", source_quantity: 100000, price_usd: 1 }),
     ]);
 
-    const pos = positions.get("usdt-tether::Binance");
+    const pos = positions.get("USDT::Binance");
     expect(pos).toBeDefined();
     expect(pos!.quantity).toBe(100000);
     expect(pos!.total_cost_usd).toBe(100000);
@@ -38,10 +38,10 @@ describe("computePositions", () => {
 
   it("DEPOSIT with non-$1 cost basis carries quantity × price_usd (S-05)", () => {
     const { positions } = computePositions([
-      tx({ type: "DEPOSIT", source_asset: "btc-bitcoin", source_quantity: 2, price_usd: 42000 }),
+      tx({ type: "DEPOSIT", source_asset: "BTC", source_quantity: 2, price_usd: 42000 }),
     ]);
 
-    const pos = positions.get("btc-bitcoin::Binance");
+    const pos = positions.get("BTC::Binance");
     expect(pos).toBeDefined();
     expect(pos!.quantity).toBe(2);
     expect(pos!.total_cost_usd).toBe(84000);
@@ -52,16 +52,16 @@ describe("computePositions", () => {
     const { positions } = computePositions([
       tx({
         type: "DEPOSIT",
-        source_asset: "usdt-tether",
+        source_asset: "USDT",
         source_quantity: 100000,
         price_usd: 1,
         transaction_date: "2026-06-15T10:00:00Z",
       }),
       tx({
         type: "BUY",
-        source_asset: "usdt-tether",
+        source_asset: "USDT",
         source_quantity: 60000,
-        target_asset: "btc-bitcoin",
+        target_asset: "BTC",
         target_quantity: 1,
         price: 60000,
         price_usd: 1,
@@ -69,10 +69,10 @@ describe("computePositions", () => {
       }),
     ]);
 
-    const usdt = positions.get("usdt-tether::Binance");
+    const usdt = positions.get("USDT::Binance");
     expect(usdt!.quantity).toBe(40000);
 
-    const btc = positions.get("btc-bitcoin::Binance");
+    const btc = positions.get("BTC::Binance");
     expect(btc!.quantity).toBe(1);
     expect(btc!.total_cost_usd).toBe(60000);
   });
@@ -81,32 +81,32 @@ describe("computePositions", () => {
     const { positions } = computePositions([
       tx({
         type: "DEPOSIT",
-        source_asset: "usdt-tether",
+        source_asset: "USDT",
         source_quantity: 200000,
         price_usd: 1,
         transaction_date: "2026-06-15T10:00:00Z",
       }),
       tx({
         type: "BUY",
-        source_asset: "usdt-tether",
+        source_asset: "USDT",
         source_quantity: 60000,
-        target_asset: "btc-bitcoin",
+        target_asset: "BTC",
         target_quantity: 1,
         price_usd: 1,
         transaction_date: "2026-06-15T10:01:00Z",
       }),
       tx({
         type: "BUY",
-        source_asset: "usdt-tether",
+        source_asset: "USDT",
         source_quantity: 63000,
-        target_asset: "btc-bitcoin",
+        target_asset: "BTC",
         target_quantity: 1,
         price_usd: 1,
         transaction_date: "2026-06-15T10:02:00Z",
       }),
     ]);
 
-    const btc = positions.get("btc-bitcoin::Binance");
+    const btc = positions.get("BTC::Binance");
     expect(btc!.quantity).toBe(2);
     expect(btc!.total_cost_usd).toBe(123000);
     const avgCost = btc!.total_cost_usd / btc!.quantity;
@@ -117,25 +117,25 @@ describe("computePositions", () => {
     const { positions } = computePositions([
       tx({
         type: "DEPOSIT",
-        source_asset: "usdt-tether",
+        source_asset: "USDT",
         source_quantity: 200000,
         price_usd: 1,
         transaction_date: "2026-06-15T10:00:00Z",
       }),
       tx({
         type: "BUY",
-        source_asset: "usdt-tether",
+        source_asset: "USDT",
         source_quantity: 120000,
-        target_asset: "btc-bitcoin",
+        target_asset: "BTC",
         target_quantity: 2,
         price_usd: 1,
         transaction_date: "2026-06-15T10:01:00Z",
       }),
       tx({
         type: "SELL",
-        source_asset: "btc-bitcoin",
+        source_asset: "BTC",
         source_quantity: 1,
-        target_asset: "usdt-tether",
+        target_asset: "USDT",
         target_quantity: 65000,
         price: 65000,
         price_usd: 65000,
@@ -143,7 +143,7 @@ describe("computePositions", () => {
       }),
     ]);
 
-    const btc = positions.get("btc-bitcoin::Binance");
+    const btc = positions.get("BTC::Binance");
     expect(btc!.quantity).toBe(1);
     expect(btc!.realized_pnl).toBe(1 * (65000 - 60000));
     expect(btc!.realized_pnl).toBe(5000);
@@ -153,25 +153,25 @@ describe("computePositions", () => {
     const { positions } = computePositions([
       tx({
         type: "DEPOSIT",
-        source_asset: "usdt-tether",
+        source_asset: "USDT",
         source_quantity: 100000,
         price_usd: 1,
         transaction_date: "2026-06-15T10:00:00Z",
       }),
       tx({
         type: "BUY",
-        source_asset: "usdt-tether",
+        source_asset: "USDT",
         source_quantity: 30000,
-        target_asset: "eth-ethereum",
+        target_asset: "ETH",
         target_quantity: 10,
         price_usd: 1,
         transaction_date: "2026-06-15T10:01:00Z",
       }),
       tx({
         type: "SWAP",
-        source_asset: "eth-ethereum",
+        source_asset: "ETH",
         source_quantity: 5,
-        target_asset: "btc-bitcoin",
+        target_asset: "BTC",
         target_quantity: 0.25,
         price: 0.05,
         price_usd: 3200,
@@ -179,10 +179,10 @@ describe("computePositions", () => {
       }),
     ]);
 
-    const eth = positions.get("eth-ethereum::Binance");
+    const eth = positions.get("ETH::Binance");
     expect(eth!.quantity).toBe(5);
 
-    const btc = positions.get("btc-bitcoin::Binance");
+    const btc = positions.get("BTC::Binance");
     expect(btc!.quantity).toBe(0.25);
     expect(btc!.total_cost_usd).toBe(5 * 3200);
   });
@@ -191,32 +191,32 @@ describe("computePositions", () => {
     const { positions } = computePositions([
       tx({
         type: "DEPOSIT",
-        source_asset: "usdt-tether",
+        source_asset: "USDT",
         source_quantity: 60000,
         price_usd: 1,
         transaction_date: "2026-06-15T10:00:00Z",
       }),
       tx({
         type: "BUY",
-        source_asset: "usdt-tether",
+        source_asset: "USDT",
         source_quantity: 60000,
-        target_asset: "btc-bitcoin",
+        target_asset: "BTC",
         target_quantity: 1,
         price_usd: 1,
         transaction_date: "2026-06-15T10:01:00Z",
       }),
       tx({
         type: "SELL",
-        source_asset: "btc-bitcoin",
+        source_asset: "BTC",
         source_quantity: 1,
-        target_asset: "usdt-tether",
+        target_asset: "USDT",
         target_quantity: 65000,
         price_usd: 65000,
         transaction_date: "2026-06-15T10:02:00Z",
       }),
     ]);
 
-    const btc = positions.get("btc-bitcoin::Binance");
+    const btc = positions.get("BTC::Binance");
     expect(btc!.quantity).toBe(0);
     expect(btc!.realized_pnl).toBe(5000);
   });
@@ -225,7 +225,7 @@ describe("computePositions", () => {
     const { positions, realizedByTx } = computePositions([
       tx({
         type: "DEPOSIT",
-        source_asset: "btc-bitcoin",
+        source_asset: "BTC",
         source_quantity: 2,
         price_usd: 60000,
         transaction_date: "2026-06-15T10:00:00Z",
@@ -233,7 +233,7 @@ describe("computePositions", () => {
       tx({
         id: "wd-1",
         type: "WITHDRAW",
-        source_asset: "btc-bitcoin",
+        source_asset: "BTC",
         source_quantity: 1,
         target_asset: null,
         target_quantity: null,
@@ -242,7 +242,7 @@ describe("computePositions", () => {
       }),
     ]);
 
-    const btc = positions.get("btc-bitcoin::Binance");
+    const btc = positions.get("BTC::Binance");
     expect(btc!.quantity).toBe(1);
     // avg cost was 60000; withdrawing 1 at 70000 realizes 1 × (70000 − 60000)
     expect(btc!.realized_pnl).toBe(10000);
@@ -257,14 +257,14 @@ describe("computePositions", () => {
     const { positions } = computePositions([
       tx({
         type: "DEPOSIT",
-        source_asset: "eth-ethereum",
+        source_asset: "ETH",
         source_quantity: 10,
         price_usd: 3000,
         transaction_date: "2026-06-15T10:00:00Z",
       }),
       tx({
         type: "WITHDRAW",
-        source_asset: "eth-ethereum",
+        source_asset: "ETH",
         source_quantity: 10,
         target_asset: null,
         target_quantity: null,
@@ -273,7 +273,7 @@ describe("computePositions", () => {
       }),
     ]);
 
-    const eth = positions.get("eth-ethereum::Binance");
+    const eth = positions.get("ETH::Binance");
     expect(eth!.quantity).toBe(0);
     expect(eth!.realized_pnl).toBe(10 * (3500 - 3000));
   });
@@ -292,7 +292,7 @@ describe("computePositions", () => {
       computePositions([
         tx({
           type: "DEPOSIT",
-          source_asset: "usdt-tether",
+          source_asset: "USDT",
           source_quantity: 100000,
           price_usd: 1,
           fee,
@@ -300,9 +300,9 @@ describe("computePositions", () => {
         }),
         tx({
           type: "BUY",
-          source_asset: "usdt-tether",
+          source_asset: "USDT",
           source_quantity: 60000,
-          target_asset: "btc-bitcoin",
+          target_asset: "BTC",
           target_quantity: 1,
           price_usd: 1,
           fee,
@@ -310,9 +310,9 @@ describe("computePositions", () => {
         }),
         tx({
           type: "SELL",
-          source_asset: "btc-bitcoin",
+          source_asset: "BTC",
           source_quantity: 1,
-          target_asset: "usdt-tether",
+          target_asset: "USDT",
           target_quantity: 65000,
           price_usd: 65000,
           fee,
@@ -320,8 +320,8 @@ describe("computePositions", () => {
         }),
       ]);
 
-    const noFee = build(0).positions.get("btc-bitcoin::Binance")!;
-    const bigFee = build(999).positions.get("btc-bitcoin::Binance")!;
+    const noFee = build(0).positions.get("BTC::Binance")!;
+    const bigFee = build(999).positions.get("BTC::Binance")!;
     expect(bigFee.quantity).toBe(noFee.quantity);
     expect(bigFee.total_cost_usd).toBe(noFee.total_cost_usd);
     expect(bigFee.realized_pnl).toBe(noFee.realized_pnl);
@@ -334,7 +334,7 @@ describe("computePositions", () => {
     const { positions, unpriced } = computePositions([
       tx({
         type: "DEPOSIT",
-        source_asset: "doge-dogecoin",
+        source_asset: "DOGE",
         source_quantity: 1000,
         price_usd: 0,
         transaction_date: "2026-06-15T10:00:00Z",
@@ -342,7 +342,7 @@ describe("computePositions", () => {
     ]);
 
     expect(unpriced).toHaveLength(0);
-    const doge = positions.get("doge-dogecoin::Binance")!;
+    const doge = positions.get("DOGE::Binance")!;
     expect(doge.quantity).toBe(1000);
     expect(doge.total_cost_usd).toBe(0);
   });
@@ -352,23 +352,23 @@ describe("computePositions", () => {
     const { positions } = computePositions([
       tx({
         type: "DEPOSIT",
-        source_asset: "btc-bitcoin",
+        source_asset: "BTC",
         source_quantity: 2,
         price_usd: 60000,
         transaction_date: "2026-06-15T10:00:00Z",
       }),
       tx({
         type: "SELL",
-        source_asset: "btc-bitcoin",
+        source_asset: "BTC",
         source_quantity: 1,
-        target_asset: "usdt-tether",
+        target_asset: "USDT",
         target_quantity: 0,
         price_usd: 0,
         transaction_date: "2026-06-15T10:01:00Z",
       }),
     ]);
 
-    const btc = positions.get("btc-bitcoin::Binance")!;
+    const btc = positions.get("BTC::Binance")!;
     expect(btc.realized_pnl).toBe(-60000);
   });
 
@@ -380,9 +380,9 @@ describe("computePositions", () => {
     const buy = tx({
       id: "buy-1",
       type: "BUY",
-      source_asset: "usdt-tether",
+      source_asset: "USDT",
       source_quantity: 60000,
-      target_asset: "btc-bitcoin",
+      target_asset: "BTC",
       target_quantity: 1,
       price_usd: 1,
       transaction_date: "2026-06-15T10:00:00Z",
@@ -391,9 +391,9 @@ describe("computePositions", () => {
     const sell = tx({
       id: "sell-1",
       type: "SELL",
-      source_asset: "btc-bitcoin",
+      source_asset: "BTC",
       source_quantity: 1,
-      target_asset: "usdt-tether",
+      target_asset: "USDT",
       target_quantity: 65000,
       price_usd: 65000,
       transaction_date: "2026-06-15T10:00:00Z",
@@ -403,7 +403,7 @@ describe("computePositions", () => {
     const { positions, realizedByTx } = computePositions([sell, buy]); // reverse array order
 
     expect(realizedByTx.get("sell-1")).toBe(5000); // 1 × (65000 − 60000), not dropped to 0
-    expect(positions.get("btc-bitcoin::Binance")!.quantity).toBe(0); // no phantom unit left
+    expect(positions.get("BTC::Binance")!.quantity).toBe(0); // no phantom unit left
   });
 
   it("documents the failure the created_at tiebreaker prevents (inverted causal order)", () => {
@@ -413,9 +413,9 @@ describe("computePositions", () => {
     const buy = tx({
       id: "buy-1",
       type: "BUY",
-      source_asset: "usdt-tether",
+      source_asset: "USDT",
       source_quantity: 60000,
-      target_asset: "btc-bitcoin",
+      target_asset: "BTC",
       target_quantity: 1,
       price_usd: 1,
       transaction_date: "2026-06-15T10:00:00Z",
@@ -424,9 +424,9 @@ describe("computePositions", () => {
     const sell = tx({
       id: "sell-1",
       type: "SELL",
-      source_asset: "btc-bitcoin",
+      source_asset: "BTC",
       source_quantity: 1,
-      target_asset: "usdt-tether",
+      target_asset: "USDT",
       target_quantity: 65000,
       price_usd: 65000,
       transaction_date: "2026-06-15T10:00:00Z",
@@ -436,7 +436,7 @@ describe("computePositions", () => {
     const { positions, realizedByTx } = computePositions([buy, sell]);
 
     expect(realizedByTx.get("sell-1")).toBe(0); // clamped — disposal skipped
-    expect(positions.get("btc-bitcoin::Binance")!.quantity).toBe(1); // phantom unit
+    expect(positions.get("BTC::Binance")!.quantity).toBe(1); // phantom unit
   });
 
   it("clamps an over-sell to realized 0 without driving quantity negative — Risk #2", () => {
@@ -446,9 +446,9 @@ describe("computePositions", () => {
       tx({
         id: "oversell-1",
         type: "SELL",
-        source_asset: "btc-bitcoin",
+        source_asset: "BTC",
         source_quantity: 1,
-        target_asset: "usdt-tether",
+        target_asset: "USDT",
         target_quantity: 65000,
         price_usd: 65000,
         transaction_date: "2026-06-15T10:00:00Z",
@@ -456,8 +456,8 @@ describe("computePositions", () => {
     ]);
 
     expect(realizedByTx.get("oversell-1")).toBe(0);
-    expect(positions.get("btc-bitcoin::Binance")!.quantity).toBe(0); // not negative
-    expect(positions.get("usdt-tether::Binance")!.quantity).toBe(65000); // acquisition still ran
+    expect(positions.get("BTC::Binance")!.quantity).toBe(0); // not negative
+    expect(positions.get("USDT::Binance")!.quantity).toBe(65000); // acquisition still ran
   });
 });
 
@@ -466,7 +466,7 @@ describe("aggregateByAsset", () => {
     const { positions } = computePositions([
       tx({
         type: "DEPOSIT",
-        source_asset: "usdt-tether",
+        source_asset: "USDT",
         source_quantity: 100000,
         price_usd: 1,
         location: "Binance",
@@ -474,7 +474,7 @@ describe("aggregateByAsset", () => {
       }),
       tx({
         type: "DEPOSIT",
-        source_asset: "usdt-tether",
+        source_asset: "USDT",
         source_quantity: 50000,
         price_usd: 1,
         location: "MetaMask",
@@ -483,7 +483,7 @@ describe("aggregateByAsset", () => {
     ]);
 
     const summaries = aggregateByAsset(positions);
-    const usdt = summaries.find((s) => s.asset === "usdt-tether");
+    const usdt = summaries.find((s) => s.asset === "USDT");
     expect(usdt).toBeDefined();
     expect(usdt!.total_quantity).toBe(150000);
     expect(usdt!.locations).toHaveLength(2);
@@ -495,7 +495,7 @@ describe("aggregateByAsset", () => {
     const { positions } = computePositions([
       tx({
         type: "DEPOSIT",
-        source_asset: "btc-bitcoin",
+        source_asset: "BTC",
         source_quantity: 1,
         price_usd: 60000,
         location: "Binance",
@@ -503,7 +503,7 @@ describe("aggregateByAsset", () => {
       }),
       tx({
         type: "DEPOSIT",
-        source_asset: "btc-bitcoin",
+        source_asset: "BTC",
         source_quantity: 1,
         price_usd: 64000,
         location: "MetaMask",
@@ -512,7 +512,7 @@ describe("aggregateByAsset", () => {
     ]);
 
     const summaries = aggregateByAsset(positions);
-    const btc = summaries.find((s) => s.asset === "btc-bitcoin")!;
+    const btc = summaries.find((s) => s.asset === "BTC")!;
     expect(btc.total_quantity).toBe(2);
     expect(btc.avg_cost_usd).toBe(62000);
     expect(btc.locations.find((l) => l.location === "Binance")!.avg_cost_usd).toBe(60000);
@@ -523,16 +523,16 @@ describe("aggregateByAsset", () => {
     const { positions } = computePositions([
       tx({
         type: "DEPOSIT",
-        source_asset: "usdt-tether",
+        source_asset: "USDT",
         source_quantity: 60000,
         price_usd: 1,
         transaction_date: "2026-06-15T10:00:00Z",
       }),
       tx({
         type: "BUY",
-        source_asset: "usdt-tether",
+        source_asset: "USDT",
         source_quantity: 60000,
-        target_asset: "btc-bitcoin",
+        target_asset: "BTC",
         target_quantity: 1,
         price_usd: 1,
         transaction_date: "2026-06-15T10:01:00Z",
@@ -540,10 +540,10 @@ describe("aggregateByAsset", () => {
     ]);
 
     const summaries = aggregateByAsset(positions);
-    const usdt = summaries.find((s) => s.asset === "usdt-tether");
+    const usdt = summaries.find((s) => s.asset === "USDT");
     expect(usdt!.is_closed).toBe(true);
 
-    const btc = summaries.find((s) => s.asset === "btc-bitcoin");
+    const btc = summaries.find((s) => s.asset === "BTC");
     expect(btc!.is_closed).toBe(false);
   });
 
@@ -555,21 +555,21 @@ describe("aggregateByAsset", () => {
     const { positions } = computePositions([
       tx({
         type: "DEPOSIT",
-        source_asset: "btc-bitcoin",
+        source_asset: "BTC",
         source_quantity: 0.1,
         price_usd: 50000,
         transaction_date: "2026-06-15T10:00:00Z",
       }),
       tx({
         type: "DEPOSIT",
-        source_asset: "btc-bitcoin",
+        source_asset: "BTC",
         source_quantity: 0.2,
         price_usd: 50000,
         transaction_date: "2026-06-15T10:01:00Z",
       }),
       tx({
         type: "WITHDRAW",
-        source_asset: "btc-bitcoin",
+        source_asset: "BTC",
         source_quantity: 0.3,
         target_asset: null,
         target_quantity: null,
@@ -579,7 +579,7 @@ describe("aggregateByAsset", () => {
     ]);
 
     const summaries = aggregateByAsset(positions);
-    const btc = summaries.find((s) => s.asset === "btc-bitcoin");
+    const btc = summaries.find((s) => s.asset === "BTC");
     expect(btc!.is_closed).toBe(true);
   });
 
@@ -589,14 +589,14 @@ describe("aggregateByAsset", () => {
     const { positions } = computePositions([
       tx({
         type: "DEPOSIT",
-        source_asset: "btc-bitcoin",
+        source_asset: "BTC",
         source_quantity: 1,
         price_usd: 60000,
         transaction_date: "2026-06-15T10:00:00Z",
       }),
       tx({
         type: "WITHDRAW",
-        source_asset: "btc-bitcoin",
+        source_asset: "BTC",
         source_quantity: 0.999999,
         target_asset: null,
         target_quantity: null,
@@ -606,7 +606,7 @@ describe("aggregateByAsset", () => {
     ]);
 
     const summaries = aggregateByAsset(positions);
-    const btc = summaries.find((s) => s.asset === "btc-bitcoin");
+    const btc = summaries.find((s) => s.asset === "BTC");
     expect(btc!.is_closed).toBe(false);
   });
 });

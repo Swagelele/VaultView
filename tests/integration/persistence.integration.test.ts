@@ -34,7 +34,7 @@ describe.skipIf(!dbAvailable)("persistence (Risk #3)", () => {
 
     const result = await createTransaction(svc, user.id, {
       type: "DEPOSIT",
-      source_asset: "btc-bitcoin",
+      source_asset: "BTC",
       source_quantity: 2,
       source_price_usd_override: 50000,
       location: "ColdWallet",
@@ -47,7 +47,7 @@ describe.skipIf(!dbAvailable)("persistence (Risk #3)", () => {
     expect(rows).toHaveLength(1);
     const row = rows[0];
     expect(row.type).toBe("DEPOSIT");
-    expect(row.source_asset).toBe("btc-bitcoin");
+    expect(row.source_asset).toBe("BTC");
     expect(row.source_quantity).toBe(2);
     // one-sided op: no target arm, and the `price` column carries the USD valuation directly
     // (transaction-service.ts:135-149).
@@ -65,7 +65,7 @@ describe.skipIf(!dbAvailable)("persistence (Risk #3)", () => {
     await seedTransaction(svc, {
       user_id: user.id,
       type: "DEPOSIT",
-      source_asset: "btc-bitcoin",
+      source_asset: "BTC",
       source_quantity: 2,
       target_asset: null,
       target_quantity: null,
@@ -79,9 +79,9 @@ describe.skipIf(!dbAvailable)("persistence (Risk #3)", () => {
     // Sell 1 BTC for 60000 USDT. Stablecoin target → price_usd = target_qty / source_qty = 60000 / 1 = 60000.
     const result = await createTransaction(svc, user.id, {
       type: "SELL",
-      source_asset: "btc-bitcoin",
+      source_asset: "BTC",
       source_quantity: 1,
-      target_asset: "usdt-tether",
+      target_asset: "USDT",
       target_quantity: 60000,
       location: "Binance",
       transaction_date: "2026-01-03T00:00:00Z",
@@ -91,7 +91,7 @@ describe.skipIf(!dbAvailable)("persistence (Risk #3)", () => {
     const sells = (await selectTransactions(svc, { userId: user.id })).filter((r) => r.type === "SELL");
     expect(sells).toHaveLength(1);
     const row = sells[0];
-    expect(row.target_asset).toBe("usdt-tether");
+    expect(row.target_asset).toBe("USDT");
     expect(row.target_quantity).toBe(60000);
     expect(row.source_quantity).toBe(1);
     expect(row.price).toBe(60000); // rate = target_qty / source_qty = 60000 / 1
@@ -103,9 +103,9 @@ describe.skipIf(!dbAvailable)("persistence (Risk #3)", () => {
     // No holding of BTC anywhere → the holding pre-check rejects before any insert.
     const result = await createTransaction(svc, user.id, {
       type: "SELL",
-      source_asset: "btc-bitcoin",
+      source_asset: "BTC",
       source_quantity: 1,
-      target_asset: "usdt-tether",
+      target_asset: "USDT",
       target_quantity: 60000,
       location: "Binance",
       transaction_date: "2026-01-04T00:00:00Z",
@@ -121,7 +121,7 @@ describe.skipIf(!dbAvailable)("persistence (Risk #3)", () => {
     await seedTransaction(svc, {
       user_id: user.id,
       type: "DEPOSIT",
-      source_asset: "btc-bitcoin",
+      source_asset: "BTC",
       source_quantity: 2,
       target_asset: null,
       target_quantity: null,
@@ -133,12 +133,12 @@ describe.skipIf(!dbAvailable)("persistence (Risk #3)", () => {
     });
 
     const result = await createSellAllGlobal(svc, user.id, {
-      source_asset: "btc-bitcoin",
+      source_asset: "BTC",
       price: 50000,
       transaction_date: "2026-01-06T00:00:00Z",
       locations: [
-        { location: "Binance", target_asset: "usdt-tether", fee: 0 },
-        { location: "Empty", target_asset: "usdt-tether", fee: 0 },
+        { location: "Binance", target_asset: "USDT", fee: 0 },
+        { location: "Empty", target_asset: "USDT", fee: 0 },
       ],
     });
     expect(result.status).toBe(409);
@@ -158,7 +158,7 @@ describe.skipIf(!dbAvailable)("persistence (Risk #3)", () => {
       await seedTransaction(svc, {
         user_id: user.id,
         type: "DEPOSIT",
-        source_asset: "btc-bitcoin",
+        source_asset: "BTC",
         source_quantity: qty,
         target_asset: null,
         target_quantity: null,
@@ -171,12 +171,12 @@ describe.skipIf(!dbAvailable)("persistence (Risk #3)", () => {
     }
 
     const result = await createSellAllGlobal(svc, user.id, {
-      source_asset: "btc-bitcoin",
+      source_asset: "BTC",
       price,
       transaction_date: "2026-01-08T00:00:00Z",
       locations: [
-        { location: "Binance", target_asset: "usdt-tether", fee: 0 },
-        { location: "Metamask", target_asset: "usdt-tether", fee: 0 },
+        { location: "Binance", target_asset: "USDT", fee: 0 },
+        { location: "Metamask", target_asset: "USDT", fee: 0 },
       ],
     });
     expect(result.error).toBeUndefined();

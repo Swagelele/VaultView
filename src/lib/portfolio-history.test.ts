@@ -7,7 +7,7 @@ function tx(overrides: Partial<Transaction>): Transaction {
     id: crypto.randomUUID(),
     user_id: "user-1",
     type: "BUY",
-    source_asset: "usdt-tether",
+    source_asset: "USDT",
     source_quantity: 0,
     target_asset: null,
     target_quantity: null,
@@ -37,7 +37,7 @@ describe("computePortfolioHistory — hand-computed fixture (DEPOSIT + SELL + WI
   const transactions: Transaction[] = [
     tx({
       type: "DEPOSIT",
-      source_asset: "btc-bitcoin",
+      source_asset: "BTC",
       source_quantity: 2,
       price_usd: 50000,
       transaction_date: "2026-06-01T10:00:00Z",
@@ -45,7 +45,7 @@ describe("computePortfolioHistory — hand-computed fixture (DEPOSIT + SELL + WI
     }),
     tx({
       type: "DEPOSIT",
-      source_asset: "usdt-tether",
+      source_asset: "USDT",
       source_quantity: 100000,
       price_usd: 1,
       transaction_date: "2026-06-02T10:00:00Z",
@@ -53,9 +53,9 @@ describe("computePortfolioHistory — hand-computed fixture (DEPOSIT + SELL + WI
     }),
     tx({
       type: "SELL",
-      source_asset: "btc-bitcoin",
+      source_asset: "BTC",
       source_quantity: 1,
-      target_asset: "usdt-tether",
+      target_asset: "USDT",
       target_quantity: 60000,
       price_usd: 60000,
       transaction_date: "2026-06-03T10:00:00Z",
@@ -63,7 +63,7 @@ describe("computePortfolioHistory — hand-computed fixture (DEPOSIT + SELL + WI
     }),
     tx({
       type: "WITHDRAW",
-      source_asset: "btc-bitcoin",
+      source_asset: "BTC",
       source_quantity: 1,
       target_asset: null,
       target_quantity: null,
@@ -75,7 +75,7 @@ describe("computePortfolioHistory — hand-computed fixture (DEPOSIT + SELL + WI
 
   const priceSeries = new Map([
     [
-      "btc-bitcoin",
+      "BTC",
       series({
         "2026-06-01": 50000,
         "2026-06-02": 55000,
@@ -141,14 +141,14 @@ describe("computePortfolioHistory — edge cases", () => {
     const transactions = [
       tx({
         type: "DEPOSIT",
-        source_asset: "btc-bitcoin",
+        source_asset: "BTC",
         source_quantity: 1,
         price_usd: 50000,
         transaction_date: "2026-06-01T10:00:00Z",
       }),
     ];
     // Series has day 1 but not day 2.
-    const priceSeries = new Map([["btc-bitcoin", series({ "2026-06-01": 50000 })]]);
+    const priceSeries = new Map([["BTC", series({ "2026-06-01": 50000 })]]);
 
     const { points, excludedPriceDays } = computePortfolioHistory(transactions, priceSeries, {
       startDate: "2026-06-01",
@@ -168,7 +168,7 @@ describe("computePortfolioHistory — edge cases", () => {
     const transactions = [
       tx({
         type: "DEPOSIT",
-        source_asset: "usdt-tether",
+        source_asset: "USDT",
         source_quantity: 100000,
         price_usd: 1,
         transaction_date: "2026-06-01T10:00:00Z",
@@ -176,9 +176,9 @@ describe("computePortfolioHistory — edge cases", () => {
       }),
       tx({
         type: "BUY",
-        source_asset: "usdt-tether",
+        source_asset: "USDT",
         source_quantity: 60000,
-        target_asset: "btc-bitcoin",
+        target_asset: "BTC",
         target_quantity: 1,
         price_usd: 1,
         transaction_date: "2026-06-01T10:00:00Z",
@@ -186,16 +186,16 @@ describe("computePortfolioHistory — edge cases", () => {
       }),
       tx({
         type: "SELL",
-        source_asset: "btc-bitcoin",
+        source_asset: "BTC",
         source_quantity: 1,
-        target_asset: "usdt-tether",
+        target_asset: "USDT",
         target_quantity: 65000,
         price_usd: 65000,
         transaction_date: "2026-06-01T10:00:00Z",
         created_at: "2026-06-01T10:00:00.300Z",
       }),
     ];
-    const priceSeries = new Map([["btc-bitcoin", series({ "2026-06-01": 65000 })]]);
+    const priceSeries = new Map([["BTC", series({ "2026-06-01": 65000 })]]);
 
     const { points } = computePortfolioHistory(transactions, priceSeries, {
       startDate: "2026-06-01",
@@ -213,14 +213,14 @@ describe("computePortfolioHistory — edge cases", () => {
     const transactions = [
       tx({
         type: "DEPOSIT",
-        source_asset: "btc-bitcoin",
+        source_asset: "BTC",
         source_quantity: 1,
         price_usd: 50000,
         transaction_date: "2026-06-01T10:00:00Z",
       }),
       tx({
         type: "WITHDRAW",
-        source_asset: "btc-bitcoin",
+        source_asset: "BTC",
         source_quantity: 1,
         target_asset: null,
         target_quantity: null,
@@ -228,9 +228,7 @@ describe("computePortfolioHistory — edge cases", () => {
         transaction_date: "2026-06-02T10:00:00Z",
       }),
     ];
-    const priceSeries = new Map([
-      ["btc-bitcoin", series({ "2026-06-01": 50000, "2026-06-02": 60000, "2026-06-03": 99999 })],
-    ]);
+    const priceSeries = new Map([["BTC", series({ "2026-06-01": 50000, "2026-06-02": 60000, "2026-06-03": 99999 })]]);
 
     const { points } = computePortfolioHistory(transactions, priceSeries, {
       startDate: "2026-06-01",
@@ -251,13 +249,13 @@ describe("computePortfolioHistory — edge cases", () => {
     const transactions = [
       tx({
         type: "DEPOSIT",
-        source_asset: "btc-bitcoin",
+        source_asset: "BTC",
         source_quantity: 1,
         price_usd: 40000,
         transaction_date: "2026-05-01T10:00:00Z",
       }),
     ];
-    const priceSeries = new Map([["btc-bitcoin", series({ "2026-06-01": 50000 })]]);
+    const priceSeries = new Map([["BTC", series({ "2026-06-01": 50000 })]]);
 
     const { points } = computePortfolioHistory(transactions, priceSeries, {
       startDate: "2026-06-01",
@@ -272,7 +270,7 @@ describe("computePortfolioHistory — edge cases", () => {
     const transactions = [
       tx({
         type: "DEPOSIT",
-        source_asset: "usdt-tether",
+        source_asset: "USDT",
         source_quantity: 5000,
         price_usd: 1,
         transaction_date: "2026-06-01T10:00:00Z",

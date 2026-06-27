@@ -5,7 +5,7 @@ import type { PortfolioAsset } from "@/types";
 
 function asset(overrides: Partial<PortfolioAsset>): PortfolioAsset {
   return {
-    asset: "btc-bitcoin",
+    asset: "BTC",
     symbol: "BTC",
     total_quantity: 1,
     avg_cost_usd: 60000,
@@ -29,8 +29,8 @@ describe("computeAllocation", () => {
 
   it("computes value, fractions, and total across priced assets, sorted descending", () => {
     const result = computeAllocation([
-      asset({ asset: "eth-ethereum", symbol: "ETH", total_quantity: 10, current_price_usd: 2000 }), // 20000
-      asset({ asset: "btc-bitcoin", symbol: "BTC", total_quantity: 1, current_price_usd: 60000 }), // 60000
+      asset({ asset: "ETH", symbol: "ETH", total_quantity: 10, current_price_usd: 2000 }), // 20000
+      asset({ asset: "BTC", symbol: "BTC", total_quantity: 1, current_price_usd: 60000 }), // 60000
     ]);
 
     expect(result.totalValue).toBe(80000);
@@ -56,8 +56,8 @@ describe("computeAllocation", () => {
 
   it("excludes held assets with no current price and counts them", () => {
     const result = computeAllocation([
-      asset({ asset: "btc-bitcoin", symbol: "BTC", total_quantity: 1, current_price_usd: 60000 }),
-      asset({ asset: "doge-dogecoin", symbol: "DOGE", total_quantity: 100, current_price_usd: null }),
+      asset({ asset: "BTC", symbol: "BTC", total_quantity: 1, current_price_usd: 60000 }),
+      asset({ asset: "DOGE", symbol: "DOGE", total_quantity: 100, current_price_usd: null }),
     ]);
     expect(result.slices.map((s) => s.symbol)).toEqual(["BTC"]);
     expect(result.totalValue).toBe(60000);
@@ -66,10 +66,10 @@ describe("computeAllocation", () => {
 
   it("ignores zero-quantity / closed positions entirely", () => {
     const result = computeAllocation([
-      asset({ asset: "btc-bitcoin", symbol: "BTC", total_quantity: 1, current_price_usd: 60000 }),
-      asset({ asset: "eth-ethereum", symbol: "ETH", total_quantity: 0, is_closed: true, current_price_usd: 2000 }),
+      asset({ asset: "BTC", symbol: "BTC", total_quantity: 1, current_price_usd: 60000 }),
+      asset({ asset: "ETH", symbol: "ETH", total_quantity: 0, is_closed: true, current_price_usd: 2000 }),
       // Closed AND unpriced — still ignored, not counted as excluded (excludedCount is for held assets).
-      asset({ asset: "ltc-litecoin", symbol: "LTC", total_quantity: 0, is_closed: true, current_price_usd: null }),
+      asset({ asset: "LTC", symbol: "LTC", total_quantity: 0, is_closed: true, current_price_usd: null }),
     ]);
     expect(result.slices.map((s) => s.symbol)).toEqual(["BTC"]);
     expect(result.totalValue).toBe(60000);
@@ -78,8 +78,8 @@ describe("computeAllocation", () => {
 
   it("returns no slices for an all-unpriced portfolio but counts the exclusions", () => {
     const result = computeAllocation([
-      asset({ asset: "btc-bitcoin", symbol: "BTC", total_quantity: 1, current_price_usd: null }),
-      asset({ asset: "eth-ethereum", symbol: "ETH", total_quantity: 5, current_price_usd: null }),
+      asset({ asset: "BTC", symbol: "BTC", total_quantity: 1, current_price_usd: null }),
+      asset({ asset: "ETH", symbol: "ETH", total_quantity: 5, current_price_usd: null }),
     ]);
     expect(result.slices).toEqual([]);
     expect(result.totalValue).toBe(0);

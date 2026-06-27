@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { PortfolioHistoryResponse } from "@/types";
 import { getTransactions } from "@/lib/transaction-service";
-import { getHistoricalPriceSeries } from "@/lib/coinpaprika";
+import { getHistoricalPriceSeries } from "@/lib/prices";
 import { isUsdStablecoin } from "@/lib/schemas";
 import { computePortfolioHistory } from "@/lib/portfolio-history";
 

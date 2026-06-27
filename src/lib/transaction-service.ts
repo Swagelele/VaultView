@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Transaction, TransactionWithPnl } from "@/types";
 import { createTransactionSchema, createSellAllGlobalSchema, isUsdStablecoin } from "@/lib/schemas";
-import { getPriceForDate, getMultiplePrices } from "@/lib/coinpaprika";
+import { getPriceForDate, getMultiplePrices } from "@/lib/prices";
 import { computePositions } from "@/lib/pnl-engine";
 
 interface ServiceResult<T> {

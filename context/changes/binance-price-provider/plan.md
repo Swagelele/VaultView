@@ -406,26 +406,26 @@ exist, a one-time `UPDATE transactions SET source_asset = <ticker(source_asset)>
 
 #### Automated
 
-- [x] 1.1 New module type-checks: `npx astro sync && npm run lint`
-- [x] 1.2 Adapter unit tests pass: `npx vitest run src/lib/prices.test.ts`
-- [x] 1.3 Static list test asserts >100 entries incl. BTC/ETH/USDT
+- [x] 1.1 New module type-checks: `npx astro sync && npm run lint` — 7bfa950
+- [x] 1.2 Adapter unit tests pass: `npx vitest run src/lib/prices.test.ts` — 7bfa950
+- [x] 1.3 Static list test asserts >100 entries incl. BTC/ETH/USDT — 7bfa950
 
 #### Manual
 
-- [x] 1.4 `asset-list.ts` spot-check (BTC, ETH, USDT, SOL present)
-- [x] 1.5 `curl` of Binance ticker matches adapter parse
+- [x] 1.4 `asset-list.ts` spot-check (BTC, ETH, USDT, SOL present) — 7bfa950
+- [x] 1.5 `curl` of Binance ticker matches adapter parse — 7bfa950
 
 ### Phase 2: Rewire consumers + asset-id format
 
 #### Automated
 
-- [ ] 2.1 Type check + lint clean: `npx astro sync && npm run lint`
-- [ ] 2.2 Full unit suite passes: `npx vitest run`
-- [ ] 2.3 No remaining `coinpaprika` / `usdt-tether` / `btc-bitcoin` refs in `src/`
+- [x] 2.1 Type check + lint clean: `npx astro sync && npm run lint`
+- [x] 2.2 Full unit suite passes: `npx vitest run`
+- [x] 2.3 No remaining `coinpaprika` / `usdt-tether` / `btc-bitcoin` refs in `src/`
 
 #### Manual
 
-- [ ] 2.4 `npm run dev` boots; dashboard + transactions load without errors
+- [x] 2.4 `npm run dev` boots; dashboard + transactions load without errors
 
 ### Phase 3: Visible error states
 

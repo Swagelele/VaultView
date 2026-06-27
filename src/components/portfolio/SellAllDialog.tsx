@@ -36,7 +36,7 @@ export function SellAllDialog({ asset, onClose, onSuccess }: SellAllDialogProps)
         location: l.location,
         quantity: l.quantity,
         selected: true,
-        targetAsset: "usdt-tether",
+        targetAsset: "USDT",
         targetSymbol: "USDT",
         fee: "",
       })),

@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { PortfolioAsset } from "@/types";
 import { getTransactions } from "@/lib/transaction-service";
 import { computePositions, aggregateByAsset } from "@/lib/pnl-engine";
-import { getMultiplePrices } from "@/lib/coinpaprika";
+import { getMultiplePrices } from "@/lib/prices";
 import { symbolFromId } from "@/lib/format";
 
 export interface PortfolioResponse {

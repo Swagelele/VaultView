@@ -4,7 +4,7 @@ import type { PortfolioAsset } from "@/types";
 
 function asset(overrides: Partial<PortfolioAsset>): PortfolioAsset {
   return {
-    asset: "btc-bitcoin",
+    asset: "BTC",
     symbol: "BTC",
     total_quantity: 1,
     avg_cost_usd: 60000,
@@ -30,8 +30,8 @@ describe("computeSummary", () => {
   it("sums realized, unrealized, and net across priced assets", () => {
     const summary = computeSummary(
       [
-        asset({ asset: "btc-bitcoin", total_realized_pnl_usd: 5000, unrealized_pnl_usd: 2000 }),
-        asset({ asset: "eth-ethereum", total_realized_pnl_usd: -1000, unrealized_pnl_usd: 3000 }),
+        asset({ asset: "BTC", total_realized_pnl_usd: 5000, unrealized_pnl_usd: 2000 }),
+        asset({ asset: "ETH", total_realized_pnl_usd: -1000, unrealized_pnl_usd: 3000 }),
       ],
       0,
     );
@@ -43,9 +43,9 @@ describe("computeSummary", () => {
   it("collapses unrealized and net to null when a held asset is unpriced", () => {
     const summary = computeSummary(
       [
-        asset({ asset: "btc-bitcoin", total_realized_pnl_usd: 5000, unrealized_pnl_usd: 2000 }),
+        asset({ asset: "BTC", total_realized_pnl_usd: 5000, unrealized_pnl_usd: 2000 }),
         asset({
-          asset: "eth-ethereum",
+          asset: "ETH",
           total_realized_pnl_usd: 1000,
           current_price_usd: null,
           unrealized_pnl_usd: null,
@@ -62,9 +62,9 @@ describe("computeSummary", () => {
   it("counts a closed position toward realized without collapsing unrealized", () => {
     const summary = computeSummary(
       [
-        asset({ asset: "btc-bitcoin", total_quantity: 1, total_realized_pnl_usd: 0, unrealized_pnl_usd: 2000 }),
+        asset({ asset: "BTC", total_quantity: 1, total_realized_pnl_usd: 0, unrealized_pnl_usd: 2000 }),
         asset({
-          asset: "eth-ethereum",
+          asset: "ETH",
           total_quantity: 0,
           is_closed: true,
           total_realized_pnl_usd: 7500,

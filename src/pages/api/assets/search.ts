@@ -1,7 +1,7 @@
 export const prerender = false;
 
 import type { APIRoute } from "astro";
-import { searchCoins } from "@/lib/coinpaprika";
+import { searchCoins } from "@/lib/prices";
 import { jsonResponse, unauthorizedResponse } from "@/lib/api-helpers";
 
 export const GET: APIRoute = async (context) => {

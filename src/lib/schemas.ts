@@ -1,9 +1,12 @@
 import { z } from "zod";
 
-export const USD_STABLECOINS = ["usdt-tether", "usdc-usd-coin"];
+// Canonical asset ids are uppercase Binance tickers. Components compare against this constant
+// directly (e.g. `USD_STABLECOINS.includes(rawId)`), so it must hold the uppercase ids; the
+// adapter's price-peg set (`prices.ts` USD_PEGGED) mirrors this.
+export const USD_STABLECOINS = ["USDT", "USDC"];
 
 export function isUsdStablecoin(coinId: string): boolean {
-  return USD_STABLECOINS.includes(coinId.toLowerCase());
+  return USD_STABLECOINS.includes(coinId.toUpperCase());
 }
 
 const baseSchema = z.object({
@@ -97,7 +100,7 @@ export const createSellAllGlobalSchema = z
       if (!isUsdStablecoin(row.target_asset)) {
         ctx.addIssue({
           code: "custom",
-          message: `Sell-all target must be a USD stablecoin (usdt-tether, usdc-usd-coin); got ${row.target_asset}`,
+          message: `Sell-all target must be a USD stablecoin (USDT, USDC); got ${row.target_asset}`,
           path: ["locations", i, "target_asset"],
         });
       }

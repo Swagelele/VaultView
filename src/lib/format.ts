@@ -18,9 +18,10 @@ export function pnlColor(value: number | null): string {
 }
 
 /**
- * Derive a display symbol from a CoinPaprika asset id. IDs follow the `{symbol}-{name}` convention
- * (e.g. `btc-bitcoin` → `BTC`, `usdt-tether` → `USDT`); ids without a `-` are uppercased as-is.
- * Mirrors the inline derivation in portfolio-service.ts so the list and portfolio stay consistent.
+ * Derive a display symbol from an asset id. Canonical ids are uppercase Binance tickers (e.g.
+ * `BTC`, `USDT`), so the symbol is the id itself; the legacy `{symbol}-{name}` split is retained
+ * for safety (ids without a `-` are uppercased as-is). Mirrors the derivation in
+ * portfolio-service.ts so the list and portfolio stay consistent.
  */
 export function symbolFromId(id: string): string {
   return id.split("-")[0]?.toUpperCase() ?? id.toUpperCase();
