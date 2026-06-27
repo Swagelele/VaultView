@@ -436,18 +436,18 @@ exist, a one-time `UPDATE transactions SET source_asset = <ticker(source_asset)>
 
 #### Manual
 
-- [x] 3.3 Forced-failure check: search error, price hint, `(stale)` all show; nothing blanks
+- [x] 3.3 Forced-failure check: search error, price hint, `(stale)` all show; nothing blanks — e687ffe
 
 ### Phase 4: Deploy + production verification
 
 #### Automated
 
-- [x] 4.1 Production build succeeds: `npm run build`
-- [x] 4.2 Dry-run bundle check passes: `npm run deploy:dry-run`
+- [x] 4.1 Production build succeeds: `npm run build` — e687ffe
+- [x] 4.2 Dry-run bundle check passes: `npm run deploy:dry-run` — e687ffe
 
 #### Manual
 
-- [x] 4.3 Deployed: autocomplete returns results
-- [x] 4.4 Deployed: BUY saves with live price + unrealized P&L; history chart renders
-- [x] 4.5 Deployed: DEPOSIT past-date resolves historical cost basis
-- [x] 4.6 `wrangler tail` shows successful Binance calls from the Worker region
+- [x] 4.3 Deployed: autocomplete returns results — e687ffe
+- [x] 4.4 Deployed: BUY saves with live price + unrealized P&L; history chart renders — e687ffe
+- [x] 4.5 Deployed: DEPOSIT past-date resolves historical cost basis — e687ffe
+- [x] 4.6 `wrangler tail` shows successful Binance calls from the Worker region — e687ffe
