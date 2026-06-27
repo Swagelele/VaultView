@@ -298,15 +298,15 @@ None — no schema change. Reconstruct-on-read derives everything from existing 
 
 #### Automated
 
-- [x] 4.1 Unit tests pass: `npm run test` (geometry helpers)
-- [x] 4.2 Type checking + lint pass: `npx astro sync && npm run lint`
-- [x] 4.3 Build passes: `npm run build`
+- [x] 4.1 Unit tests pass: `npm run test` (geometry helpers) — 58973b0
+- [x] 4.2 Type checking + lint pass: `npx astro sync && npm run lint` — 58973b0
+- [x] 4.3 Build passes: `npm run build` — 58973b0
 
 #### Manual
 
-- [x] 4.4 Chart renders above the portfolio; metric toggle changes the curve
-- [x] 4.5 Range buttons zoom 15d/30d/180d/365d with no network calls (1d dropped per user — daily-only series)
-- [x] 4.6 Final point updates within ~20s as live prices refresh
-- [x] 4.7 Adding a transaction re-fetches and reshapes the curve
-- [x] 4.8 Asset lacking history shows the excluded-days note and a 0-dip, not NaN/blank (unreproducible on live data — covered by engine missing-price→0 unit test)
-- [x] 4.9 No regressions in portfolio table, allocation chart, or summary cards
+- [x] 4.4 Chart renders above the portfolio; metric toggle changes the curve — 58973b0
+- [x] 4.5 Range buttons zoom 15d/30d/180d/365d with no network calls (1d dropped per user — daily-only series) — 58973b0
+- [x] 4.6 Final point updates within ~20s as live prices refresh — 58973b0
+- [x] 4.7 Adding a transaction re-fetches and reshapes the curve — 58973b0
+- [x] 4.8 Asset lacking history shows the excluded-days note and a 0-dip, not NaN/blank (unreproducible on live data — covered by engine missing-price→0 unit test) — 58973b0
+- [x] 4.9 No regressions in portfolio table, allocation chart, or summary cards — 58973b0

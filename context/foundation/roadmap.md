@@ -3,7 +3,7 @@ project: "VaultView"
 version: 2
 status: draft
 created: 2026-06-12
-updated: 2026-06-17
+updated: 2026-06-27
 prd_version: 2
 main_goal: speed
 top_blocker: time
@@ -39,6 +39,7 @@ Portfele kryptowalutowe są rozproszone po wielu giełdach i portfelach — brak
 | S-07 | sell-all-single-location | sprzedaje całą pozycję w jednej lokalizacji jednym kliknięciem               | S-01          | US-03, FR-004                                        | done     |
 | S-08 | sell-all-global          | sprzedaje asset we wszystkich lokalizacjach z per-lokalizacyjną konfiguracją | S-07          | FR-004                                               | done     |
 | S-09 | asset-allocation-pie     | widzi alokację portfela jako wykres kołowy (udział każdego assetu)           | S-01          | FR-014                                               | done     |
+| S-10 | portfolio-history-chart  | widzi wykres wartości portfela i łącznego P&L w czasie (365 dni, dziennie)   | S-01, S-05    | v2 — promoted from Parked (wykres bilansu w czasie)  | done     |
 
 ## Streams
 
@@ -206,6 +207,7 @@ Foundations poniżej zakładają że te warstwy są obecne i NIE budują ich od 
 | S-07       | sell-all-single-location | Sell-all w pojedynczej lokalizacji        | done                  | Implemented — `ac06f82`..`0123bf3`                  |
 | S-08       | sell-all-global          | Sell-all globalny (wszystkie lokalizacje) | done                  | Implemented — `6d5d344`..`ee8c2f0`                  |
 | S-09       | asset-allocation-pie     | Wykres kołowy alokacji assetów            | done                  | Implemented — `c99d350`..`88378a8`                  |
+| S-10       | portfolio-history-chart  | Wykres wartości portfela i P&L w czasie   | done                  | Implemented — `32d3df4`..`58973b0`                  |
 
 ## Open Roadmap Questions
 
@@ -220,7 +222,7 @@ Foundations poniżej zakładają że te warstwy są obecne i NIE budują ich od 
 - **Layout mobilny** — Why parked: PRD §Non-Goals. Desktop only w MVP.
 - **Panel administracyjny** — Why parked: PRD §Non-Goals. Zarządzanie użytkownikami i statystyki odroczone do v2.
 - **Auth email/password** — Why parked: PRD §Non-Goals. Google OAuth jedyną metodą w MVP.
-- **Wykres bilansu w czasie (total balance over time, później per lokalizacja)** — Why parked: PRD §Non-Goals (wykresy czasowe = v2). Wymaga danych historycznych: albo rekonstrukcji wartości portfela per dzień (replay transakcji × historyczne ceny CoinPaprika, jak w S-05), albo tabeli snapshotów bilansu. Promote do slice (np. S-1x) po dostarczeniu MVP — wtedy decyzja rekonstrukcja vs snapshot trafia do `/10x-plan`.
+- ~~**Wykres bilansu w czasie**~~ — Promoted 2026-06-27 → **S-10 (portfolio-history-chart)**. Zrealizowane przez rekonstrukcję wartości portfela per dzień (replay transakcji × historyczne ceny CoinPaprika, reconstruct-on-read — bez tabeli snapshotów).
 
 ## Done
 

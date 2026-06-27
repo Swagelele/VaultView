@@ -1,7 +1,7 @@
 ---
 change_id: portfolio-history-chart
 title: Portfolio history chart (value + cumulative P&L over time)
-status: implementing
+status: implemented
 created: 2026-06-27
 updated: 2026-06-27
 ---
