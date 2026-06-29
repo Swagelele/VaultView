@@ -354,28 +354,28 @@ fetch prices from this network — accepted; verify on the deployed Worker.
 
 #### Automated
 
-- [x] 1.1 Type checking + lint pass: `npx astro sync && npm run lint`
-- [x] 1.2 Unit tests pass: `npx vitest run src/lib/prices.test.ts`
-- [x] 1.3 Production build succeeds: `npm run build`
+- [x] 1.1 Type checking + lint pass: `npx astro sync && npm run lint` — 75c229c
+- [x] 1.2 Unit tests pass: `npx vitest run src/lib/prices.test.ts` — 75c229c
+- [x] 1.3 Production build succeeds: `npm run build` — 75c229c
 
 #### Manual
 
-- [x] 1.4 Form shows live BTC current price on prod (not "unavailable")
-- [x] 1.5 DEPOSIT with a past date shows a historical cost-basis price
-- [x] 1.6 Portfolio view shows current prices + unrealized P&L; auto-refresh updates
+- [x] 1.4 Form shows live BTC current price on prod (not "unavailable") — 75c229c
+- [x] 1.5 DEPOSIT with a past date shows a historical cost-basis price — 75c229c
+- [x] 1.6 Portfolio view shows current prices + unrealized P&L; auto-refresh updates — 75c229c
 
 ### Phase 2: Candle series + chunking (history chart)
 
 #### Automated
 
-- [ ] 2.1 Unit tests pass: `npx vitest run src/lib/prices.test.ts`
-- [ ] 2.2 Consumers green: `npx vitest run src/lib/portfolio-history-service.test.ts src/lib/portfolio-history.test.ts`
-- [ ] 2.3 Lint + build: `npm run lint && npm run build`
+- [x] 2.1 Unit tests pass: `npx vitest run src/lib/prices.test.ts`
+- [x] 2.2 Consumers green: `npx vitest run src/lib/portfolio-history-service.test.ts src/lib/portfolio-history.test.ts`
+- [x] 2.3 Lint + build: `npm run lint && npm run build`
 
 #### Manual
 
-- [ ] 2.4 History chart renders a continuous ~1-year series on prod (no $0 cliff)
-- [ ] 2.5 Shorter ranges slice correctly from the returned series
+- [x] 2.4 History chart renders a continuous ~1-year series on prod (no $0 cliff)
+- [x] 2.5 Shorter ranges slice correctly from the returned series
 
 ### Phase 3: Asset-list regeneration (Coinbase products) + docs
 

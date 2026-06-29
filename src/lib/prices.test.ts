@@ -23,11 +23,8 @@ function stubFetch(impl: (url: string) => unknown) {
 const okJson = (body: unknown) => ({ ok: true, json: () => Promise.resolve(body) });
 const httpError = (status: number) => ({ ok: false, status });
 
-// A Binance daily kline row: [openTime, open, high, low, close, volume, closeTime, ...].
-const kline = (iso: string, close: number) => {
-  const t = Date.parse(iso);
-  return [t, "0", "0", "0", String(close), "0", t + 86_399_999];
-};
+// A Coinbase daily candle row: [time(seconds), low, high, open, close, volume].
+const candle = (iso: string, close: number | string) => [Math.floor(Date.parse(iso) / 1000), 0, 0, 0, close, 0];
 
 describe("prices boundary — getCurrentPrice degradation", () => {
   it("returns null on a non-200 response (e.g. 429 rate limit)", async () => {
@@ -113,17 +110,17 @@ describe("prices boundary — search & historical degradation", () => {
 });
 
 describe("prices boundary — getHistoricalPriceSeries (range fetch)", () => {
-  it("parses a daily kline series into a YYYY-MM-DD → close map", async () => {
+  it("parses a daily candle series into a YYYY-MM-DD → close map", async () => {
     stubFetch(() =>
       okJson([
-        kline("2026-01-01T00:00:00Z", 40000),
-        kline("2026-01-02T00:00:00Z", 41000),
-        kline("2026-01-03T00:00:00Z", 42000),
+        candle("2026-01-01T00:00:00Z", 40000),
+        candle("2026-01-02T00:00:00Z", 41000),
+        candle("2026-01-03T00:00:00Z", 42000),
       ]),
     );
     const { getHistoricalPriceSeries } = await import("./prices");
 
-    const series = await getHistoricalPriceSeries("BTC", "2026-01-01", 365);
+    const series = await getHistoricalPriceSeries("BTC", "2026-01-01", 3);
     expect(series.size).toBe(3);
     expect(series.get("2026-01-01")).toBe(40000);
     expect(series.get("2026-01-03")).toBe(42000);
@@ -138,13 +135,26 @@ describe("prices boundary — getHistoricalPriceSeries (range fetch)", () => {
   });
 
   it("skips candles with a non-number close — no NaN entries", async () => {
-    const t = Date.parse("2026-01-02T00:00:00Z");
-    stubFetch(() => okJson([kline("2026-01-01T00:00:00Z", 40000), [t, "0", "0", "0", "oops", "0", t + 1]]));
+    stubFetch(() => okJson([candle("2026-01-01T00:00:00Z", 40000), candle("2026-01-02T00:00:00Z", "oops")]));
     const { getHistoricalPriceSeries } = await import("./prices");
 
-    const series = await getHistoricalPriceSeries("BTC", "2026-01-01", 365);
+    const series = await getHistoricalPriceSeries("BTC", "2026-01-01", 3);
     expect(series.size).toBe(1);
     expect(series.has("2026-01-02")).toBe(false);
+  });
+
+  it("chunks a >300-day window into multiple candle requests and merges them", async () => {
+    const fetchMock = stubFetch((url) => {
+      const m = /start=([^&]+)/.exec(url);
+      const day = m ? decodeURIComponent(m[1]).slice(0, 10) : "1970-01-01";
+      return okJson([candle(`${day}T00:00:00Z`, 50000)]);
+    });
+    const { getHistoricalPriceSeries } = await import("./prices");
+
+    const series = await getHistoricalPriceSeries("BTC", "2025-01-01", 365);
+    expect(fetchMock).toHaveBeenCalledTimes(2); // 365 days → 300 + 65
+    expect(series.size).toBe(2);
+    expect(series.has("2025-01-01")).toBe(true); // first chunk start
   });
 
   it("short-circuits stablecoins to an empty series without fetch", async () => {
@@ -157,14 +167,27 @@ describe("prices boundary — getHistoricalPriceSeries (range fetch)", () => {
   });
 
   it("back-fills the per-day cache: a later getHistoricalPrice for an in-range date hits cache (no new fetch)", async () => {
-    const fetchMock = stubFetch(() => okJson([kline("2026-01-01T00:00:00Z", 40000)]));
+    const fetchMock = stubFetch(() => okJson([candle("2026-01-01T00:00:00Z", 40000)]));
     const { getHistoricalPriceSeries, getHistoricalPrice } = await import("./prices");
 
-    await getHistoricalPriceSeries("BTC", "2026-01-01", 365);
+    await getHistoricalPriceSeries("BTC", "2026-01-01", 30);
     expect(fetchMock).toHaveBeenCalledTimes(1);
 
     expect(await getHistoricalPrice("BTC", "2026-01-01")).toBe(40000);
     expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("prices boundary — getHistoricalPrice deep-history fallback", () => {
+  it("falls back to a daily candle when spot?date misses (old date beyond the ~2yr window)", async () => {
+    stubFetch((url) => {
+      if (url.includes("/spot?date=")) return httpError(404);
+      if (url.includes("/candles")) return okJson([candle("2023-01-01T00:00:00Z", 16500)]);
+      return httpError(404);
+    });
+    const { getHistoricalPrice } = await import("./prices");
+
+    expect(await getHistoricalPrice("BTC", "2023-01-01")).toBe(16500);
   });
 });
 

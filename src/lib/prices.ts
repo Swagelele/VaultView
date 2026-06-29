@@ -160,6 +160,36 @@ export async function getMultiplePrices(coinIds: string[]): Promise<PriceLookupR
   return { prices: { ...fresh }, stale: false, updated_at: new Date().toISOString() };
 }
 
+// Coinbase Exchange host — daily OHLC candles, going back years (far deeper than the retail
+// `spot?date` window of ~2 years). Same User-Agent requirement. Rows are
+// `[time(seconds), low, high, open, close, volume]`, returned newest-first, capped per request.
+const EXCHANGE_URL = "https://api.exchange.coinbase.com";
+const MAX_CANDLES_PER_REQUEST = 300;
+const DAY_MS = 86_400_000;
+
+/** Parse one Coinbase candle row into `[YYYY-MM-DD, close]`, or null. `time` is unix seconds and
+ *  close is index [4]; row order is irrelevant since callers key results by day. */
+function parseCandleRow(row: unknown): [string, number] | null {
+  if (!Array.isArray(row)) return null;
+  const timeSec = typeof row[0] === "number" ? row[0] : Number(row[0]);
+  const close = parsePrice(row[4]);
+  if (!Number.isFinite(timeSec) || close === null) return null;
+  return [new Date(timeSec * 1000).toISOString().slice(0, 10), close];
+}
+
+/** Fetch a single day's close from the candle host — the deep-history fallback for `spot?date`. */
+async function fetchDailyCandleClose(coinId: string, day: string): Promise<number | null> {
+  const data = await safeFetch<unknown[]>(
+    `${EXCHANGE_URL}/products/${encodeURIComponent(toSymbol(coinId))}/candles?granularity=86400&start=${day}T00:00:00Z&end=${day}T23:59:59Z`,
+  );
+  if (!Array.isArray(data)) return null;
+  for (const row of data) {
+    const parsed = parseCandleRow(row);
+    if (parsed) return parsed[1];
+  }
+  return null;
+}
+
 export async function getHistoricalPrice(coinId: string, date: string): Promise<number | null> {
   if (!coinId) return null;
   if (isUsdStablecoin(coinId)) return 1;
@@ -177,7 +207,11 @@ export async function getHistoricalPrice(coinId: string, date: string): Promise<
   const data = await safeFetch<SpotResponse>(
     `${BASE_URL}/prices/${encodeURIComponent(toSymbol(coinId))}/spot?date=${day}`,
   );
-  const price = data?.data?.amount !== undefined ? parsePrice(data.data.amount) : null;
+  const spotPrice = data?.data?.amount !== undefined ? parsePrice(data.data.amount) : null;
+
+  // `spot?date` only covers ~2 years; for older dates it 404s. Fall back to a daily candle.
+  const price = spotPrice ?? (await fetchDailyCandleClose(coinId, day));
+
   if (price !== null) {
     historicalPriceCache.set(cacheKey, price);
   }
@@ -195,23 +229,35 @@ export async function getHistoricalPriceSeries(
   if (isUsdStablecoin(coinId)) return series;
 
   const start = startDate.slice(0, 10);
-  const startTime = Date.parse(`${start}T00:00:00Z`);
-  if (!Number.isFinite(startTime)) return series;
+  const startMs = Date.parse(`${start}T00:00:00Z`);
+  if (!Number.isFinite(startMs)) return series;
 
-  const data = await safeFetch<unknown[]>(
-    `${BASE_URL}/klines?symbol=${encodeURIComponent(toSymbol(coinId))}&interval=1d&startTime=${startTime}&limit=${days}`,
-  );
-  if (!Array.isArray(data)) return series;
+  // Coinbase Exchange caps a candle request at ~300 rows, so split the window into ≤300-day
+  // chunks and fetch them concurrently. The end of each chunk is its last day's 00:00 (inclusive),
+  // which yields exactly `chunkDays` daily candles.
+  const symbol = encodeURIComponent(toSymbol(coinId));
+  const chunkUrls: string[] = [];
+  for (let offset = 0; offset < days; offset += MAX_CANDLES_PER_REQUEST) {
+    const chunkDays = Math.min(MAX_CANDLES_PER_REQUEST, days - offset);
+    const chunkStartMs = startMs + offset * DAY_MS;
+    const chunkEndMs = chunkStartMs + (chunkDays - 1) * DAY_MS;
+    const startIso = new Date(chunkStartMs).toISOString();
+    const endIso = new Date(chunkEndMs).toISOString();
+    chunkUrls.push(`${EXCHANGE_URL}/products/${symbol}/candles?granularity=86400&start=${startIso}&end=${endIso}`);
+  }
 
-  for (const row of data) {
-    if (!Array.isArray(row)) continue;
-    const openTime = typeof row[0] === "number" ? row[0] : Number(row[0]);
-    const price = parsePrice(row[4]);
-    if (!Number.isFinite(openTime) || price === null) continue;
-    const day = new Date(openTime).toISOString().slice(0, 10);
-    series.set(day, price);
-    // Back-fill the per-day cache so single-date lookups stay warm (historical prices are immutable).
-    historicalPriceCache.set(`${coinId}:${day}`, price);
+  const results = await Promise.all(chunkUrls.map((url) => safeFetch<unknown[]>(url)));
+
+  for (const data of results) {
+    if (!Array.isArray(data)) continue;
+    for (const row of data) {
+      const parsed = parseCandleRow(row);
+      if (!parsed) continue;
+      const [day, price] = parsed;
+      series.set(day, price);
+      // Back-fill the per-day cache so single-date lookups stay warm (historical prices are immutable).
+      historicalPriceCache.set(`${coinId}:${day}`, price);
+    }
   }
 
   return series;

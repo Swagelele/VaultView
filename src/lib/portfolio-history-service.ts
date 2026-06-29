@@ -8,8 +8,8 @@ import { computePortfolioHistory } from "@/lib/portfolio-history";
 const DAY_MS = 86_400_000;
 
 // The window spans at most ~1 year of daily points — a deliberate product bound on the history
-// chart, not a provider constraint (Binance klines return multi-year history). Floor the window at
-// 364 days ago; the client slices shorter ranges from the returned series.
+// chart, not a provider constraint (Coinbase candles return multi-year history). Floor the window
+// at 364 days ago; the client slices shorter ranges from the returned series.
 const WINDOW_FLOOR_DAYS = 364;
 
 function dayString(ms: number): string {
@@ -43,7 +43,7 @@ export async function getPortfolioHistory(supabase: SupabaseClient, userId: stri
   const startMs = Math.max(firstTxMs, floorMs);
   const startDate = dayString(startMs);
 
-  // Inclusive day count from start to today — the Binance klines `limit` and the engine's window length.
+  // Inclusive day count from start to today — the candle series length and the engine's window length.
   const days = Math.round((todayMs - startMs) / DAY_MS) + 1;
 
   // Distinct non-stablecoin assets ever touched (source or target). Stablecoins are priced at a
@@ -54,7 +54,8 @@ export async function getPortfolioHistory(supabase: SupabaseClient, userId: stri
     if (tx.target_asset && !isUsdStablecoin(tx.target_asset)) assets.add(tx.target_asset);
   }
 
-  // One Binance klines call per asset, concurrently — never loop the per-day fetch (the 365×N trap).
+  // One candle series fetch per asset (internally chunked ≤300 days), concurrently — never loop the
+  // per-day fetch (the 365×N trap).
   const assetList = [...assets];
   const seriesList = await Promise.all(assetList.map((asset) => getHistoricalPriceSeries(asset, startDate, days)));
   const priceSeriesByAsset = new Map(assetList.map((asset, i) => [asset, seriesList[i]]));
