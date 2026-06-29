@@ -25,16 +25,23 @@ Solo-built crypto portfolio tracker (VaultView) with Google OAuth auth on a 5-we
 
 ## Pricing API
 
-**Binance public market-data API** — zastąpiło CoinPaprika 2026-06-27 (zob. `context/changes/binance-price-provider/`). CoinPaprika free tier (limit per-IP/miesiąc) był trwale przekroczony ze współdzielonego IP Cloudflare Workers → HTTP 402. Binance ma budżet per-minuta (reset co minutę), odporny na współdzielenie IP.
+**Coinbase public API** — zastąpiło Binance 2026-06-29 (zob. `context/changes/coinbase-price-provider/`). Binance zaczęło zwracać HTTP 403 dla egress IP Cloudflare Workers (wszystkie hosty: `data-api.binance.vision`, `api.binance.com`, `api.binance.us`) — `safeFetch` degradował 403 do `null` → „price unavailable" w całym UI. Coinbase ma limity per-sekundę/per-godzinę (reset szybki, odporny na współdzielenie IP) i jest osiągalne z Workera.
 
-- Host: `https://data-api.binance.vision/api/v3` — publiczny market-data; `api.binance.com` bywa blokowany w sieci firmowej, ten host nie.
-- Klucz API: nie wymagany
-- Limity: 6000 weight/min per-IP, reset co minutę (~3000 wywołań ceny/min)
-- Ceny bieżące: `/ticker/price?symbol=BTCUSDT` (batch via `?symbols=[...]`)
-- Ceny historyczne: `/klines?symbol=...&interval=1d` (close = index [4]); wieloletnia historia
-- Lista assetów: `/exchangeInfo` → przefiltrowana do statycznej listy (`src/lib/asset-list.ts`); wyszukiwanie lokalne, bez wywołań sieciowych
-- Identyfikator assetu: ticker (BTC, USDT); symbol Binance = `${id}USDT`; stablecoiny (USDT/USDC) wyceniane na $1
-- Docs: https://developers.binance.com/docs/binance-spot-api-docs
+- Hosty: `https://api.coinbase.com/v2` (ceny bieżące + historyczne po dacie), `https://api.exchange.coinbase.com` (świece/candles)
+- Klucz API: nie wymagany. **User-Agent**: wysyłany przy każdym żądaniu (workerd nie ustawia domyślnego; host candles bywa go wymaga).
+- Limity: ~10 000 żądań/h per-IP (retail v2), ~10 żądań/s per-IP (exchange)
+- Ceny bieżące: `/v2/prices/{SYM}-USD/spot` → `data.amount`. **Brak batcha** → równoległe wywołania per-symbol.
+- Ceny historyczne (data): `/v2/prices/{SYM}-USD/spot?date=YYYY-MM-DD` — okno tylko ~2 lata; dla starszych dat 404, więc fallback na pojedynczą świecę dzienną.
+- Seria historyczna: `/products/{SYM}-USD/candles?granularity=86400` — wiersz `[time(s), low, high, open, close, volume]`, close = index [4], czas w **sekundach**, kolejność od najnowszych; limit ~300 świec/żądanie → dzielenie okna na fragmenty ≤300 dni.
+- Lista assetów: `/products` (filtr `quote_currency=USD`, `status=online`) → statyczna lista (`src/lib/asset-list.ts`); wyszukiwanie lokalne, bez wywołań sieciowych.
+- Identyfikator assetu: ticker (BTC, USDT); symbol Coinbase = `${id}-USD`; stablecoiny (USDT/USDC) wyceniane na $1.
+- **WAŻNE**: Coinbase jest zablokowane w sieci deweloperskiej (firewall), ale osiągalne z Workera — odwrotnie niż Binance. Ceny weryfikuj z wdrożonego Workera, nigdy z localhost.
+- Docs: https://docs.cdp.coinbase.com/
+
+**Historia: Binance** (wybrane 2026-06-27, zastąpione 2026-06-29)
+
+- Host: `https://data-api.binance.vision/api/v3`, bez klucza
+- Powód odejścia: HTTP 403 dla egress IP Workerów (blokada datacenter/region) — ta sama klasa cichej awarii co CoinPaprika
 
 **Historia: CoinPaprika** (wybrane 2026-06-12, zastąpione 2026-06-27)
 
@@ -43,6 +50,7 @@ Solo-built crypto portfolio tracker (VaultView) with Google OAuth auth on a 5-we
 
 **Odrzucone alternatywy:**
 
-- CoinGecko — `api.coingecko.com` zablokowane w sieci deweloperskiej; najlepsze docs i community, ale niedostępne
-- Yahoo Finance — nieoficjalne endpointy (`query1.finance.yahoo.com`), brak gwarancji stabilności; zachowane jako potencjalny fallback
+- CoinGecko — `api.coingecko.com` zwraca 403 bez nagłówka User-Agent + rate-limit na współdzielonym IP; najlepsze docs, ale ryzykowne
+- Kraken — osiągalne z Workera, ale słabe pokrycie głębokiej historii (zły fit dla starych depozytów i wykresu)
+- Yahoo Finance — nieoficjalne endpointy (`query1.finance.yahoo.com`), brak gwarancji stabilności
 - CryptoCompare, CoinMarketCap — wymagają klucza API

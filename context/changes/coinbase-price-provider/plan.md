@@ -368,25 +368,25 @@ fetch prices from this network — accepted; verify on the deployed Worker.
 
 #### Automated
 
-- [x] 2.1 Unit tests pass: `npx vitest run src/lib/prices.test.ts`
-- [x] 2.2 Consumers green: `npx vitest run src/lib/portfolio-history-service.test.ts src/lib/portfolio-history.test.ts`
-- [x] 2.3 Lint + build: `npm run lint && npm run build`
+- [x] 2.1 Unit tests pass: `npx vitest run src/lib/prices.test.ts` — 5e8cf26
+- [x] 2.2 Consumers green: `npx vitest run src/lib/portfolio-history-service.test.ts src/lib/portfolio-history.test.ts` — 5e8cf26
+- [x] 2.3 Lint + build: `npm run lint && npm run build` — 5e8cf26
 
 #### Manual
 
-- [x] 2.4 History chart renders a continuous ~1-year series on prod (no $0 cliff)
-- [x] 2.5 Shorter ranges slice correctly from the returned series
+- [x] 2.4 History chart renders a continuous ~1-year series on prod (no $0 cliff) — 5e8cf26
+- [x] 2.5 Shorter ranges slice correctly from the returned series — 5e8cf26
 
 ### Phase 3: Asset-list regeneration (Coinbase products) + docs
 
 #### Automated
 
-- [ ] 3.1 Asset-list tests pass: `npx vitest run src/lib/asset-list.test.ts`
-- [ ] 3.2 Full suite green: `npx vitest run`
-- [ ] 3.3 Lint + build: `npm run lint && npm run build`
-- [ ] 3.4 Temporary endpoint removed: `test ! -f src/pages/api/diag-assets.ts`
+- [x] 3.1 Asset-list tests pass: `npx vitest run src/lib/asset-list.test.ts`
+- [x] 3.2 Full suite green: `npx vitest run`
+- [x] 3.3 Lint + build: `npm run lint && npm run build`
+- [x] 3.4 Temporary endpoint removed: `test ! -f src/pages/api/diag-assets.ts`
 
 #### Manual
 
-- [ ] 3.5 Autocomplete shows expected (priceable) assets on prod
-- [ ] 3.6 Final smoke test: form current + historical, portfolio view, history chart all populate on prod
+- [x] 3.5 Autocomplete shows expected (priceable) assets on prod
+- [x] 3.6 Final smoke test: form current + historical, portfolio view, history chart all populate on prod
