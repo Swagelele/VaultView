@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
-// The Binance price boundary must degrade to null/[] on every failure mode (rate-limit, network
-// error, malformed body, invalid-symbol -1121) — never throw, never fabricate, never emit NaN.
+// The Coinbase price boundary must degrade to null/[] on every failure mode (rate-limit, network
+// error, malformed body, unknown product) — never throw, never fabricate, never emit NaN.
 // We stub the module's only external dependency, global `fetch`, so the real parsing/degradation
 // logic runs. The price caches are module-global, so we reset modules + re-import per test.
 
@@ -55,15 +55,15 @@ describe("prices boundary — getCurrentPrice degradation", () => {
     expect(Number.isNaN(price as unknown as number)).toBe(false);
   });
 
-  it("returns null on a -1121 invalid-symbol error body (HTTP 200)", async () => {
-    stubFetch(() => okJson({ code: -1121, msg: "Invalid symbol." }));
+  it("returns null on an unknown product (non-200)", async () => {
+    stubFetch(() => httpError(404));
     const { getCurrentPrice } = await import("./prices");
 
     expect(await getCurrentPrice("NOPE")).toBeNull();
   });
 
-  it("parses the string price on a well-formed 200", async () => {
-    stubFetch(() => okJson({ symbol: "BTCUSDT", price: "64000.00" }));
+  it("parses the string amount on a well-formed 200", async () => {
+    stubFetch(() => okJson({ data: { amount: "64000.00" } }));
     const { getCurrentPrice } = await import("./prices");
 
     expect(await getCurrentPrice("BTC")).toBe(64000);
@@ -89,15 +89,15 @@ describe("prices boundary — search & historical degradation", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it("getHistoricalPrice returns null on an empty klines array", async () => {
-    stubFetch(() => okJson([]));
+  it("getHistoricalPrice returns null on a miss (absent data.amount)", async () => {
+    stubFetch(() => okJson({}));
     const { getHistoricalPrice } = await import("./prices");
 
     expect(await getHistoricalPrice("BTC", "2026-01-01")).toBeNull();
   });
 
-  it("getHistoricalPrice returns the close [4] for a one-candle window", async () => {
-    stubFetch(() => okJson([kline("2026-01-01T00:00:00Z", 42000)]));
+  it("getHistoricalPrice returns the amount from the dated spot response", async () => {
+    stubFetch(() => okJson({ data: { amount: "42000" } }));
     const { getHistoricalPrice } = await import("./prices");
 
     expect(await getHistoricalPrice("BTC", "2026-01-01")).toBe(42000);
@@ -175,7 +175,7 @@ describe("prices boundary — getMultiplePrices", () => {
     const { getCurrentPrice, getMultiplePrices, CURRENT_PRICE_TTL_MS } = await import("./prices");
 
     // 1) prime the cache with a successful fetch
-    fetchMock.mockResolvedValueOnce(okJson({ symbol: "BTCUSDT", price: "60000" }));
+    fetchMock.mockResolvedValueOnce(okJson({ data: { amount: "60000" } }));
     expect(await getCurrentPrice("BTC")).toBe(60000);
 
     // 2) advance past the current-price TTL so the cached entry is stale
@@ -207,13 +207,12 @@ describe("prices boundary — getMultiplePrices", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it("batch-prices multiple symbols from the symbols=[...] response", async () => {
-    stubFetch(() =>
-      okJson([
-        { symbol: "BTCUSDT", price: "60000" },
-        { symbol: "ETHUSDT", price: "1500" },
-      ]),
-    );
+  it("prices multiple symbols via parallel per-symbol /spot calls", async () => {
+    stubFetch((url) => {
+      if (url.includes("BTC-USD")) return okJson({ data: { amount: "60000" } });
+      if (url.includes("ETH-USD")) return okJson({ data: { amount: "1500" } });
+      return httpError(404);
+    });
     const { getMultiplePrices } = await import("./prices");
 
     const result = await getMultiplePrices(["BTC", "ETH"]);

@@ -2,11 +2,17 @@ import type { CoinSearchResult, PriceLookupResult } from "@/types";
 import { searchAssetList } from "@/lib/asset-list";
 import { isUsdStablecoin } from "@/lib/schemas";
 
-// Binance public market-data host. Read-only, no API key, per-minute weight budget (resilient to
-// shared-IP contention, unlike a monthly cap). `api.binance.com` is firewall-blocked in some
-// networks; this `.vision` data host is not. Canonical asset ids are uppercase tickers (BTC),
-// mapped to a Binance spot symbol as `${id}USDT`.
-const BASE_URL = "https://data-api.binance.vision/api/v3";
+// Coinbase retail price host. Read-only, no API key, generous per-second/per-hour limits (resilient
+// to shared-IP contention, unlike CoinPaprika's monthly cap or Binance's datacenter-IP 403). NOTE:
+// Coinbase is firewall-blocked from some dev networks but reachable from the Cloudflare Worker —
+// the inverse of Binance — so price reachability is only verifiable from the deployed Worker, never
+// localhost. Canonical asset ids are uppercase tickers (BTC), mapped to a Coinbase USD product as
+// `${id}-USD`. The candle series (getHistoricalPriceSeries) uses a different host — see there.
+const BASE_URL = "https://api.coinbase.com/v2";
+
+// Sent on every request: workerd's fetch sends no User-Agent by default, and Coinbase's candle host
+// intermittently rejects UA-less requests with 400. Harmless on the retail host.
+const USER_AGENT = "VaultView/1.0";
 
 // Abort a hung upstream socket rather than hanging the request (closes a documented boundary gap).
 const FETCH_TIMEOUT_MS = 8_000;
@@ -18,7 +24,7 @@ export const CURRENT_PRICE_TTL_MS = 120_000;
 // than showing a market 1.001 in one view and 1.00 in another. `isUsdStablecoin` (schemas.ts) is the
 // single source of truth for which assets are USD-pegged — do not duplicate the list here.
 function toSymbol(id: string): string {
-  return `${id.toUpperCase()}USDT`;
+  return `${id.toUpperCase()}-USD`;
 }
 
 /** Coerce Binance's string prices to a finite number, or null. Guards against NaN/Infinity. */
@@ -39,17 +45,25 @@ function isFresh(entry: CacheEntry): boolean {
   return Date.now() - entry.fetchedAt < CURRENT_PRICE_TTL_MS;
 }
 
-/** Fetch + parse JSON, degrading every failure (non-200, network throw, timeout) to null. */
+/** Fetch + parse JSON, degrading every failure (non-200, network throw, timeout) to null. Logs the
+ *  failure first: a silent degrade-to-null is exactly why the CoinPaprika 402 and Binance 403 IP
+ *  blocks were invisible — a `wrangler tail` line makes the next provider outage diagnosable. */
 async function safeFetch<T>(url: string): Promise<T | null> {
   const controller = new AbortController();
   const timer = setTimeout(() => {
     controller.abort();
   }, FETCH_TIMEOUT_MS);
   try {
-    const res = await fetch(url, { signal: controller.signal });
-    if (!res.ok) return null;
+    const res = await fetch(url, { headers: { "User-Agent": USER_AGENT }, signal: controller.signal });
+    if (!res.ok) {
+      // eslint-disable-next-line no-console -- deliberate boundary observability (see fn doc)
+      console.warn(`[prices] upstream ${res.status} for ${url}`);
+      return null;
+    }
     return (await res.json()) as T;
-  } catch {
+  } catch (err) {
+    // eslint-disable-next-line no-console -- deliberate boundary observability (see fn doc)
+    console.warn(`[prices] fetch failed for ${url}: ${String(err)}`);
     return null;
   } finally {
     clearTimeout(timer);
@@ -68,43 +82,26 @@ export async function getCurrentPrice(coinId: string): Promise<number | null> {
   const cached = currentPriceCache.get(coinId);
   if (cached && isFresh(cached)) return cached.price;
 
-  interface TickerResponse {
-    symbol?: string;
-    price?: string;
+  interface SpotResponse {
+    data?: { amount?: string };
   }
 
-  const data = await safeFetch<TickerResponse>(
-    `${BASE_URL}/ticker/price?symbol=${encodeURIComponent(toSymbol(coinId))}`,
-  );
-  // An invalid symbol returns `{code:-1121,msg}` (HTTP 200) — `price` is absent → null.
-  const price = data?.price !== undefined ? parsePrice(data.price) : null;
+  const data = await safeFetch<SpotResponse>(`${BASE_URL}/prices/${encodeURIComponent(toSymbol(coinId))}/spot`);
+  // An unknown product returns a non-200 (degraded to null by safeFetch) — `data.amount` absent → null.
+  const price = data?.data?.amount !== undefined ? parsePrice(data.data.amount) : null;
   if (price !== null) {
     currentPriceCache.set(coinId, { price, fetchedAt: Date.now() });
   }
   return price;
 }
 
-/** Batch-fetch the given ids' USD prices. Falls back to per-symbol fetches if the batch fails so a
- *  single bad/delisted ticker can't blank every price (Binance fails the whole batch on one bad symbol). */
+/** Fetch the given ids' USD prices, one Coinbase `/spot` call per symbol, concurrently. Coinbase
+ *  has no batch price endpoint; per-symbol isolation means one unknown/delisted ticker can't blank
+ *  the rest. A failed symbol is simply omitted from the result. */
 async function fetchPrices(ids: string[]): Promise<Record<string, number>> {
   const out: Record<string, number> = {};
   if (ids.length === 0) return out;
 
-  const symbolToId = new Map(ids.map((id) => [toSymbol(id), id]));
-  const symbolsParam = JSON.stringify([...symbolToId.keys()]);
-  const data = await safeFetch<unknown>(`${BASE_URL}/ticker/price?symbols=${encodeURIComponent(symbolsParam)}`);
-
-  if (Array.isArray(data)) {
-    for (const entry of data) {
-      const ticker = entry as { symbol?: string; price?: unknown };
-      const id = ticker.symbol ? symbolToId.get(ticker.symbol) : undefined;
-      const price = parsePrice(ticker.price);
-      if (id !== undefined && price !== null) out[id] = price;
-    }
-    return out;
-  }
-
-  // Batch failed (network error, or one invalid symbol → whole-batch -1121). Isolate per symbol.
   const results = await Promise.all(ids.map((id) => getCurrentPrice(id).then((p) => [id, p] as const)));
   for (const [id, price] of results) {
     if (price !== null) out[id] = price;
@@ -172,18 +169,15 @@ export async function getHistoricalPrice(coinId: string, date: string): Promise<
   const cached = historicalPriceCache.get(cacheKey);
   if (cached !== undefined) return cached;
 
-  const startTime = Date.parse(`${day}T00:00:00Z`);
-  if (!Number.isFinite(startTime)) return null;
-  const endTime = startTime + 86_399_999;
+  interface SpotResponse {
+    data?: { amount?: string };
+  }
 
-  // One daily candle for the target day; close is index [4].
-  const data = await safeFetch<unknown[]>(
-    `${BASE_URL}/klines?symbol=${encodeURIComponent(toSymbol(coinId))}&interval=1d&startTime=${startTime}&endTime=${endTime}&limit=1`,
+  // Coinbase spot price as of the given calendar day (UTC).
+  const data = await safeFetch<SpotResponse>(
+    `${BASE_URL}/prices/${encodeURIComponent(toSymbol(coinId))}/spot?date=${day}`,
   );
-  if (!Array.isArray(data) || data.length === 0) return null;
-
-  const row = data[0];
-  const price = Array.isArray(row) ? parsePrice(row[4]) : null;
+  const price = data?.data?.amount !== undefined ? parsePrice(data.data.amount) : null;
   if (price !== null) {
     historicalPriceCache.set(cacheKey, price);
   }
