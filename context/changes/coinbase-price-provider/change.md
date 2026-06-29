@@ -1,7 +1,7 @@
 ---
 change_id: coinbase-price-provider
 title: "Swap price provider Binance → Coinbase (Worker egress IP-blocked by Binance)"
-status: implementing
+status: implemented
 created: 2026-06-29
 updated: 2026-06-29
 ---

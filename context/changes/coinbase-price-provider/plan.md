@@ -381,12 +381,12 @@ fetch prices from this network — accepted; verify on the deployed Worker.
 
 #### Automated
 
-- [x] 3.1 Asset-list tests pass: `npx vitest run src/lib/asset-list.test.ts`
-- [x] 3.2 Full suite green: `npx vitest run`
-- [x] 3.3 Lint + build: `npm run lint && npm run build`
-- [x] 3.4 Temporary endpoint removed: `test ! -f src/pages/api/diag-assets.ts`
+- [x] 3.1 Asset-list tests pass: `npx vitest run src/lib/asset-list.test.ts` — 8dc0d28
+- [x] 3.2 Full suite green: `npx vitest run` — 8dc0d28
+- [x] 3.3 Lint + build: `npm run lint && npm run build` — 8dc0d28
+- [x] 3.4 Temporary endpoint removed: `test ! -f src/pages/api/diag-assets.ts` — 8dc0d28
 
 #### Manual
 
-- [x] 3.5 Autocomplete shows expected (priceable) assets on prod
-- [x] 3.6 Final smoke test: form current + historical, portfolio view, history chart all populate on prod
+- [x] 3.5 Autocomplete shows expected (priceable) assets on prod — 8dc0d28
+- [x] 3.6 Final smoke test: form current + historical, portfolio view, history chart all populate on prod — 8dc0d28

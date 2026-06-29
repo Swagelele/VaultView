@@ -3,7 +3,7 @@ project: "VaultView"
 version: 2
 status: draft
 created: 2026-06-12
-updated: 2026-06-27
+updated: 2026-06-29
 prd_version: 2
 main_goal: speed
 top_blocker: time
@@ -63,7 +63,7 @@ Foundations poniżej zakładają że te warstwy są obecne i NIE budują ich od 
 - **Auth:** present — email/password auth w pełni zaimplementowane (signin/signup/signout API routes, cookie-based sessions via @supabase/ssr, middleware z protected routes, strony UI). FR-001 i FR-002 spełnione.
 - **Deploy / infra:** partial — Cloudflare adapter + wrangler deploy + GitHub Actions CI; wystarczające dla MVP
 - **Observability:** absent — brak logowania, error tracking, metryk; PRD nie wymaga tego w MVP
-- **API cenowe:** decided — **Binance public market-data** (`data-api.binance.vision`, bez klucza, budżet per-minuta). Zastąpiło CoinPaprika 2026-06-27 po tym, jak free tier per-IP/miesiąc był trwale przekroczony ze współdzielonego IP Cloudflare Workers (HTTP 402). Zob. `context/changes/binance-price-provider/`.
+- **API cenowe:** decided — **Coinbase public API** (`api.coinbase.com/v2` + `api.exchange.coinbase.com`, bez klucza). Zastąpiło Binance 2026-06-29 po tym, jak Binance zaczęło zwracać HTTP 403 dla egress IP Cloudflare Workers (wszystkie hosty). Zob. `context/changes/coinbase-price-provider/`. Wcześniej Binance zastąpiło CoinPaprika 2026-06-27 (free tier per-IP/miesiąc przekroczony → 402).
 
 ## Foundations
 
