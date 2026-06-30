@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { sliceRange, buildLinePath, CHART_RANGES } from "./portfolio-history-chart";
+import { sliceRange, buildLinePath, formatChartDate, CHART_RANGES } from "./portfolio-history-chart";
 import type { PortfolioHistoryPoint } from "@/types";
 
 function point(date: string, value: number): PortfolioHistoryPoint {
@@ -53,8 +53,8 @@ describe("sliceRange", () => {
 
 describe("buildLinePath", () => {
   it("returns empty paths for <2 points (cannot draw a line)", () => {
-    expect(buildLinePath([], 100, 100)).toEqual({ path: "", areaPath: "", min: 0, max: 0 });
-    expect(buildLinePath([42], 100, 100)).toEqual({ path: "", areaPath: "", min: 42, max: 42 });
+    expect(buildLinePath([], 100, 100)).toEqual({ path: "", areaPath: "", min: 0, max: 0, points: [] });
+    expect(buildLinePath([42], 100, 100)).toEqual({ path: "", areaPath: "", min: 42, max: 42, points: [] });
   });
 
   it("maps max to the top (y=0) and min to the bottom (y=height)", () => {
@@ -105,6 +105,18 @@ describe("buildLinePath", () => {
     expect(path).toBe("M 0 100 L 100 0");
   });
 
+  it("returns one vertex per value, on the curve, for the hover crosshair", () => {
+    expect(buildLinePath([0, 10], 100, 100).points).toEqual([
+      { x: 0, y: 100 },
+      { x: 100, y: 0 },
+    ]);
+    expect(buildLinePath([0, 5, 10], 100, 100).points).toEqual([
+      { x: 0, y: 100 },
+      { x: 50, y: 50 },
+      { x: 100, y: 0 },
+    ]);
+  });
+
   it("does not overshoot the box on a sharp peak (monotone cubic, no clipping)", () => {
     // A spike (0 → 100 → 0) is where a naive Catmull-Rom spline bulges past the top edge. With a
     // box of 100×100 every coordinate the curve emits must stay within [0, 100].
@@ -116,5 +128,18 @@ describe("buildLinePath", () => {
       expect(c).toBeLessThanOrEqual(100.01);
     }
     expect(areaPath).not.toContain("NaN");
+  });
+});
+
+describe("formatChartDate", () => {
+  it("renders YYYY-MM-DD as a friendly Mon D, YYYY", () => {
+    expect(formatChartDate("2026-06-30")).toBe("Jun 30, 2026");
+    expect(formatChartDate("2026-01-01")).toBe("Jan 1, 2026");
+    expect(formatChartDate("2025-12-09")).toBe("Dec 9, 2025");
+  });
+
+  it("does not shift the day (parses parts explicitly, not as UTC midnight)", () => {
+    // A bare `new Date("2026-03-01")` is UTC midnight and renders Feb 28 in negative-offset zones.
+    expect(formatChartDate("2026-03-01")).toBe("Mar 1, 2026");
   });
 });

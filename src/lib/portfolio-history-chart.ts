@@ -26,6 +26,12 @@ export interface LinePath {
   /** Min/max of the input values — the y-axis labels. */
   min: number;
   max: number;
+  /**
+   * The per-point vertices in viewBox space — one `{x, y}` per input value, in order. Lets a hover
+   * crosshair land a dot exactly on a curve vertex without recomputing the x/y mapping. Empty for
+   * <2 points (no line is drawn). Rounded like the path strings for determinism.
+   */
+  points: { x: number; y: number }[];
 }
 
 // Round to 2 decimals so path strings stay compact and deterministic (stable across test runs).
@@ -90,7 +96,7 @@ function monotoneTangents(pts: { x: number; y: number }[]): number[] {
 export function buildLinePath(values: number[], width: number, height: number, padding = 0): LinePath {
   if (values.length <= 1) {
     const only = values[0] ?? 0;
-    return { path: "", areaPath: "", min: only, max: only };
+    return { path: "", areaPath: "", min: only, max: only, points: [] };
   }
 
   const min = Math.min(...values);
@@ -129,5 +135,20 @@ export function buildLinePath(values: number[], width: number, height: number, p
   const baselineY = span === 0 ? height : clamp(yOf(0), 0, height);
   const areaPath = `${path} L ${r(pts[n - 1].x)} ${r(baselineY)} L ${r(pts[0].x)} ${r(baselineY)} Z`;
 
-  return { path, areaPath, min, max };
+  // Rounded vertices for the hover crosshair — same precision as the path coordinates.
+  const points = pts.map((p) => ({ x: r(p.x), y: r(p.y) }));
+
+  return { path, areaPath, min, max, points };
+}
+
+const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+/**
+ * Render a `YYYY-MM-DD` series date as a friendly `Mon D, YYYY` (e.g. `Jun 30, 2026`) for the hover
+ * tooltip. Parses the numeric parts explicitly — passing the bare ISO string to `new Date()` would
+ * read it as UTC midnight and render the previous day in negative-offset locales.
+ */
+export function formatChartDate(iso: string): string {
+  const [year, month, day] = iso.split("-").map(Number);
+  return `${MONTH_NAMES[month - 1]} ${day}, ${year}`;
 }
