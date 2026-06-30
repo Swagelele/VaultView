@@ -1,8 +1,9 @@
 import { z } from "zod";
 
-// Canonical asset ids are uppercase Binance tickers. Components compare against this constant
-// directly (e.g. `USD_STABLECOINS.includes(rawId)`), so it must hold the uppercase ids; the
-// adapter's price-peg set (`prices.ts` USD_PEGGED) mirrors this.
+// Canonical asset ids are uppercase Coinbase tickers. Components compare against this constant
+// directly (e.g. `USD_STABLECOINS.includes(rawId)`), so it must hold the uppercase ids. This is the
+// single source of truth for USD-pegged assets — the price adapter (`prices.ts`) imports
+// `isUsdStablecoin` rather than keeping its own list.
 export const USD_STABLECOINS = ["USDT", "USDC"];
 
 export function isUsdStablecoin(coinId: string): boolean {

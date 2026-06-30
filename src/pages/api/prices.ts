@@ -12,13 +12,20 @@ export const GET: APIRoute = async (context) => {
   const idsParam = context.url.searchParams.get("ids") ?? "";
   const date = context.url.searchParams.get("date");
 
+  // Sanitize ids to a plausible ticker charset (defense in depth — they flow into the upstream
+  // price URL; the adapter already encodes + degrades unknowns to null). Not allowlisted against the
+  // static asset list so a held-but-delisted asset can still be priced.
   const coinIds = idsParam
     .split(",")
     .map((id) => id.trim())
-    .filter(Boolean);
+    .filter((id) => /^[A-Za-z0-9]{1,15}$/.test(id));
 
   if (coinIds.length === 0) {
-    return errorResponse("Missing ids parameter", 400);
+    return errorResponse("Missing or invalid ids parameter", 400);
+  }
+
+  if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return errorResponse("Invalid date format (expected YYYY-MM-DD)", 400);
   }
 
   if (date) {

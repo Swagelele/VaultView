@@ -27,7 +27,7 @@ function toSymbol(id: string): string {
   return `${id.toUpperCase()}-USD`;
 }
 
-/** Coerce Binance's string prices to a finite number, or null. Guards against NaN/Infinity. */
+/** Coerce Coinbase's string prices to a finite number, or null. Guards against NaN/Infinity. */
 function parsePrice(raw: unknown): number | null {
   const n = typeof raw === "string" ? Number(raw) : typeof raw === "number" ? raw : NaN;
   return Number.isFinite(n) ? n : null;
@@ -97,7 +97,12 @@ export async function getCurrentPrice(coinId: string): Promise<number | null> {
 
 /** Fetch the given ids' USD prices, one Coinbase `/spot` call per symbol, concurrently. Coinbase
  *  has no batch price endpoint; per-symbol isolation means one unknown/delisted ticker can't blank
- *  the rest. A failed symbol is simply omitted from the result. */
+ *  the rest. A failed symbol is simply omitted from the result.
+ *
+ *  NOTE: the fan-out is unbounded (no concurrency pool) — accepted for VaultView's single-user,
+ *  small-portfolio scale (PRD §User). The 120s current-price cache and stablecoin short-circuit cap
+ *  real request volume well under Coinbase's ~10 req/s; if portfolios grow large enough to brush
+ *  that (or workerd subrequest limits), bound this with a small pool. */
 async function fetchPrices(ids: string[]): Promise<Record<string, number>> {
   const out: Record<string, number> = {};
   if (ids.length === 0) return out;
@@ -177,7 +182,10 @@ function parseCandleRow(row: unknown): [string, number] | null {
   return [new Date(timeSec * 1000).toISOString().slice(0, 10), close];
 }
 
-/** Fetch a single day's close from the candle host — the deep-history fallback for `spot?date`. */
+/** Fetch a single day's close from the candle host — the deep-history fallback for `spot?date`.
+ *  Uses a full-day [00:00:00, 23:59:59] window to capture exactly one daily bucket. (The series
+ *  fetch below instead uses midnight start/end across ≤300-day chunks — keep the two boundary styles
+ *  separate; don't naively merge them into one helper.) */
 async function fetchDailyCandleClose(coinId: string, day: string): Promise<number | null> {
   const data = await safeFetch<unknown[]>(
     `${EXCHANGE_URL}/products/${encodeURIComponent(toSymbol(coinId))}/candles?granularity=86400&start=${day}T00:00:00Z&end=${day}T23:59:59Z`,
