@@ -240,14 +240,14 @@ resolution (≤366 points).
 
 #### Automated
 
-- [x] 2.1 Lint passes: `npm run lint`
-- [x] 2.2 Build (type check) passes: `npm run build`
-- [x] 2.3 Existing tests still pass: `npx vitest run`
+- [x] 2.1 Lint passes: `npm run lint` — 7caba1e
+- [x] 2.2 Build (type check) passes: `npm run build` — 7caba1e
+- [x] 2.3 Existing tests still pass: `npx vitest run` — 7caba1e
 
 #### Manual
 
-- [ ] 2.4 Hover shows guide + dot snapped to nearest day with correct value/date tooltip below
-- [ ] 2.5 Tooltip reflects active metric and updates on metric/range change
-- [ ] 2.6 Tooltip does not clip at far-left/far-right edges
-- [ ] 2.7 Moving mouse off the chart hides guide, dot, and tooltip
-- [ ] 2.8 No crosshair/tooltip on the "Not enough history" empty state
+- [x] 2.4 Hover shows guide + dot snapped to nearest day with correct value/date tooltip below — verified on prod (version 2fac859a); tooltip read e.g. "Oct 26, 2025 · $11,454.81"
+- [x] 2.5 Tooltip reflects active metric and updates on metric/range change — verified on prod
+- [x] 2.6 Tooltip does not clip at far-left/far-right edges — verified on prod
+- [x] 2.7 Moving mouse off the chart hides guide, dot, and tooltip — verified on prod
+- [x] 2.8 No crosshair/tooltip on the "Not enough history" empty state — verified on prod

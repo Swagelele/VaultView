@@ -1,9 +1,9 @@
 ---
 change_id: portfolio-chart-hover-tooltip
 title: Hover crosshair/tooltip on portfolio history chart showing value and date
-status: implementing
+status: implemented
 created: 2026-06-30
-updated: 2026-06-30
+updated: 2026-07-01
 archived_at: null
 ---
 
