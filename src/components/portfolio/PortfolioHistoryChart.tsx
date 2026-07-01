@@ -2,7 +2,13 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { formatUsd } from "@/lib/format";
-import { sliceRange, buildLinePath, CHART_RANGES, type ChartRange } from "@/lib/portfolio-history-chart";
+import {
+  sliceRange,
+  buildLinePath,
+  formatChartDate,
+  CHART_RANGES,
+  type ChartRange,
+} from "@/lib/portfolio-history-chart";
 import type { PortfolioHistoryPoint } from "@/types";
 
 // Fixed SVG coordinate space; the element stretches to the container width (preserveAspectRatio none).
@@ -29,6 +35,8 @@ interface PortfolioHistoryChartProps {
 export function PortfolioHistoryChart({ history, liveToday, excludedPriceDays }: PortfolioHistoryChartProps) {
   const [metric, setMetric] = useState<Metric>("value");
   const [range, setRange] = useState<ChartRange>("365d");
+  // Index of the daily point the cursor is nearest, or null when not hovering. Drives the crosshair.
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   // Override the final point with the live totals (kept pure — produces a new array, no mutation).
   const points =
@@ -42,7 +50,17 @@ export function PortfolioHistoryChart({ history, liveToday, excludedPriceDays }:
 
   const sliced = sliceRange(points, range);
   const values = sliced.map((p) => (metric === "value" ? p.value_usd : p.total_pnl_usd));
-  const { path, areaPath, min, max } = buildLinePath(values, VIEW_W, VIEW_H, VIEW_PAD);
+  const { path, areaPath, min, max, points: vertices } = buildLinePath(values, VIEW_W, VIEW_H, VIEW_PAD);
+
+  // The hovered vertex (guarded against a stale index after the range shrinks the series).
+  const hoveredVertex = hoveredIndex !== null && hoveredIndex < vertices.length ? vertices[hoveredIndex] : undefined;
+
+  const handleHoverMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const fx = (e.clientX - rect.left) / rect.width;
+    const i = Math.round(fx * (sliced.length - 1));
+    setHoveredIndex(Math.min(sliced.length - 1, Math.max(0, i)));
+  };
 
   // P&L line is tinted by the sign of its latest point; value line is a steady accent.
   const latest = values[values.length - 1] ?? 0;
@@ -81,6 +99,7 @@ export function PortfolioHistoryChart({ history, liveToday, excludedPriceDays }:
             type="button"
             onClick={() => {
               setRange(r);
+              setHoveredIndex(null);
             }}
             className={cn(
               "rounded px-2 py-1 text-xs font-medium tabular-nums transition-colors",
@@ -107,7 +126,13 @@ export function PortfolioHistoryChart({ history, liveToday, excludedPriceDays }:
             <div>
               {/* Value labels are absolutely positioned over the SVG only; the date row is a sibling
                   below so the min-value label never collides with the start-date label. */}
-              <div className="relative">
+              <div
+                className="relative"
+                onMouseMove={handleHoverMove}
+                onMouseLeave={() => {
+                  setHoveredIndex(null);
+                }}
+              >
                 <div className="text-muted-foreground absolute top-0 left-0 rounded bg-black/40 px-1 text-[10px] tabular-nums">
                   {formatUsd(max)}
                 </div>
@@ -131,6 +156,39 @@ export function PortfolioHistoryChart({ history, liveToday, excludedPriceDays }:
                     strokeLinejoin="round"
                   />
                 </svg>
+
+                {hoveredVertex &&
+                  hoveredIndex !== null &&
+                  (() => {
+                    // Percentages map the viewBox vertex into the wrapper, which the SVG fills exactly.
+                    const xPct = (hoveredVertex.x / VIEW_W) * 100;
+                    const yPct = (hoveredVertex.y / VIEW_H) * 100;
+                    // Three-zone horizontal anchor so the tooltip never clips at the chart's edges.
+                    const anchorX = xPct < 15 ? "0%" : xPct > 85 ? "-100%" : "-50%";
+                    return (
+                      <>
+                        {/* Vertical guide line at the hovered day. */}
+                        <div
+                          className="bg-muted-foreground/30 pointer-events-none absolute top-0 bottom-0 w-px"
+                          style={{ left: `${xPct}%` }}
+                        />
+                        {/* Dot pinned to the curve vertex. */}
+                        <div
+                          className="pointer-events-none absolute size-2 -translate-x-1/2 -translate-y-1/2 rounded-full ring-2 ring-black/40"
+                          style={{ left: `${xPct}%`, top: `${yPct}%`, backgroundColor: lineColor }}
+                        />
+                        {/* Tooltip below the point: friendly date + active-metric value. */}
+                        <div
+                          className="pointer-events-none absolute rounded bg-black/70 px-1.5 py-0.5 text-[10px] whitespace-nowrap tabular-nums"
+                          style={{ left: `${xPct}%`, top: `calc(${yPct}% + 8px)`, transform: `translateX(${anchorX})` }}
+                        >
+                          <span className="text-muted-foreground">{formatChartDate(sliced[hoveredIndex].date)}</span>
+                          <span className="mx-1 text-white/30">·</span>
+                          <span className="font-medium text-white">{formatUsd(values[hoveredIndex])}</span>
+                        </div>
+                      </>
+                    );
+                  })()}
               </div>
               <div className="text-muted-foreground mt-1 flex justify-between text-[10px] tabular-nums">
                 <span>{sliced[0].date}</span>

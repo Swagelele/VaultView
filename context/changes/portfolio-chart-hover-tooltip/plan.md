@@ -232,17 +232,17 @@ resolution (≤366 points).
 
 #### Automated
 
-- [x] 1.1 Lint passes: `npm run lint`
-- [x] 1.2 Type checking passes (build): `npm run build`
-- [x] 1.3 Unit tests pass: `npx vitest run src/lib/portfolio-history-chart.test.ts`
+- [x] 1.1 Lint passes: `npm run lint` — e904c1a
+- [x] 1.2 Type checking passes (build): `npm run build` — e904c1a
+- [x] 1.3 Unit tests pass: `npx vitest run src/lib/portfolio-history-chart.test.ts` — e904c1a
 
 ### Phase 2: Hover crosshair + tooltip UI
 
 #### Automated
 
-- [ ] 2.1 Lint passes: `npm run lint`
-- [ ] 2.2 Build (type check) passes: `npm run build`
-- [ ] 2.3 Existing tests still pass: `npx vitest run`
+- [x] 2.1 Lint passes: `npm run lint`
+- [x] 2.2 Build (type check) passes: `npm run build`
+- [x] 2.3 Existing tests still pass: `npx vitest run`
 
 #### Manual
 
